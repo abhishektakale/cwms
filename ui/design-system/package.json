@@ -1,0 +1,8 @@
+{
+  "name": "cwms-design-tokens",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CWMS Industrial Precision design tokens (CSS)",
+  "main": "tokens.css",
+  "files": ["tokens.css", "DESIGN.md", "color-palette.css"]
+}

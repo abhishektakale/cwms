@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CWMS Pro - Documents</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "secondary-fixed": "#d8e2ff",
+                            "error-container": "#ffdad6",
+                            "on-secondary-fixed": "#001a42",
+                            "on-surface-variant": "#45464d",
+                            "inverse-primary": "#bec6e0",
+                            "surface-container-highest": "#d3e4fe",
+                            "outline-variant": "#c6c6cd",
+                            "on-primary-fixed": "#131b2e",
+                            "surface-container-high": "#dce9ff",
+                            "on-secondary-container": "#fefcff",
+                            "surface-bright": "#f8f9ff",
+                            "surface-dim": "#cbdbf5",
+                            "outline": "#76777d",
+                            "secondary-container": "#2170e4",
+                            "primary": "#000000",
+                            "surface-container": "#e5eeff",
+                            "tertiary-fixed-dim": "#c0c1ff",
+                            "secondary": "#0058be",
+                            "surface-container-lowest": "#ffffff",
+                            "background": "#f8f9ff",
+                            "surface": "#f8f9ff",
+                            "on-primary": "#ffffff",
+                            "surface-tint": "#565e74",
+                            "primary-fixed": "#dae2fd",
+                            "on-primary-fixed-variant": "#3f465c",
+                            "on-tertiary": "#ffffff",
+                            "tertiary": "#000000",
+                            "surface-variant": "#d3e4fe",
+                            "primary-fixed-dim": "#bec6e0",
+                            "error": "#ba1a1a",
+                            "on-secondary": "#ffffff",
+                            "on-error-container": "#93000a",
+                            "tertiary-container": "#07006c",
+                            "on-tertiary-fixed-variant": "#2f2ebe",
+                            "on-error": "#ffffff",
+                            "inverse-on-surface": "#eaf1ff",
+                            "on-primary-container": "#7c839b",
+                            "primary-container": "#131b2e",
+                            "on-background": "#0b1c30",
+                            "on-tertiary-container": "#7073ff",
+                            "inverse-surface": "#213145",
+                            "surface-container-low": "#eff4ff",
+                            "on-surface": "#0b1c30",
+                            "secondary-fixed-dim": "#adc6ff",
+                            "on-tertiary-fixed": "#07006c",
+                            "tertiary-fixed": "#e1e0ff",
+                            "on-secondary-fixed-variant": "#004395"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "xl": "32px",
+                            "sm": "8px",
+                            "margin": "24px",
+                            "xs": "4px",
+                            "lg": "24px",
+                            "container-max": "1440px",
+                            "base": "4px",
+                            "md": "16px",
+                            "gutter": "16px"
+                    },
+                    "fontFamily": {
+                            "display-lg-mobile": ["Geist"],
+                            "display-lg": ["Geist"],
+                            "numeric-data": ["JetBrains Mono"],
+                            "label-caps": ["Geist"],
+                            "body-base": ["Geist"],
+                            "headline-md": ["Geist"],
+                            "body-sm": ["Geist"]
+                    },
+                    "fontSize": {
+                            "display-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                            "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                            "numeric-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                            "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "body-base": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                            "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+                    }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; background-color: #F8FAFC; color: #0b1c30; }
+        .grid-container { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+        .hairline-border { border: 1px solid #E2E8F0; }
+        .hairline-bottom { border-bottom: 1px solid #E2E8F0; }
+        .tonal-shadow-2 { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .data-table th { text-align: left; padding: 12px 16px; font-family: 'Geist', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #45464d; border-bottom: 1px solid #E2E8F0; background-color: #f8f9ff; }
+        .data-table td { padding: 8px 16px; font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 400; color: #0b1c30; border-bottom: 1px solid #E2E8F0; vertical-align: middle; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .mono-val { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500; text-align: right; }
+        
+        /* Custom Scrollbar for compact feel */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c6c6cd; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #76777d; }
+    </style>
+</head>
+<body class="bg-slate-50 antialiased overflow-x-hidden">
+<div class="grid-container">
+<!-- SideNavBar -->
+<nav class="w-60 h-full fixed left-0 top-0 border-r border-outline-variant bg-primary-container dark:bg-primary-container z-50 flex flex-col h-screen py-md px-sm">
+<div class="px-4 mb-8 flex flex-col">
+<span class="font-display-lg text-display-lg text-on-primary font-black tracking-tight">CWMS Pro</span>
+<span class="text-on-primary-fixed-variant text-xs uppercase tracking-widest mt-1">Industrial ERP</span>
+</div>
+<ul class="flex flex-col gap-1 flex-grow overflow-y-auto">
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">assignment</span>
+<span>Work Register</span>
+</a>
+</li>
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+<span>Billing</span>
+</a>
+</li>
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">payments</span>
+<span>Expenditure</span>
+</a>
+</li>
+<!-- Active Tab -->
+<li class="rounded font-body-base text-body-base text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-3 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">description</span>
+<span>Documents</span>
+</a>
+</li>
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">assessment</span>
+<span>Reports</span>
+</a>
+</li>
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">database</span>
+<span>Masters</span>
+</a>
+</li>
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">group</span>
+<span>Users</span>
+</a>
+</li>
+<li class="rounded font-body-base text-body-base text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95">
+<a class="flex items-center gap-3 px-4 py-2 w-full" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">settings_backup_restore</span>
+<span>Backup &amp; Restore</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto px-4 pt-4 border-t border-outline-variant/30 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-tint flex items-center justify-center text-on-primary text-xs font-bold">JD</div>
+<div class="flex flex-col">
+<span class="text-on-primary text-sm font-semibold">J. Doe</span>
+<span class="text-on-primary-fixed-variant text-xs">Admin</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-60 flex flex-col h-screen overflow-hidden bg-slate-50">
+<!-- TopNavBar -->
+<header class="h-16 w-full flex-shrink-0 bg-surface dark:bg-surface-container-low border-b border-outline-variant flex justify-between items-center px-lg sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md text-primary font-bold">Documents</h1>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="text-on-surface-variant text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+<span>Explorer</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Search Component in Header as requested -->
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="pl-9 pr-4 py-1.5 w-64 bg-slate-100 border-none rounded text-sm focus:ring-2 focus:ring-secondary-container/50 focus:bg-white transition-all text-on-surface placeholder:text-outline" placeholder="Search Document No, Title..." type="text"/>
+</div>
+<button class="flex items-center justify-center w-8 h-8 rounded hover:bg-surface-container-low transition-colors text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+</div>
+</header>
+<!-- Page Content Scrollable Area -->
+<div class="flex-grow overflow-auto p-lg flex flex-col gap-md">
+<!-- Action Bar & Filters -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-surface p-md rounded-lg hairline-border">
+<div class="flex flex-wrap gap-4 items-end flex-grow">
+<!-- Filter: Work Code -->
+<div class="flex flex-col gap-1 w-48">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Work Code</label>
+<select class="w-full h-8 text-sm border-outline-variant rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container py-0 pl-2 pr-8 text-on-surface bg-white shadow-sm">
+<option value="">All Work Codes</option>
+<option value="CWMS-2023-0042">CWMS-2023-0042</option>
+<option value="CWMS-2023-0105">CWMS-2023-0105</option>
+<option value="CWMS-2024-0012">CWMS-2024-0012</option>
+</select>
+</div>
+<!-- Filter: Document Type -->
+<div class="flex flex-col gap-1 w-48">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Document Type</label>
+<select class="w-full h-8 text-sm border-outline-variant rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container py-0 pl-2 pr-8 text-on-surface bg-white shadow-sm">
+<option value="">All Types</option>
+<option value="Contract">Contract Agreement</option>
+<option value="Invoice">Supplier Invoice</option>
+<option value="Drawing">Technical Drawing</option>
+<option value="Report">Inspection Report</option>
+</select>
+</div>
+<!-- Filter: Date Range -->
+<div class="flex flex-col gap-1 w-56">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Upload Date</label>
+<div class="relative flex items-center">
+<input class="w-full h-8 text-sm border-outline-variant rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container py-0 px-2 text-on-surface bg-white shadow-sm" type="date"/>
+</div>
+</div>
+<button class="h-8 px-4 border border-outline-variant rounded bg-white text-on-surface text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">filter_alt</span> Filter
+                    </button>
+<button class="h-8 px-2 text-secondary text-sm font-medium hover:underline transition-colors">
+                        Clear
+                    </button>
+</div>
+<!-- Primary Actions -->
+<div class="flex items-center gap-2 shrink-0">
+<button class="h-8 px-3 border border-outline-variant rounded bg-white text-on-surface text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-1 group">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant group-hover:text-primary transition-colors">download</span>
+                        Export List
+                    </button>
+<div class="h-6 w-px bg-outline-variant mx-1"></div>
+<button class="h-8 px-3 border border-secondary-container rounded bg-secondary-container/10 text-secondary text-sm font-semibold hover:bg-secondary-container/20 transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">library_add</span>
+                        Add Multiple
+                    </button>
+<button class="h-8 px-4 rounded bg-primary text-on-primary text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+                        Upload
+                    </button>
+</div>
+</div>
+<!-- Upload Guidelines Banner -->
+<div class="bg-surface-container-low border border-outline-variant/50 rounded-lg p-3 flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px] mt-0.5">info</span>
+<div class="flex-grow">
+<p class="text-sm font-medium text-primary">Upload Guidelines</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Accepted formats: PDF, JPG, PNG. Maximum file size: 20MB per document. Ensure documents are clearly legible before uploading.</p>
+</div>
+<button class="text-outline hover:text-primary"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+<!-- Data Table Container -->
+<div class="bg-surface rounded-lg hairline-border shadow-sm flex-grow flex flex-col min-h-0">
+<div class="overflow-auto flex-grow rounded-lg relative">
+<table class="w-full min-w-[1000px] text-left border-collapse data-table">
+<thead class="sticky top-0 z-10 shadow-sm">
+<tr>
+<th class="w-10 text-center"><input class="rounded border-outline-variant text-secondary-container focus:ring-secondary-container w-4 h-4" type="checkbox"/></th>
+<th class="w-40">Work Code</th>
+<th class="w-36">Type</th>
+<th class="w-32">Doc No.</th>
+<th>Title</th>
+<th>File Name</th>
+<th class="w-28">Upload Date</th>
+<th class="w-32">Uploaded By</th>
+<th class="w-36 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="bg-white">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="text-center"><input class="rounded border-outline-variant text-secondary-container focus:ring-secondary-container w-4 h-4" type="checkbox"/></td>
+<td><span class="mono-val text-left">CWMS-2024-0012</span></td>
+<td>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                        Contract
+                                    </span>
+</td>
+<td>DOC-492-A</td>
+<td class="font-medium text-primary truncate max-w-[200px]" title="Site Excavation Agreement Phase 1">Site Excavation Agreement Phase 1</td>
+<td class="text-sm text-on-surface-variant truncate max-w-[150px] flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-red-500">picture_as_pdf</span>
+<span title="signed_excavation_ph1.pdf">signed_excavation_ph1.pdf</span>
+</td>
+<td class="text-sm text-on-surface-variant">12 Oct 2024</td>
+<td class="text-sm text-on-surface-variant">Admin</td>
+<td>
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Open Document">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Download">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Print">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-error hover:bg-error-container/30 transition-colors" title="Delete Permanently">
+<span class="material-symbols-outlined text-[18px]">delete_forever</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="text-center"><input class="rounded border-outline-variant text-secondary-container focus:ring-secondary-container w-4 h-4" type="checkbox"/></td>
+<td><span class="mono-val text-left">CWMS-2023-0105</span></td>
+<td>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        Invoice
+                                    </span>
+</td>
+<td>INV-88392</td>
+<td class="font-medium text-primary truncate max-w-[200px]" title="Cement Supply Bill Oct">Cement Supply Bill Oct</td>
+<td class="text-sm text-on-surface-variant truncate max-w-[150px] flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-blue-500">image</span>
+<span title="cement_inv_oct23.jpg">cement_inv_oct23.jpg</span>
+</td>
+<td class="text-sm text-on-surface-variant">05 Nov 2023</td>
+<td class="text-sm text-on-surface-variant">S. Kumar</td>
+<td>
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Open Document">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Download">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Print">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-error hover:bg-error-container/30 transition-colors" title="Delete Permanently">
+<span class="material-symbols-outlined text-[18px]">delete_forever</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50 transition-colors group">
+<td class="text-center"><input class="rounded border-outline-variant text-secondary-container focus:ring-secondary-container w-4 h-4" type="checkbox"/></td>
+<td><span class="mono-val text-left">CWMS-2023-0042</span></td>
+<td>
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        Drawing
+                                    </span>
+</td>
+<td>DWG-ST-04</td>
+<td class="font-medium text-primary truncate max-w-[200px]" title="Structural Beam Layout L2">Structural Beam Layout L2</td>
+<td class="text-sm text-on-surface-variant truncate max-w-[150px] flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-red-500">picture_as_pdf</span>
+<span title="struct_layout_l2_final.pdf">struct_layout_l2_final.pdf</span>
+</td>
+<td class="text-sm text-on-surface-variant">14 Aug 2023</td>
+<td class="text-sm text-on-surface-variant">T. Verma</td>
+<td>
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Open Document">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Download">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-secondary hover:bg-secondary-container/10 transition-colors" title="Print">
+<span class="material-symbols-outlined text-[18px]">print</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-error hover:bg-error-container/30 transition-colors" title="Delete Permanently">
+<span class="material-symbols-outlined text-[18px]">delete_forever</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="h-12 border-t border-outline-variant px-4 flex items-center justify-between bg-slate-50/50">
+<span class="text-xs text-on-surface-variant font-medium">Showing 1 to 3 of 42 documents</span>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded text-outline hover:bg-slate-200 disabled:opacity-50" disabled=""><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<span class="text-xs font-medium text-primary px-2">Page 1 of 5</span>
+<button class="p-1 rounded text-outline hover:bg-slate-200"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

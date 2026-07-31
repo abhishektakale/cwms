@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Report Runner - CWMS Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d8e2ff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001a42",
+                        "on-surface-variant": "#45464d",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#fefcff",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "outline": "#76777d",
+                        "secondary-container": "#2170e4",
+                        "primary": "#000000",
+                        "surface-container": "#e5eeff",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "secondary": "#0058be",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#000000",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed-dim": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#07006c",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-container": "#7c839b",
+                        "primary-container": "#131b2e",
+                        "on-background": "#0b1c30",
+                        "on-tertiary-container": "#7073ff",
+                        "inverse-surface": "#213145",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary-fixed-variant": "#004395"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "sm": "8px",
+                        "margin": "24px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "md": "16px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "label-caps": ["Geist"],
+                        "body-base": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Geist"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-base": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for data grids */
+        .data-grid-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .data-grid-scroll::-webkit-scrollbar-track {
+            background: theme('colors.surface'); 
+        }
+        .data-grid-scroll::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant'); 
+            border-radius: 4px;
+        }
+        .data-grid-scroll::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline'); 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-base h-screen overflow-hidden flex font-body-base text-body-base">
+<!-- SideNavBar (Shared Component) -->
+<nav class="w-60 h-full fixed left-0 top-0 bg-primary-container border-r border-outline-variant flex flex-col h-screen py-md px-sm z-50">
+<div class="mb-xl px-sm">
+<h1 class="font-display-lg text-display-lg text-on-primary font-black tracking-tighter">CWMS Pro</h1>
+<p class="font-body-sm text-body-sm text-on-primary-container">Industrial ERP</p>
+</div>
+<div class="flex-1 overflow-y-auto flex flex-col gap-sm">
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="assignment">assignment</span>
+                Work Register
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="receipt_long">receipt_long</span>
+                Billing
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="payments">payments</span>
+                Expenditure
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="description">description</span>
+                Documents
+            </a>
+<a class="flex items-center gap-md px-md py-sm text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="assessment">assessment</span>
+                Reports
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="database">database</span>
+                Masters
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+                Users
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="settings_backup_restore">settings_backup_restore</span>
+                Backup &amp; Restore
+            </a>
+</div>
+<div class="mt-auto pt-md border-t border-on-primary-fixed-variant/30 flex items-center gap-md px-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary-container font-bold overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A small, professional headshot photo of an industrial project manager, isolated on a clean neutral background. The lighting is balanced and crisp, typical of a corporate ID badge. The person appears confident and capable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBD6VFXy2fs6YYfQ5RJlznLhLIDT9zzcpcMKOFw_NtA_b3JQQvoMai9AdjPYJnG-kVTbfXitTeP46nkTGTeN_TwKDlja9x2HhXAlRnQbFKYmzfIASvOf3KEtHoWjci7uME2rzYeNo1duzo_qta38ODRJwl0SwYtjcFHgCArPL9XWPSAzomLSC1AeDDwZP4V4i-aRwnLEvozNWV5at8O-TXwagrNB9cxVJDmBR5LEVL42hjPp0VC6Ofw"/>
+</div>
+<div class="flex-col hidden lg:flex">
+<span class="font-body-sm text-body-sm text-on-primary truncate w-32">Admin User</span>
+<span class="font-label-caps text-label-caps text-on-primary-container">SYSADMIN</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-60 flex flex-col h-full bg-surface">
+<!-- TopNavBar (Shared Component) -->
+<header class="h-16 w-full bg-surface border-b border-outline-variant flex justify-between items-center px-lg z-40 flex-shrink-0 transition-all duration-200">
+<div class="flex items-center gap-sm">
+<!-- Breadcrumbs -->
+<nav class="flex items-center text-on-surface-variant font-body-sm text-body-sm">
+<a class="hover:text-primary transition-colors" href="#">Reports</a>
+<span class="material-symbols-outlined text-sm mx-xs" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary font-bold">Contractor Performance Summary</span>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- Report Runner Layout -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Panel: Parameters (Bento-style tight layout) -->
+<aside class="w-80 bg-surface-container-lowest border-r border-outline-variant flex flex-col overflow-y-auto flex-shrink-0">
+<div class="p-md border-b border-outline-variant bg-surface-bright flex justify-between items-center sticky top-0 z-10">
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight">Parameters</h2>
+<button class="text-secondary font-body-sm text-body-sm hover:underline flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="refresh">refresh</span>
+                        Reset
+                    </button>
+</div>
+<div class="p-md flex flex-col gap-lg">
+<!-- Saved Filters -->
+<div class="flex flex-col gap-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Saved Filters</label>
+<select class="w-full h-10 px-sm border border-outline-variant rounded bg-surface text-on-surface font-body-base text-body-base focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-shadow appearance-none">
+<option>Default View - Current FY</option>
+<option>Q3 Major Contractors</option>
+<option>Delayed Projects Only</option>
+</select>
+</div>
+<hr class="border-outline-variant/50"/>
+<!-- Core Dimensions -->
+<div class="flex flex-col gap-md">
+<div class="flex flex-col gap-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Project</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="w-full h-10 pl-8 pr-sm border border-outline-variant rounded bg-surface text-on-surface font-body-base text-body-base focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-shadow" placeholder="All Projects..." type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Client</label>
+<select class="w-full h-10 px-sm border border-outline-variant rounded bg-surface text-on-surface font-body-base text-body-base focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-shadow appearance-none">
+<option>-- Select Client --</option>
+<option>Apex Industries</option>
+<option>Global Build Corp</option>
+</select>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Contractor</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="w-full h-10 pl-8 pr-sm border border-outline-variant rounded bg-surface text-on-surface font-body-base text-body-base focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-shadow" placeholder="Search Contractor..." type="text"/>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant/50"/>
+<!-- Time & Status -->
+<div class="flex flex-col gap-md">
+<div class="flex flex-col gap-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Financial Year</label>
+<select class="w-full h-10 px-sm border border-outline-variant rounded bg-surface text-on-surface font-body-base text-body-base focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-shadow appearance-none">
+<option>FY 2023-24 (Apr-Mar)</option>
+<option>FY 2022-23 (Apr-Mar)</option>
+</select>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Custom Date Range</label>
+<div class="flex gap-sm">
+<input class="w-1/2 h-10 px-xs border border-outline-variant rounded bg-surface text-on-surface font-body-sm text-body-sm focus:border-secondary-container outline-none" type="date"/>
+<input class="w-1/2 h-10 px-xs border border-outline-variant rounded bg-surface text-on-surface font-body-sm text-body-sm focus:border-secondary-container outline-none" type="date"/>
+</div>
+</div>
+<div class="flex flex-col gap-sm mt-sm">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Work Status</label>
+<div class="flex flex-col gap-xs">
+<label class="flex items-center gap-sm cursor-pointer">
+<input checked="" class="w-4 h-4 text-secondary-container border-outline-variant rounded focus:ring-secondary-container" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">In Progress</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input checked="" class="w-4 h-4 text-secondary-container border-outline-variant rounded focus:ring-secondary-container" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Completed</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer">
+<input class="w-4 h-4 text-secondary-container border-outline-variant rounded focus:ring-secondary-container" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">On Hold</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Panel: Data Canvas -->
+<section class="flex-1 flex flex-col bg-background overflow-hidden">
+<!-- Action Bar -->
+<div class="h-16 px-lg border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center flex-shrink-0">
+<div class="flex items-center gap-md">
+<button class="bg-secondary text-on-secondary px-md py-sm rounded font-body-base text-body-base font-medium hover:bg-secondary/90 transition-colors flex items-center gap-sm shadow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="play_arrow">play_arrow</span>
+                            Run Report
+                        </button>
+<span class="font-body-sm text-body-sm text-on-surface-variant italic">Last run: Today, 09:41 AM</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-sm text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded transition-colors" title="Print Preview">
+<span class="material-symbols-outlined" data-icon="preview">preview</span>
+</button>
+<button class="p-sm text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded transition-colors" title="Print">
+<span class="material-symbols-outlined" data-icon="print">print</span>
+</button>
+<div class="h-6 border-l border-outline-variant mx-xs"></div>
+<button class="flex items-center gap-xs px-sm py-xs border border-outline-variant rounded text-on-surface hover:bg-surface-container-low transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-sm text-error" data-icon="picture_as_pdf">picture_as_pdf</span>
+                            Export PDF
+                        </button>
+<button class="flex items-center gap-xs px-sm py-xs border border-outline-variant rounded text-on-surface hover:bg-surface-container-low transition-colors font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-sm text-secondary-container" data-icon="table_view">table_view</span>
+                            Export Excel
+                        </button>
+</div>
+</div>
+<!-- Report Canvas -->
+<div class="flex-1 p-lg overflow-y-auto data-grid-scroll">
+<!-- Report Header (On-page) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-lg mb-md shadow-sm">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h2 class="font-display-lg text-display-lg text-primary mb-xs">Contractor Performance Summary</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">CWMS Pro Automated Reporting Module</p>
+</div>
+<div class="text-right">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Generated: <span class="font-numeric-data text-numeric-data text-on-surface">24 Oct 2024</span></p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Page 1 of 1</p>
+</div>
+</div>
+<!-- Applied Filters Summary Chip-style -->
+<div class="flex flex-wrap gap-xs pt-sm border-t border-outline-variant/50">
+<span class="inline-flex items-center gap-xs px-2 py-1 bg-surface-container-low text-on-surface-variant rounded text-[11px] font-medium border border-outline-variant/30">
+<span class="text-outline">FY:</span> 2023-24
+                            </span>
+<span class="inline-flex items-center gap-xs px-2 py-1 bg-surface-container-low text-on-surface-variant rounded text-[11px] font-medium border border-outline-variant/30">
+<span class="text-outline">Status:</span> In Progress, Completed
+                            </span>
+<span class="inline-flex items-center gap-xs px-2 py-1 bg-surface-container-low text-on-surface-variant rounded text-[11px] font-medium border border-outline-variant/30">
+<span class="text-outline">Project:</span> All
+                            </span>
+</div>
+</div>
+<!-- Data Grid Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden shadow-sm flex flex-col">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse whitespace-nowrap">
+<thead>
+<tr class="bg-surface-bright border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant tracking-wider uppercase">
+<th class="p-sm pl-md font-semibold">Contractor Name</th>
+<th class="p-sm font-semibold">Work Code</th>
+<th class="p-sm font-semibold">Project Name</th>
+<th class="p-sm font-semibold">Status</th>
+<th class="p-sm font-semibold text-right">Work Value (₹)</th>
+<th class="p-sm font-semibold text-right">Billed Amount (₹)</th>
+<th class="p-sm pr-md font-semibold text-right">Progress (%)</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface divide-y divide-outline-variant/30">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-sm pl-md font-medium text-primary">L&amp;T Construction</td>
+<td class="p-sm text-on-surface-variant">WC-2023-089</td>
+<td class="p-sm truncate max-w-[200px]" title="Phase 2 Residential Tower B">Phase 2 Residential Tower B</td>
+<td class="p-sm">
+<span class="inline-flex items-center gap-xs text-[11px] font-medium text-on-secondary-fixed-variant bg-surface-variant px-2 py-0.5 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+                                                In Progress
+                                            </span>
+</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">1,45,00,000.00</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">85,50,000.00</td>
+<td class="p-sm pr-md text-right font-numeric-data text-numeric-data text-secondary-container">58.9%</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-sm pl-md font-medium text-primary">Afcons Infrastructure</td>
+<td class="p-sm text-on-surface-variant">WC-2023-012</td>
+<td class="p-sm truncate max-w-[200px]">Metro Line 4 - Depot Civil</td>
+<td class="p-sm">
+<span class="inline-flex items-center gap-xs text-[11px] font-medium text-on-primary-fixed-variant bg-surface-variant px-2 py-0.5 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                                                Completed
+                                            </span>
+</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">3,20,50,000.00</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">3,20,50,000.00</td>
+<td class="p-sm pr-md text-right font-numeric-data text-numeric-data">100.0%</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-sm pl-md font-medium text-primary">Shapoorji Pallonji</td>
+<td class="p-sm text-on-surface-variant">WC-2023-114</td>
+<td class="p-sm truncate max-w-[200px]">IT Park Block C Substructure</td>
+<td class="p-sm">
+<span class="inline-flex items-center gap-xs text-[11px] font-medium text-on-secondary-fixed-variant bg-surface-variant px-2 py-0.5 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+                                                In Progress
+                                            </span>
+</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">88,25,000.00</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">12,00,000.00</td>
+<td class="p-sm pr-md text-right font-numeric-data text-numeric-data text-secondary-container">13.6%</td>
+</tr>
+</tbody>
+<!-- Totals Footer -->
+<tfoot>
+<tr class="bg-surface-container-low border-t-2 border-outline-variant font-medium">
+<td class="p-sm pl-md text-right text-on-surface" colspan="4">Grand Total</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data text-primary font-bold">5,53,75,000.00</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data text-primary font-bold">4,18,00,000.00</td>
+<td class="p-sm pr-md text-right font-numeric-data text-numeric-data text-primary">75.4%</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<!-- Bottom spacing for scroll -->
+<div class="h-xl"></div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

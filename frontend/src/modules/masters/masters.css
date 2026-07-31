@@ -1,0 +1,113 @@
+.masters h1 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.masters__lead {
+  color: var(--cwms-on-surface-variant);
+  margin: 0 0 16px;
+}
+
+.masters__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.masters__tabs button {
+  border: 1px solid var(--cwms-outline-variant);
+  background: var(--cwms-surface-container-lowest);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.masters__tabs button.is-active {
+  background: var(--cwms-primary);
+  color: var(--cwms-on-primary);
+  border-color: var(--cwms-primary);
+}
+
+.masters__error {
+  background: var(--cwms-error-container);
+  color: var(--cwms-on-error-container);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.masters__add {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.masters__add input {
+  flex: 1;
+  height: 36px;
+  border: 1px solid var(--cwms-outline-variant);
+  border-radius: 6px;
+  padding: 0 12px;
+}
+
+.masters__add button,
+.masters__actions button,
+.masters__inline button {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid var(--cwms-outline-variant);
+  background: var(--cwms-surface-container-lowest);
+  cursor: pointer;
+}
+
+.masters__add button {
+  background: var(--cwms-primary);
+  color: var(--cwms-on-primary);
+  border-color: var(--cwms-primary);
+}
+
+.masters__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--cwms-surface-container-lowest);
+}
+
+.masters__table th,
+.masters__table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cwms-border-hairline);
+  font-size: 14px;
+}
+
+.masters__table th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cwms-on-surface-variant);
+}
+
+.masters__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.masters__inline {
+  display: flex;
+  gap: 8px;
+}
+
+.masters__inline input {
+  height: 32px;
+  border: 1px solid var(--cwms-outline-variant);
+  border-radius: 6px;
+  padding: 0 8px;
+}
+
+.masters__empty {
+  color: var(--cwms-on-surface-variant);
+}

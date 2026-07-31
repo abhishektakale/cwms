@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: cwms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cwms
+      POSTGRES_PASSWORD: cwms_dev_password
+      POSTGRES_DB: cwms
+    ports:
+      - "5432:5432"
+    volumes:
+      - cwms_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cwms -d cwms"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: cwms-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: cwmsminio
+      MINIO_ROOT_PASSWORD: cwmsminio_dev_password
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - cwms_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: cwms-minio-init
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      mc alias set local http://minio:9000 cwmsminio cwmsminio_dev_password;
+      mc mb --ignore-existing local/cwms-documents;
+      mc mb --ignore-existing local/cwms-backups;
+      exit 0;
+      "
+
+volumes:
+  cwms_pg_data:
+  cwms_minio_data:

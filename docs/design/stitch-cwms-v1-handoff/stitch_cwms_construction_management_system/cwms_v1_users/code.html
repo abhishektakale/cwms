@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CWMS Pro - Users</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d8e2ff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001a42",
+                        "on-surface-variant": "#45464d",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#fefcff",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "outline": "#76777d",
+                        "secondary-container": "#2170e4",
+                        "primary": "#000000",
+                        "surface-container": "#e5eeff",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "secondary": "#0058be",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#000000",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed-dim": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#07006c",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-container": "#7c839b",
+                        "primary-container": "#131b2e",
+                        "on-background": "#0b1c30",
+                        "on-tertiary-container": "#7073ff",
+                        "inverse-surface": "#213145",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary-fixed-variant": "#004395"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "sm": "8px",
+                        "margin": "24px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "md": "16px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "label-caps": ["Geist"],
+                        "body-base": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Geist"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "numeric-data": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-base": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .jetbrains-mono { font-family: 'JetBrains Mono', monospace; }
+        .hairline-border { border: 1px solid #E2E8F0; }
+        
+        /* Custom Toggle Switch Styles */
+        .toggle-checkbox:checked { right: 0; border-color: #2170e4; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #2170e4; }
+        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
+    </style>
+</head>
+<body class="bg-background text-on-surface h-screen overflow-hidden flex font-body-base text-body-base">
+<!-- SideNavBar -->
+<aside class="w-60 h-full fixed left-0 top-0 bg-primary-container text-on-primary-fixed border-r border-outline-variant z-50 flex flex-col h-screen py-md px-sm">
+<div class="mb-xl px-md pt-sm">
+<h1 class="font-display-lg text-display-lg text-on-primary font-black tracking-tighter">CWMS Pro</h1>
+<p class="font-body-sm text-body-sm text-on-primary-fixed-variant mt-1 opacity-70">Industrial ERP</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">assignment</span>
+<span>Work Register</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+<span>Billing</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span>Expenditure</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span>Documents</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">assessment</span>
+<span>Reports</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">database</span>
+<span>Masters</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span class="font-medium">Users</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 group" href="#">
+<span class="material-symbols-outlined text-[20px]">settings_backup_restore</span>
+<span>Backup &amp; Restore</span>
+</a>
+</nav>
+<div class="mt-auto px-md pb-md">
+<div class="flex items-center gap-sm mt-md pt-md border-t border-outline-variant/30 text-on-primary-fixed-variant">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small, professional corporate logo for an industrial ERP system, minimalist design, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW3o4-ZLW845FnFI69Npo7i5PJN-slhb-Yk69q_TCvpB8RFsgp0iFvcu_75l9RBN06AiNcdJ0evfMbnoqh0FVOkUxSA0VMzutoSkHy3M1LmX_ix5Idfn9Q8l5EfKutvleJlME885AjWv2LuIe5E6ovgd-kufyeUR1ZIgHGpOHTiwIRMCXF4UKYb_n10Kg9tOju4pdoJczgDBbFyiA2Q32MhmKfgZ03rxT2n_43h_LprdjMmsNCk4AL"/>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-primary">System Admin</span>
+<span class="font-label-caps text-label-caps opacity-70">IT Dept</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="ml-60 flex-1 flex flex-col h-screen w-[calc(100%-240px)]">
+<!-- TopNavBar -->
+<header class="h-16 w-full flex justify-between items-center px-lg bg-surface border-b border-outline-variant z-40 shrink-0">
+<div class="flex items-center gap-lg">
+<h2 class="font-headline-md text-headline-md text-primary font-bold">User Management</h2>
+</div>
+<div class="flex items-center gap-lg">
+<!-- Search -->
+<div class="relative w-64 hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-4 bg-surface-container-low border border-outline-variant rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none transition-all font-body-base text-body-base text-on-surface placeholder:text-on-surface-variant/60" placeholder="Search users..." type="text"/>
+</div>
+<button class="h-10 px-md bg-secondary-container text-on-secondary-container rounded flex items-center gap-xs hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="font-body-base text-body-base font-medium">Add Entry</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-sm"></div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[24px]">help</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 overflow-auto p-lg bg-background">
+<div class="max-w-container-max mx-auto h-full flex flex-col">
+<!-- Table Container -->
+<div class="bg-surface rounded-lg hairline-border flex-1 flex flex-col overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-sm p-md border-b border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-caps text-label-caps tracking-wider uppercase">
+<div class="col-span-3">Name</div>
+<div class="col-span-2">Username</div>
+<div class="col-span-2">Role</div>
+<div class="col-span-2">Mobile</div>
+<div class="col-span-2">Email</div>
+<div class="col-span-1 text-center">Active</div>
+</div>
+<!-- Table Body -->
+<div class="flex-1 overflow-auto divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-sm p-md items-center hover:bg-surface-container-low transition-colors group cursor-default">
+<div class="col-span-3 flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-sm shrink-0">
+                                    AK
+                                </div>
+<span class="font-body-base text-body-base text-on-surface font-medium truncate">Amit Kumar</span>
+</div>
+<div class="col-span-2 font-body-base text-body-base text-on-surface truncate">amit.k</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded bg-surface-container-highest text-on-surface font-body-sm text-body-sm whitespace-nowrap">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-container"></div>
+                                    Project Manager
+                                </span>
+</div>
+<div class="col-span-2 font-numeric-data text-numeric-data text-on-surface-variant truncate">+91 98765 43210</div>
+<div class="col-span-2 font-body-sm text-body-sm text-on-surface-variant truncate">amit.k@cwmspro.in</div>
+<div class="col-span-1 flex justify-center">
+<label class="flex items-center cursor-pointer">
+<div class="relative">
+<input checked="" class="sr-only toggle-checkbox" id="toggle-1" type="checkbox"/>
+<div class="block w-10 h-6 bg-outline-variant rounded-full transition-colors toggle-label"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+</div>
+</label>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-sm p-md items-center hover:bg-surface-container-low transition-colors group cursor-default">
+<div class="col-span-3 flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-bold text-sm shrink-0">
+                                    SR
+                                </div>
+<span class="font-body-base text-body-base text-on-surface font-medium truncate">Sneha Rao</span>
+</div>
+<div class="col-span-2 font-body-base text-body-base text-on-surface truncate">sneha.r</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded bg-surface-container-highest text-on-surface font-body-sm text-body-sm whitespace-nowrap">
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></div>
+                                    Accountant
+                                </span>
+</div>
+<div class="col-span-2 font-numeric-data text-numeric-data text-on-surface-variant truncate">+91 91234 56789</div>
+<div class="col-span-2 font-body-sm text-body-sm text-on-surface-variant truncate">sneha.r@cwmspro.in</div>
+<div class="col-span-1 flex justify-center">
+<label class="flex items-center cursor-pointer">
+<div class="relative">
+<input checked="" class="sr-only toggle-checkbox" id="toggle-2" type="checkbox"/>
+<div class="block w-10 h-6 bg-outline-variant rounded-full transition-colors toggle-label"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+</div>
+</label>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-sm p-md items-center hover:bg-surface-container-low transition-colors group cursor-default">
+<div class="col-span-3 flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-bold text-sm shrink-0">
+                                    VS
+                                </div>
+<span class="font-body-base text-body-base text-on-surface font-medium truncate opacity-60">Vikram Singh</span>
+</div>
+<div class="col-span-2 font-body-base text-body-base text-on-surface truncate opacity-60">vikram.s</div>
+<div class="col-span-2">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded bg-surface-container text-on-surface-variant font-body-sm text-body-sm whitespace-nowrap opacity-60">
+<div class="w-1.5 h-1.5 rounded-full bg-outline"></div>
+                                    Site Engineer
+                                </span>
+</div>
+<div class="col-span-2 font-numeric-data text-numeric-data text-on-surface-variant truncate opacity-60">+91 99887 76655</div>
+<div class="col-span-2 font-body-sm text-body-sm text-on-surface-variant truncate opacity-60">vikram.s@cwmspro.in</div>
+<div class="col-span-1 flex justify-center">
+<label class="flex items-center cursor-pointer">
+<div class="relative">
+<input class="sr-only toggle-checkbox" id="toggle-3" type="checkbox"/>
+<div class="block w-10 h-6 bg-outline-variant rounded-full transition-colors toggle-label"></div>
+<div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Add/Edit User Dialog Overlay (Hidden by default, shown for context) -->
+<!-- Add 'hidden' class to the parent div below to hide it in normal state -->
+<div class="fixed inset-0 bg-primary/40 z-[60] flex items-center justify-center backdrop-blur-sm hidden" id="user-dialog">
+<div class="bg-surface w-[600px] rounded-lg shadow-xl hairline-border flex flex-col max-h-[90vh]">
+<!-- Dialog Header -->
+<div class="px-lg py-md border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Add New User</h3>
+<button class="text-on-surface-variant hover:text-error transition-colors" onclick="document.getElementById('user-dialog').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Dialog Body -->
+<div class="p-lg overflow-y-auto">
+<div class="grid grid-cols-2 gap-md mb-lg">
+<div class="col-span-1 space-y-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Full Name</label>
+<input class="w-full h-10 px-sm bg-surface border hairline-border rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none font-body-base text-body-base" type="text"/>
+</div>
+<div class="col-span-1 space-y-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Username</label>
+<input class="w-full h-10 px-sm bg-surface border hairline-border rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none font-body-base text-body-base" type="text"/>
+</div>
+<div class="col-span-1 space-y-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Email</label>
+<input class="w-full h-10 px-sm bg-surface border hairline-border rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none font-body-base text-body-base" type="email"/>
+</div>
+<div class="col-span-1 space-y-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Mobile</label>
+<input class="w-full h-10 px-sm bg-surface border hairline-border rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none font-numeric-data text-numeric-data" type="tel"/>
+</div>
+<div class="col-span-2 space-y-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Role</label>
+<select class="w-full h-10 px-sm bg-surface border hairline-border rounded focus:border-secondary-container focus:ring-1 focus:ring-secondary-container outline-none font-body-base text-body-base appearance-none">
+<option>Select Role...</option>
+<option>Project Manager</option>
+<option>Accountant</option>
+<option>Site Engineer</option>
+</select>
+</div>
+</div>
+<!-- Password Rules Checklist -->
+<div class="bg-surface-container-low p-md rounded border hairline-border">
+<h4 class="font-body-sm text-body-sm text-on-surface font-medium mb-sm">Password Requirements</h4>
+<div class="space-y-sm">
+<div class="space-y-1">
+<input class="w-full h-10 px-sm bg-surface border hairline-border rounded focus:border-secondary-container outline-none font-body-base text-body-base" placeholder="New Password" type="password"/>
+</div>
+<ul class="grid grid-cols-2 gap-xs font-body-sm text-body-sm text-on-surface-variant">
+<li class="flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+                                8+ characters
+                            </li>
+<li class="flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+                                Uppercase letter
+                            </li>
+<li class="flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+                                Lowercase letter
+                            </li>
+<li class="flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+                                Number
+                            </li>
+<li class="flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-[16px]">cancel</span>
+                                Special symbol (@$!%*?&amp;)
+                            </li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Dialog Footer -->
+<div class="px-lg py-md border-t border-outline-variant bg-surface-container-lowest flex justify-end gap-sm rounded-b-lg">
+<button class="px-md py-sm rounded font-body-base text-body-base font-medium text-on-surface-variant hover:bg-surface-container-low transition-colors" onclick="document.getElementById('user-dialog').classList.add('hidden')">Cancel</button>
+<button class="px-md py-sm rounded font-body-base text-body-base font-medium bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-colors">Save User</button>
+</div>
+</div>
+</div>
+<script>
+        // Simple logic to show the dialog for demonstration if 'Add Entry' is clicked
+        document.querySelector('header button.bg-secondary-container').addEventListener('click', function() {
+            document.getElementById('user-dialog').classList.remove('hidden');
+        });
+        
+        // Setup toggle inputs logic for custom switch styles
+        document.querySelectorAll('.toggle-checkbox').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const dot = e.target.nextElementSibling.nextElementSibling;
+                if(e.target.checked) {
+                    dot.style.transform = 'translateX(100%)';
+                } else {
+                    dot.style.transform = 'translateX(0)';
+                }
+            });
+            // Init state
+            const dot = cb.nextElementSibling.nextElementSibling;
+            if(cb.checked) {
+                dot.style.transform = 'translateX(100%)';
+            }
+        });
+    </script>
+</body></html>

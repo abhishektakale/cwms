@@ -1,0 +1,2600 @@
+openapi: 3.1.0
+info:
+  title: CWMS Construction Work Management System API
+  version: 1.0.0
+  summary: Implementation-agnostic HTTP API for CWMS v1.0 web application
+  description: |
+    Architecture-level OpenAPI 3.1 specification for CWMS Version 1.0.
+    Not tied to any framework. Traceability to Functional Specification is via
+    `x-fs-refs` on operations and the companion API-CATALOGUE.md.
+    Money amounts are decimal strings. Dates are ISO-8601.
+  license:
+    name: Proprietary
+
+servers:
+  - url: /api/v1
+    description: Version 1 API base path
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Masters
+  - name: Dashboard
+  - name: Works
+  - name: Estimates
+  - name: Schedule
+  - name: Documents
+  - name: Billing
+  - name: Expenditure
+  - name: Reports
+  - name: Search
+  - name: Backups
+  - name: Audit
+  - name: Platform
+
+security:
+  - sessionAuth: []
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: authLogin
+      x-fs-refs: [F-AUTH-01, F-AUTH-01A, F-AUTH-01B, PRD-AUTH]
+      x-prd-refs: [PRD-AUTH]
+      x-br-refs: [BR-SEC-01, BR-SEC-03]
+      security: []
+      summary: Sign in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Inactive account
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: authLogout
+      x-fs-refs: [F-AUTH-03]
+      summary: Sign out
+      responses:
+        '204':
+          description: Logged out
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      operationId: authMe
+      x-fs-refs: [G-01]
+      summary: Current user profile
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/change-password:
+    post:
+      tags: [Auth]
+      operationId: authChangePassword
+      x-fs-refs: [F-AUTH-02]
+      x-br-refs: [BR-SEC-02]
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '204':
+          description: Password changed
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      operationId: authRefresh
+      x-fs-refs: [F-AUTH-01A]
+      summary: Refresh session / Remember Me
+      responses:
+        '200':
+          description: Session extended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users:
+    get:
+      tags: [Users]
+      operationId: listUsers
+      x-fs-refs: [F-USR-01, F-USR-02]
+      x-prd-refs: [PRD-ADM]
+      summary: List users
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Sort'
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: role
+          in: query
+          schema: { $ref: '#/components/schemas/Role' }
+        - name: active
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Page of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Users]
+      operationId: createUser
+      x-fs-refs: [F-USR-01]
+      x-br-refs: [BR-SEC-02, BR-ID-06]
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [Users]
+      operationId: getUser
+      x-fs-refs: [F-USR-02]
+      summary: Get user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    patch:
+      tags: [Users]
+      operationId: updateUser
+      x-fs-refs: [F-USR-02]
+      summary: Update user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/deactivate:
+    post:
+      tags: [Users]
+      operationId: deactivateUser
+      x-fs-refs: [F-USR-02]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: Deactivated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{userId}/activate:
+    post:
+      tags: [Users]
+      operationId: activateUser
+      x-fs-refs: [F-USR-02]
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: Activated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /masters/{masterType}:
+    parameters:
+      - $ref: '#/components/parameters/MasterType'
+    get:
+      tags: [Masters]
+      operationId: listMasters
+      x-fs-refs: [F-MST-02]
+      x-prd-refs: [PRD-ADM]
+      summary: List master values
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Master page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MasterOptionPage'
+    post:
+      tags: [Masters]
+      operationId: createMaster
+      x-fs-refs: [F-MST-01]
+      x-br-refs: [BR-MST-01, BR-ID-07]
+      summary: Create master value
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MasterOptionCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MasterOption'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /masters/{masterType}/{masterId}:
+    parameters:
+      - $ref: '#/components/parameters/MasterType'
+      - $ref: '#/components/parameters/MasterId'
+    patch:
+      tags: [Masters]
+      operationId: updateMaster
+      x-fs-refs: [F-MST-01]
+      x-br-refs: [BR-MST-03]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MasterOptionUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MasterOption'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Masters]
+      operationId: deleteMaster
+      x-fs-refs: [F-MST-01]
+      x-br-refs: [BR-MST-02]
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: In use
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /dashboard/summary:
+    get:
+      tags: [Dashboard]
+      operationId: getDashboardSummary
+      x-fs-refs: [F-DASH-01]
+      x-prd-refs: [PRD-DASH]
+      summary: Dashboard KPI summary
+      parameters:
+        - name: financialYear
+          in: query
+          schema: { type: string, example: "2026-27" }
+        - name: project
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: KPI payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+
+  /dashboard/alerts:
+    get:
+      tags: [Dashboard]
+      operationId: getDashboardAlerts
+      x-fs-refs: [F-DASH-03]
+      x-br-refs: [BR-BILL-13, BR-BILL-14, BR-STAT-03, BR-STAT-06, BR-STAT-07A]
+      responses:
+        '200':
+          description: Alert counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardAlerts'
+
+  /dashboard/attention:
+    get:
+      tags: [Dashboard]
+      operationId: getDashboardAttention
+      x-fs-refs: [F-DASH-02]
+      x-br-refs: [BR-TL-01, BR-TL-02, BR-TL-03, BR-TL-04]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Attention list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkAttentionPage'
+
+  /dashboard/recent:
+    get:
+      tags: [Dashboard]
+      operationId: getDashboardRecent
+      x-fs-refs: [F-DASH-05]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        '200':
+          description: Recent items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecentActivityList'
+
+  /works:
+    get:
+      tags: [Works]
+      operationId: listWorks
+      x-fs-refs: [F-WORK-01, F-WORK-02]
+      x-prd-refs: [PRD-WORK, PRD-SRCH]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Sort'
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/WorkStatus' }
+        - name: project
+          in: query
+          schema: { type: string }
+        - name: client
+          in: query
+          schema: { type: string }
+        - name: contractor
+          in: query
+          schema: { type: string }
+        - name: categoryId
+          in: query
+          schema: { type: string }
+        - name: trafficLight
+          in: query
+          schema: { $ref: '#/components/schemas/TrafficLight' }
+        - name: workOrderDateFrom
+          in: query
+          schema: { type: string, format: date }
+        - name: workOrderDateTo
+          in: query
+          schema: { type: string, format: date }
+        - name: financialYear
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Work page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkPage'
+    post:
+      tags: [Works]
+      operationId: createWork
+      x-fs-refs: [F-WORK-04, F-WORK-04A, F-WORK-04B, F-FIN-01, F-FIN-02]
+      x-br-refs: [BR-ID-01, BR-ID-04, BR-FIN-02, BR-FIN-03, BR-FIN-04, BR-FIN-05, BR-FIN-06, BR-FIN-07]
+      x-prd-refs: [PRD-WORK]
+      summary: Create work
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /works/project-names:
+    get:
+      tags: [Works]
+      operationId: listProjectNames
+      x-fs-refs: [F-WORK-04]
+      x-br-refs: [BR-PRJ-02]
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Distinct project names
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { type: string }
+
+  /works/{workId}:
+    parameters:
+      - $ref: '#/components/parameters/WorkId'
+    get:
+      tags: [Works]
+      operationId: getWork
+      x-fs-refs: [F-WORK-06]
+      responses:
+        '200':
+          description: Work detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Works]
+      operationId: updateWork
+      x-fs-refs: [F-WORK-05]
+      x-br-refs: [BR-CON-01]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Locked or conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags: [Works]
+      operationId: deleteWork
+      x-fs-refs: [F-WORK-07]
+      x-br-refs: [BR-VAL-04]
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Has children
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /works/{workId}/lock:
+    parameters:
+      - $ref: '#/components/parameters/WorkId'
+    post:
+      tags: [Works]
+      operationId: acquireWorkLock
+      x-fs-refs: [F-WORK-05]
+      x-br-refs: [BR-CON-01]
+      responses:
+        '200':
+          description: Lock acquired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkLock'
+        '409':
+          description: Held by another user
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags: [Works]
+      operationId: releaseWorkLock
+      x-fs-refs: [F-WORK-05]
+      x-br-refs: [BR-CON-01]
+      responses:
+        '204':
+          description: Released
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /works/{workId}/financial-summary:
+    get:
+      tags: [Works]
+      operationId: getWorkFinancialSummary
+      x-fs-refs: [F-WORK-06, F-FIN-03, F-FIN-04]
+      x-br-refs: [BR-FIN-08, BR-FIN-09, BR-FIN-10, BR-FIN-11, BR-FIN-12, BR-FIN-13]
+      parameters:
+        - $ref: '#/components/parameters/WorkId'
+      responses:
+        '200':
+          description: Financial card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkFinancialSummary'
+
+  /works/{workId}/estimates:
+    parameters:
+      - $ref: '#/components/parameters/WorkId'
+    get:
+      tags: [Estimates]
+      operationId: listEstimates
+      x-fs-refs: [F-EST-03]
+      x-prd-refs: [PRD-EST]
+      responses:
+        '200':
+          description: Estimates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateList'
+    post:
+      tags: [Estimates]
+      operationId: createEstimate
+      x-fs-refs: [F-EST-01]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estimate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /estimates/{estimateId}:
+    parameters:
+      - $ref: '#/components/parameters/EstimateId'
+    get:
+      tags: [Estimates]
+      operationId: getEstimate
+      x-fs-refs: [F-EST-03]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estimate'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Estimates]
+      operationId: updateEstimate
+      x-fs-refs: [F-EST-02]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estimate'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags: [Estimates]
+      operationId: deleteEstimate
+      x-fs-refs: [F-EST-02]
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /works/{workId}/schedule-activities:
+    parameters:
+      - $ref: '#/components/parameters/WorkId'
+    get:
+      tags: [Schedule]
+      operationId: listScheduleActivities
+      x-fs-refs: [F-SCH-01]
+      x-prd-refs: [PRD-SCH]
+      responses:
+        '200':
+          description: Activities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleActivityList'
+    post:
+      tags: [Schedule]
+      operationId: createScheduleActivity
+      x-fs-refs: [F-SCH-01]
+      x-br-refs: [BR-STAT-04, BR-STAT-05]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleActivityCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleActivity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /schedule-activities/{activityId}:
+    parameters:
+      - $ref: '#/components/parameters/ActivityId'
+    patch:
+      tags: [Schedule]
+      operationId: updateScheduleActivity
+      x-fs-refs: [F-SCH-03]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleActivityUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleActivity'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags: [Schedule]
+      operationId: deleteScheduleActivity
+      x-fs-refs: [F-SCH-03]
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /documents:
+    get:
+      tags: [Documents]
+      operationId: listDocuments
+      x-fs-refs: [F-DOC-05]
+      x-prd-refs: [PRD-DOC]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Sort'
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: workId
+          in: query
+          schema: { type: string }
+        - name: documentTypeId
+          in: query
+          schema: { type: string }
+        - name: uploadedFrom
+          in: query
+          schema: { type: string, format: date }
+        - name: uploadedTo
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Document page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentPage'
+
+  /works/{workId}/documents:
+    parameters:
+      - $ref: '#/components/parameters/WorkId'
+    get:
+      tags: [Documents]
+      operationId: listWorkDocuments
+      x-fs-refs: [F-DOC-01]
+      responses:
+        '200':
+          description: Documents for work
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentList'
+    post:
+      tags: [Documents]
+      operationId: uploadDocument
+      x-fs-refs: [F-DOC-01]
+      x-br-refs: [BR-DOC-02, BR-DOC-03, BR-DOC-04]
+      summary: Upload single document (multipart)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentUploadForm'
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '413':
+          description: File too large
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '415':
+          description: Unsupported type
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /works/{workId}/documents:batch:
+    post:
+      tags: [Documents]
+      operationId: uploadDocumentsBatch
+      x-fs-refs: [F-DOC-02]
+      x-br-refs: [BR-DOC-03, BR-DOC-04]
+      parameters:
+        - $ref: '#/components/parameters/WorkId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DocumentBatchUploadForm'
+      responses:
+        '200':
+          description: Batch result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentBatchUploadResult'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /documents/{documentId}:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+    get:
+      tags: [Documents]
+      operationId: getDocument
+      x-fs-refs: [F-DOC-03]
+      responses:
+        '200':
+          description: Metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Documents]
+      operationId: deleteDocument
+      x-fs-refs: [F-DOC-04]
+      x-br-refs: [BR-DOC-06]
+      parameters:
+        - name: confirm
+          in: query
+          required: true
+          description: Must be true to confirm permanent delete
+          schema: { type: boolean }
+      responses:
+        '204':
+          description: Permanently deleted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /documents/{documentId}/content:
+    get:
+      tags: [Documents]
+      operationId: getDocumentContent
+      x-fs-refs: [F-DOC-03]
+      x-br-refs: [BR-DOC-02]
+      parameters:
+        - $ref: '#/components/parameters/DocumentId'
+        - name: disposition
+          in: query
+          schema:
+            type: string
+            enum: [inline, attachment]
+            default: inline
+      responses:
+        '200':
+          description: File bytes
+          content:
+            application/pdf:
+              schema:
+                type: string
+                contentMediaType: application/pdf
+            image/jpeg:
+              schema:
+                type: string
+                contentMediaType: image/jpeg
+            image/png:
+              schema:
+                type: string
+                contentMediaType: image/png
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /bills:
+    get:
+      tags: [Billing]
+      operationId: listBills
+      x-fs-refs: [F-BILL-01]
+      x-prd-refs: [PRD-BILL]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Sort'
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: workId
+          in: query
+          schema: { type: string }
+        - name: paymentStatus
+          in: query
+          schema: { $ref: '#/components/schemas/PaymentStatus' }
+        - name: billType
+          in: query
+          schema: { $ref: '#/components/schemas/BillType' }
+        - name: billDateFrom
+          in: query
+          schema: { type: string, format: date }
+        - name: billDateTo
+          in: query
+          schema: { type: string, format: date }
+        - name: financialYear
+          in: query
+          schema: { type: string }
+        - name: client
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Bill page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillPage'
+    post:
+      tags: [Billing]
+      operationId: createBill
+      x-fs-refs: [F-BILL-02, F-FIN-03]
+      x-br-refs: [BR-BILL-01, BR-BILL-02, BR-BILL-04, BR-BILL-07, BR-BILL-08, BR-ID-02, BR-FIN-08, BR-FIN-09, BR-FIN-15]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillCreateRequest'
+      responses:
+        '201':
+          description: Created (work financials recalculated in same transaction)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /bills/{billId}:
+    parameters:
+      - $ref: '#/components/parameters/BillId'
+    get:
+      tags: [Billing]
+      operationId: getBill
+      x-fs-refs: [F-BILL-06]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Billing]
+      operationId: updateBill
+      x-fs-refs: [F-BILL-03, F-BILL-05]
+      x-br-refs: [BR-BILL-10, BR-FIN-15]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BillUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bill'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags: [Billing]
+      operationId: deleteBill
+      x-fs-refs: [F-BILL-04]
+      x-br-refs: [BR-BILL-16, BR-FIN-15]
+      responses:
+        '204':
+          description: Deleted and work rollups recalculated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /works/{workId}/bills:
+    get:
+      tags: [Billing]
+      operationId: listWorkBills
+      x-fs-refs: [F-BILL-06]
+      parameters:
+        - $ref: '#/components/parameters/WorkId'
+      responses:
+        '200':
+          description: Bill history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillList'
+
+  /expenses:
+    get:
+      tags: [Expenditure]
+      operationId: listExpenses
+      x-fs-refs: [F-EXP-06]
+      x-prd-refs: [PRD-EXP]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Sort'
+        - name: q
+          in: query
+          schema: { type: string }
+        - name: expenseType
+          in: query
+          schema: { $ref: '#/components/schemas/ExpenseType' }
+        - name: workId
+          in: query
+          schema: { type: string }
+        - name: vendor
+          in: query
+          schema: { type: string }
+        - name: expenseHeadId
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/ExpenseStatus' }
+        - name: paymentMode
+          in: query
+          schema: { $ref: '#/components/schemas/PaymentMode' }
+        - name: expenseDateFrom
+          in: query
+          schema: { type: string, format: date }
+        - name: expenseDateTo
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Expense page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpensePage'
+    post:
+      tags: [Expenditure]
+      operationId: createExpense
+      x-fs-refs: [F-EXP-01, F-EXP-02]
+      x-br-refs: [BR-EXP-01, BR-EXP-02, BR-EXP-03, BR-EXP-05]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /expenses/{expenseId}:
+    parameters:
+      - $ref: '#/components/parameters/ExpenseId'
+    get:
+      tags: [Expenditure]
+      operationId: getExpense
+      x-fs-refs: [F-EXP-05]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Expenditure]
+      operationId: updateExpense
+      x-fs-refs: [F-EXP-05]
+      x-br-refs: [BR-FIN-15]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags: [Expenditure]
+      operationId: deleteExpense
+      x-fs-refs: [F-EXP-05]
+      x-br-refs: [BR-EXP-12]
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /expenses/{expenseId}/assign:
+    post:
+      tags: [Expenditure]
+      operationId: assignExpense
+      x-fs-refs: [F-EXP-03]
+      x-br-refs: [BR-EXP-04]
+      parameters:
+        - $ref: '#/components/parameters/ExpenseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseAssignRequest'
+      responses:
+        '200':
+          description: Assigned 100% to one work
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /expenses/{expenseId}/cancel:
+    post:
+      tags: [Expenditure]
+      operationId: cancelExpense
+      x-fs-refs: [F-EXP-04]
+      x-br-refs: [BR-EXP-08]
+      parameters:
+        - $ref: '#/components/parameters/ExpenseId'
+      responses:
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /works/{workId}/expenses:
+    get:
+      tags: [Expenditure]
+      operationId: listWorkExpenses
+      x-fs-refs: [F-EXP-01]
+      parameters:
+        - $ref: '#/components/parameters/WorkId'
+      responses:
+        '200':
+          description: Work expenses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseList'
+
+  /reports:
+    get:
+      tags: [Reports]
+      operationId: listReportTypes
+      x-fs-refs: [F-RPT-01]
+      x-prd-refs: [PRD-RPT]
+      responses:
+        '200':
+          description: Available reports
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportTypeList'
+
+  /reports/{reportType}/run:
+    post:
+      tags: [Reports]
+      operationId: runReport
+      x-fs-refs: [F-RPT-01]
+      x-br-refs: [BR-RPT-01, BR-RPT-03, BR-RPT-08]
+      parameters:
+        - $ref: '#/components/parameters/ReportType'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportRunRequest'
+      responses:
+        '200':
+          description: Tabular/sectioned JSON result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportRunResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /reports/{reportType}/export:
+    post:
+      tags: [Reports]
+      operationId: exportReport
+      x-fs-refs: [F-RPT-03, F-RPT-04]
+      x-br-refs: [BR-RPT-02, BR-RPT-04, BR-RPT-05]
+      parameters:
+        - $ref: '#/components/parameters/ReportType'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportExportRequest'
+      responses:
+        '200':
+          description: File download
+          content:
+            application/pdf:
+              schema:
+                type: string
+                contentMediaType: application/pdf
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                contentMediaType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /reports/{reportType}/saved-filters:
+    parameters:
+      - $ref: '#/components/parameters/ReportType'
+    get:
+      tags: [Reports]
+      operationId: listSavedFilters
+      x-fs-refs: [F-RPT-05]
+      x-br-refs: [BR-RPT-06]
+      responses:
+        '200':
+          description: Saved filters for current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReportFilterList'
+    post:
+      tags: [Reports]
+      operationId: createSavedFilter
+      x-fs-refs: [F-RPT-05]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedReportFilterCreateRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReportFilter'
+
+  /reports/{reportType}/saved-filters/{filterId}:
+    parameters:
+      - $ref: '#/components/parameters/ReportType'
+      - $ref: '#/components/parameters/FilterId'
+    patch:
+      tags: [Reports]
+      operationId: updateSavedFilter
+      x-fs-refs: [F-RPT-05]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedReportFilterUpdateRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedReportFilter'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags: [Reports]
+      operationId: deleteSavedFilter
+      x-fs-refs: [F-RPT-05]
+      responses:
+        '204':
+          description: Deleted
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /search:
+    get:
+      tags: [Search]
+      operationId: globalSearch
+      x-fs-refs: [F-SRCH-01]
+      x-prd-refs: [PRD-SRCH]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 200 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+      responses:
+        '200':
+          description: Search hits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /backups:
+    get:
+      tags: [Backups]
+      operationId: listBackups
+      x-fs-refs: [F-BAK-02]
+      x-br-refs: [BR-BAK-04]
+      x-prd-refs: [PRD-BAK]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/BackupStatus' }
+      responses:
+        '200':
+          description: Backup history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /backups/{backupId}:
+    get:
+      tags: [Backups]
+      operationId: getBackup
+      x-fs-refs: [F-BAK-02]
+      parameters:
+        - $ref: '#/components/parameters/BackupId'
+      responses:
+        '200':
+          description: Backup detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupRecord'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /backups/{backupId}/restore:
+    post:
+      tags: [Backups]
+      operationId: restoreBackup
+      x-fs-refs: [F-BAK-03]
+      x-br-refs: [BR-BAK-05, BR-BAK-06, BR-BAK-07, BR-BAK-09]
+      parameters:
+        - $ref: '#/components/parameters/BackupId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BackupRestoreRequest'
+      responses:
+        '202':
+          description: Restore accepted / completed (implementation may be sync or async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupRestoreResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          description: Maintenance / restore conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /audit-logs:
+    get:
+      tags: [Audit]
+      operationId: listAuditLogs
+      x-br-refs: [BR-AUD-01, BR-AUD-02, BR-AUD-03]
+      x-prd-refs: [PRD-AUD]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: module
+          in: query
+          schema: { type: string }
+        - name: userId
+          in: query
+          schema: { type: string }
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+        - name: action
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Audit page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /health:
+    get:
+      tags: [Platform]
+      operationId: health
+      security: []
+      summary: Health check
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /meta:
+    get:
+      tags: [Platform]
+      operationId: meta
+      security: []
+      summary: API metadata / maintenance flag
+      responses:
+        '200':
+          description: Meta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetaResponse'
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: CWMSSESSION
+      description: Server session cookie (implementation-defined name)
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: Opaque bearer/session token alternative
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PageSize:
+      name: pageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Sort:
+      name: sort
+      in: query
+      description: field:asc|desc[,field:asc|desc]
+      schema: { type: string }
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: string }
+    WorkId:
+      name: workId
+      in: path
+      required: true
+      schema: { type: string }
+    EstimateId:
+      name: estimateId
+      in: path
+      required: true
+      schema: { type: string }
+    ActivityId:
+      name: activityId
+      in: path
+      required: true
+      schema: { type: string }
+    DocumentId:
+      name: documentId
+      in: path
+      required: true
+      schema: { type: string }
+    BillId:
+      name: billId
+      in: path
+      required: true
+      schema: { type: string }
+    ExpenseId:
+      name: expenseId
+      in: path
+      required: true
+      schema: { type: string }
+    MasterId:
+      name: masterId
+      in: path
+      required: true
+      schema: { type: string }
+    MasterType:
+      name: masterType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/MasterType'
+    ReportType:
+      name: reportType
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ReportType'
+    FilterId:
+      name: filterId
+      in: path
+      required: true
+      schema: { type: string }
+    BackupId:
+      name: backupId
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Unauthorized:
+      description: Not authenticated
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Forbidden:
+      description: Not authorized
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotFound:
+      description: Not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Conflict:
+      description: Conflict
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+  schemas:
+    Money:
+      type: string
+      pattern: '^-?\d+(\.\d{1,2})?$'
+      description: Decimal money as string
+      example: "1000000.00"
+    Percent:
+      type: string
+      pattern: '^\d+(\.\d{1,4})?$'
+      example: "18.00"
+    Role:
+      type: string
+      enum: [Administrator, DataEntryOperator, Engineer, Accounts, Viewer]
+    WorkStatus:
+      type: string
+      enum: [Planned, InProgress, Hold, Completed]
+    GstType:
+      type: string
+      enum: [GstExtra, GstIncluded]
+    Side:
+      type: string
+      enum: [LHS, RHS, Both]
+    TrafficLight:
+      type: string
+      enum: [Green, Yellow, Red]
+    BillType:
+      type: string
+      enum: [RaBill, FinalBill]
+    PaymentStatus:
+      type: string
+      enum: [Pending, PartiallyReceived, FullyReceived]
+    ExpenseType:
+      type: string
+      enum: [WorkSpecific, General]
+    ExpenseStatus:
+      type: string
+      enum: [Draft, Paid, AssignedToWork, Cancelled]
+    PaymentMode:
+      type: string
+      enum: [Cash, BankTransfer, Cheque, UPI]
+    MasterType:
+      type: string
+      enum:
+        - work-categories
+        - document-types
+        - deduction-heads
+        - expense-categories
+        - client-department-formats
+    ReportType:
+      type: string
+      enum:
+        - work-register
+        - billing
+        - expenditure
+        - financial-summary
+        - work-wise-summary
+        - pending-payment
+        - document-register
+        - general-expense
+        - dashboard-summary
+    BackupStatus:
+      type: string
+      enum: [Success, Failed, Running]
+    ExportFormat:
+      type: string
+      enum: [pdf, excel]
+
+    ProblemDetails:
+      type: object
+      required: [title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+        code:
+          type: string
+          description: Machine-stable error code
+        errors:
+          type: array
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field: { type: string }
+              message: { type: string }
+              code: { type: string }
+
+    PageMeta:
+      type: object
+      required: [page, pageSize, totalItems, totalPages]
+      properties:
+        page: { type: integer }
+        pageSize: { type: integer }
+        totalItems: { type: integer }
+        totalPages: { type: integer }
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 1 }
+        password: { type: string, minLength: 1 }
+        rememberMe: { type: boolean, default: false }
+
+    LoginResponse:
+      type: object
+      required: [user]
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        token:
+          type: string
+          description: Optional bearer token if not using cookie-only sessions
+        expiresAt: { type: string, format: date-time }
+
+    ChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword, confirmNewPassword]
+      properties:
+        currentPassword: { type: string }
+        newPassword: { type: string, minLength: 8 }
+        confirmNewPassword: { type: string, minLength: 8 }
+
+    User:
+      type: object
+      required: [id, name, loginId, role, active]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        loginId: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+        mobile: { type: string, nullable: true }
+        email: { type: string, format: email, nullable: true }
+        active: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    UserCreateRequest:
+      type: object
+      required: [name, loginId, password, role]
+      properties:
+        name: { type: string, minLength: 1 }
+        loginId: { type: string, minLength: 1 }
+        password: { type: string, minLength: 8 }
+        role: { $ref: '#/components/schemas/Role' }
+        mobile: { type: string }
+        email: { type: string, format: email }
+        active: { type: boolean, default: true }
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        role: { $ref: '#/components/schemas/Role' }
+        mobile: { type: string, nullable: true }
+        email: { type: string, format: email, nullable: true }
+        active: { type: boolean }
+        password: { type: string, minLength: 8 }
+
+    UserPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/User' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    MasterOption:
+      type: object
+      required: [id, masterType, name]
+      properties:
+        id: { type: string }
+        masterType: { $ref: '#/components/schemas/MasterType' }
+        name: { type: string }
+        active: { type: boolean, default: true }
+        updatedAt: { type: string, format: date-time }
+
+    MasterOptionCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        active: { type: boolean, default: true }
+
+    MasterOptionUpdateRequest:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        active: { type: boolean }
+
+    MasterOptionPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/MasterOption' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    Work:
+      type: object
+      required: [id, workCode, workName, gstType, status]
+      properties:
+        id: { type: string }
+        workCode: { type: string, example: CWMS-2026-0001 }
+        projectName: { type: string, nullable: true }
+        workName: { type: string }
+        workCategoryId: { type: string, nullable: true }
+        workCategoryName: { type: string, nullable: true }
+        client: { type: string, nullable: true }
+        contractor: { type: string, nullable: true }
+        clientDepartmentFormatId: { type: string, nullable: true }
+        workOrderNo: { type: string }
+        workOrderDate: { type: string, format: date }
+        gstType: { $ref: '#/components/schemas/GstType' }
+        workPortionValue: { $ref: '#/components/schemas/Money' }
+        gstPercent: { $ref: '#/components/schemas/Percent' }
+        gstAmount: { $ref: '#/components/schemas/Money' }
+        totalWorkValue: { $ref: '#/components/schemas/Money' }
+        balanceWorkValue: { $ref: '#/components/schemas/Money' }
+        financialProgressPercent: { $ref: '#/components/schemas/Percent' }
+        state: { type: string, nullable: true }
+        district: { type: string, nullable: true }
+        taluka: { type: string, nullable: true }
+        village: { type: string, nullable: true }
+        existingChainage: { type: string, nullable: true }
+        designChainage: { type: string, nullable: true }
+        side: { $ref: '#/components/schemas/Side' }
+        structureType: { type: string, nullable: true }
+        startDate: { type: string, format: date, nullable: true }
+        scheduledCompletion: { type: string, format: date, nullable: true }
+        actualCompletion: { type: string, format: date, nullable: true }
+        physicalProgressPercent: { $ref: '#/components/schemas/Percent' }
+        status: { $ref: '#/components/schemas/WorkStatus' }
+        trafficLight: { $ref: '#/components/schemas/TrafficLight' }
+        remarks: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    WorkCreateRequest:
+      type: object
+      required: [workName, workOrderNo, workOrderDate, gstType, status]
+      properties:
+        projectName: { type: string }
+        workName: { type: string, minLength: 1 }
+        workCategoryId: { type: string }
+        client: { type: string }
+        contractor: { type: string }
+        clientDepartmentFormatId: { type: string }
+        workOrderNo: { type: string, minLength: 1 }
+        workOrderDate: { type: string, format: date }
+        gstType: { $ref: '#/components/schemas/GstType' }
+        workPortionValue: { $ref: '#/components/schemas/Money' }
+        gstPercent: { $ref: '#/components/schemas/Percent' }
+        totalWorkValue: { $ref: '#/components/schemas/Money' }
+        state: { type: string }
+        district: { type: string }
+        taluka: { type: string }
+        village: { type: string }
+        existingChainage: { type: string }
+        designChainage: { type: string }
+        side: { $ref: '#/components/schemas/Side' }
+        structureType: { type: string }
+        startDate: { type: string, format: date }
+        scheduledCompletion: { type: string, format: date }
+        actualCompletion: { type: string, format: date }
+        physicalProgressPercent: { $ref: '#/components/schemas/Percent' }
+        status: { $ref: '#/components/schemas/WorkStatus' }
+        remarks: { type: string }
+
+    WorkUpdateRequest:
+      allOf:
+        - $ref: '#/components/schemas/WorkCreateRequest'
+        - type: object
+          properties:
+            lockToken: { type: string, description: Optional lock token if used }
+
+    WorkPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/WorkListItem' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    WorkListItem:
+      type: object
+      required: [id, workCode, workName, status, balanceWorkValue]
+      properties:
+        id: { type: string }
+        workCode: { type: string }
+        workOrderNo: { type: string }
+        workName: { type: string }
+        projectName: { type: string, nullable: true }
+        client: { type: string, nullable: true }
+        status: { $ref: '#/components/schemas/WorkStatus' }
+        balanceWorkValue: { $ref: '#/components/schemas/Money' }
+        trafficLight: { $ref: '#/components/schemas/TrafficLight' }
+
+    WorkLock:
+      type: object
+      required: [workId, lockedByUserId, lockedByName, acquiredAt, expiresAt]
+      properties:
+        workId: { type: string }
+        lockedByUserId: { type: string }
+        lockedByName: { type: string }
+        acquiredAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        lockToken: { type: string }
+
+    WorkFinancialSummary:
+      type: object
+      required:
+        - workPortionValue
+        - gstAmount
+        - totalWorkValue
+        - grossBillsRaised
+        - paymentsReceived
+        - outstanding
+        - totalExpenditure
+        - balanceWorkValue
+        - financialProgressPercent
+        - estimatedProfitLoss
+      properties:
+        workPortionValue: { $ref: '#/components/schemas/Money' }
+        gstAmount: { $ref: '#/components/schemas/Money' }
+        totalWorkValue: { $ref: '#/components/schemas/Money' }
+        grossBillsRaised: { $ref: '#/components/schemas/Money' }
+        paymentsReceived: { $ref: '#/components/schemas/Money' }
+        outstanding: { $ref: '#/components/schemas/Money' }
+        totalExpenditure: { $ref: '#/components/schemas/Money' }
+        balanceWorkValue: { $ref: '#/components/schemas/Money' }
+        financialProgressPercent: { $ref: '#/components/schemas/Percent' }
+        estimatedProfitLoss: { $ref: '#/components/schemas/Money' }
+
+    Estimate:
+      type: object
+      required: [id, workId, estimateNo, estimateDate, estimatedAmount]
+      properties:
+        id: { type: string }
+        workId: { type: string }
+        estimateNo: { type: string }
+        estimateDate: { type: string, format: date }
+        estimatedAmount: { $ref: '#/components/schemas/Money' }
+        revisedEstimate: { $ref: '#/components/schemas/Money' }
+        approvedBy: { type: string, nullable: true }
+        documentId: { type: string, nullable: true }
+        remarks: { type: string, nullable: true }
+
+    EstimateCreateRequest:
+      type: object
+      required: [estimateNo, estimateDate, estimatedAmount]
+      properties:
+        estimateNo: { type: string }
+        estimateDate: { type: string, format: date }
+        estimatedAmount: { $ref: '#/components/schemas/Money' }
+        revisedEstimate: { $ref: '#/components/schemas/Money' }
+        approvedBy: { type: string }
+        documentId: { type: string }
+        remarks: { type: string }
+
+    EstimateUpdateRequest:
+      $ref: '#/components/schemas/EstimateCreateRequest'
+
+    EstimateList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Estimate' }
+
+    ScheduleActivity:
+      type: object
+      required: [id, workId, activity]
+      properties:
+        id: { type: string }
+        workId: { type: string }
+        activity: { type: string }
+        startDate: { type: string, format: date, nullable: true }
+        finishDate: { type: string, format: date, nullable: true }
+        actualStart: { type: string, format: date, nullable: true }
+        actualFinish: { type: string, format: date, nullable: true }
+        progressPercent: { $ref: '#/components/schemas/Percent' }
+
+    ScheduleActivityCreateRequest:
+      type: object
+      required: [activity]
+      properties:
+        activity: { type: string, minLength: 1 }
+        startDate: { type: string, format: date }
+        finishDate: { type: string, format: date }
+        actualStart: { type: string, format: date }
+        actualFinish: { type: string, format: date }
+        progressPercent: { $ref: '#/components/schemas/Percent' }
+
+    ScheduleActivityUpdateRequest:
+      $ref: '#/components/schemas/ScheduleActivityCreateRequest'
+
+    ScheduleActivityList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ScheduleActivity' }
+
+    Document:
+      type: object
+      required: [id, workId, documentTypeId, fileName, contentType, sizeBytes, uploadedAt]
+      properties:
+        id: { type: string }
+        workId: { type: string }
+        workCode: { type: string }
+        documentTypeId: { type: string }
+        documentTypeName: { type: string }
+        documentNumber: { type: string, nullable: true }
+        title: { type: string, nullable: true }
+        fileName: { type: string }
+        contentType: { type: string }
+        sizeBytes: { type: integer, maximum: 20971520 }
+        uploadedAt: { type: string, format: date-time }
+        uploadedByUserId: { type: string }
+        uploadedByName: { type: string }
+        remarks: { type: string, nullable: true }
+
+    DocumentUploadForm:
+      type: object
+      required: [documentTypeId, file]
+      properties:
+        documentTypeId: { type: string }
+        documentNumber: { type: string }
+        title: { type: string }
+        remarks: { type: string }
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          description: PDF or image ≤ 20MB
+
+    DocumentBatchUploadForm:
+      type: object
+      required: [documentTypeId, files]
+      properties:
+        documentTypeId: { type: string }
+        files:
+          type: array
+          items:
+            type: string
+            contentMediaType: application/octet-stream
+
+    DocumentBatchUploadResult:
+      type: object
+      required: [uploaded, failed]
+      properties:
+        uploaded:
+          type: array
+          items: { $ref: '#/components/schemas/Document' }
+        failed:
+          type: array
+          items:
+            type: object
+            required: [fileName, code, message]
+            properties:
+              fileName: { type: string }
+              code: { type: string }
+              message: { type: string }
+
+    DocumentList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Document' }
+
+    DocumentPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Document' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    BillDeductionLine:
+      type: object
+      required: [name, amount]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        amount: { $ref: '#/components/schemas/Money' }
+        kind:
+          type: string
+          enum: [Standard, Other]
+
+    Bill:
+      type: object
+      required: [id, workId, systemBillNumber, billType, billDate, grossBillAmount, totalDeductions, netBillAmount, paymentStatus]
+      properties:
+        id: { type: string }
+        workId: { type: string }
+        workCode: { type: string }
+        workName: { type: string }
+        systemBillNumber: { type: string, example: BILL-2026-0001 }
+        billType: { $ref: '#/components/schemas/BillType' }
+        raBillNo: { type: string, nullable: true }
+        billDate: { type: string, format: date }
+        periodFrom: { type: string, format: date, nullable: true }
+        periodTo: { type: string, format: date, nullable: true }
+        previousBillAmount: { $ref: '#/components/schemas/Money' }
+        currentWorkPortionAmount: { $ref: '#/components/schemas/Money' }
+        gstAmount: { $ref: '#/components/schemas/Money' }
+        grossBillAmount: { $ref: '#/components/schemas/Money' }
+        deductions:
+          type: array
+          items: { $ref: '#/components/schemas/BillDeductionLine' }
+        totalDeductions: { $ref: '#/components/schemas/Money' }
+        netBillAmount: { $ref: '#/components/schemas/Money' }
+        paymentStatus: { $ref: '#/components/schemas/PaymentStatus' }
+        paymentDate: { type: string, format: date, nullable: true }
+        amountReceived: { $ref: '#/components/schemas/Money' }
+        outstandingAmount: { $ref: '#/components/schemas/Money' }
+        utrChequeNo: { type: string, nullable: true }
+        bankName: { type: string, nullable: true }
+        remarks: { type: string, nullable: true }
+
+    BillCreateRequest:
+      type: object
+      required: [workId, billType, billDate, currentWorkPortionAmount, gstAmount, paymentStatus]
+      properties:
+        workId: { type: string }
+        billType: { $ref: '#/components/schemas/BillType' }
+        raBillNo: { type: string }
+        billDate: { type: string, format: date }
+        periodFrom: { type: string, format: date }
+        periodTo: { type: string, format: date }
+        previousBillAmount: { $ref: '#/components/schemas/Money' }
+        currentWorkPortionAmount: { $ref: '#/components/schemas/Money' }
+        gstAmount: { $ref: '#/components/schemas/Money' }
+        standardDeductions:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/Money' }
+          description: Map of standard deduction head name to amount
+        otherDeductions:
+          type: array
+          items: { $ref: '#/components/schemas/BillDeductionLine' }
+        paymentStatus: { $ref: '#/components/schemas/PaymentStatus' }
+        paymentDate: { type: string, format: date }
+        amountReceived: { $ref: '#/components/schemas/Money' }
+        utrChequeNo: { type: string }
+        bankName: { type: string }
+        remarks: { type: string }
+
+    BillUpdateRequest:
+      $ref: '#/components/schemas/BillCreateRequest'
+
+    BillList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Bill' }
+
+    BillPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Bill' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    Expense:
+      type: object
+      required: [id, expenseType, expenseDate, expenseHeadId, expenseValue, gstAmount, totalAmount, status]
+      properties:
+        id: { type: string }
+        expenseType: { $ref: '#/components/schemas/ExpenseType' }
+        workId: { type: string, nullable: true }
+        workCode: { type: string, nullable: true }
+        expenseDate: { type: string, format: date }
+        expenseHeadId: { type: string }
+        expenseHeadName: { type: string }
+        vendor: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        invoiceNo: { type: string, nullable: true }
+        invoiceDate: { type: string, format: date, nullable: true }
+        expenseValue: { $ref: '#/components/schemas/Money' }
+        gstPercent: { $ref: '#/components/schemas/Percent' }
+        gstAmount: { $ref: '#/components/schemas/Money' }
+        totalAmount: { $ref: '#/components/schemas/Money' }
+        paymentMode: { $ref: '#/components/schemas/PaymentMode' }
+        paymentReference: { type: string, nullable: true }
+        paymentDate: { type: string, format: date, nullable: true }
+        status: { $ref: '#/components/schemas/ExpenseStatus' }
+        attachmentDocumentIds:
+          type: array
+          items: { type: string }
+
+    ExpenseCreateRequest:
+      type: object
+      required: [expenseType, expenseDate, expenseHeadId, expenseValue, gstPercent, status]
+      properties:
+        expenseType: { $ref: '#/components/schemas/ExpenseType' }
+        workId: { type: string }
+        expenseDate: { type: string, format: date }
+        expenseHeadId: { type: string }
+        vendor: { type: string }
+        description: { type: string }
+        invoiceNo: { type: string }
+        invoiceDate: { type: string, format: date }
+        expenseValue: { $ref: '#/components/schemas/Money' }
+        gstPercent: { $ref: '#/components/schemas/Percent' }
+        paymentMode: { $ref: '#/components/schemas/PaymentMode' }
+        paymentReference: { type: string }
+        paymentDate: { type: string, format: date }
+        status: { $ref: '#/components/schemas/ExpenseStatus' }
+
+    ExpenseUpdateRequest:
+      $ref: '#/components/schemas/ExpenseCreateRequest'
+
+    ExpenseAssignRequest:
+      type: object
+      required: [workId]
+      properties:
+        workId: { type: string }
+
+    ExpenseList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Expense' }
+
+    ExpensePage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Expense' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalWorks: { type: integer }
+        plannedWorks: { type: integer }
+        inProgressWorks: { type: integer }
+        holdWorks: { type: integer }
+        completedWorks: { type: integer }
+        totalProjects: { type: integer }
+        totalWorkPortionValue: { $ref: '#/components/schemas/Money' }
+        totalGst: { $ref: '#/components/schemas/Money' }
+        totalWorkValue: { $ref: '#/components/schemas/Money' }
+        grossBillsRaised: { $ref: '#/components/schemas/Money' }
+        paymentsReceived: { $ref: '#/components/schemas/Money' }
+        outstanding: { $ref: '#/components/schemas/Money' }
+        totalExpenditure: { $ref: '#/components/schemas/Money' }
+        estimatedProfitLoss: { $ref: '#/components/schemas/Money' }
+        trafficLightCounts:
+          type: object
+          properties:
+            green: { type: integer }
+            yellow: { type: integer }
+            red: { type: integer }
+
+    DashboardAlerts:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [code, label, count]
+            properties:
+              code:
+                type: string
+                enum:
+                  - pending_bills
+                  - overdue_schedule
+                  - outstanding_payments
+                  - missing_key_documents
+                  - works_on_hold
+              label: { type: string }
+              count: { type: integer, minimum: 0 }
+
+    WorkAttentionPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/WorkListItem' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    RecentActivityList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              workId: { type: string }
+              workCode: { type: string }
+              workName: { type: string }
+              summary: { type: string }
+              occurredAt: { type: string, format: date-time }
+
+    ReportTypeList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [reportType, name]
+            properties:
+              reportType: { $ref: '#/components/schemas/ReportType' }
+              name: { type: string }
+
+    ReportRunRequest:
+      type: object
+      required: [filters]
+      properties:
+        filters:
+          type: object
+          additionalProperties: true
+          description: Report-specific filter map (see Reporting Catalogue)
+        sort: { type: string }
+
+    ReportRunResponse:
+      type: object
+      required: [reportType, columns, rows, generatedAt]
+      properties:
+        reportType: { $ref: '#/components/schemas/ReportType' }
+        columns:
+          type: array
+          items: { type: string }
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        totals:
+          type: object
+          additionalProperties: true
+        sections:
+          type: array
+          description: For sectioned reports e.g. financial-summary / work-wise-summary
+          items:
+            type: object
+            additionalProperties: true
+        generatedAt: { type: string, format: date-time }
+        filtersApplied:
+          type: object
+          additionalProperties: true
+
+    ReportExportRequest:
+      allOf:
+        - $ref: '#/components/schemas/ReportRunRequest'
+        - type: object
+          required: [format]
+          properties:
+            format: { $ref: '#/components/schemas/ExportFormat' }
+
+    SavedReportFilter:
+      type: object
+      required: [id, reportType, name, filters, isDefault]
+      properties:
+        id: { type: string }
+        reportType: { $ref: '#/components/schemas/ReportType' }
+        name: { type: string }
+        filters:
+          type: object
+          additionalProperties: true
+        isDefault: { type: boolean }
+        updatedAt: { type: string, format: date-time }
+
+    SavedReportFilterCreateRequest:
+      type: object
+      required: [name, filters]
+      properties:
+        name: { type: string, minLength: 1 }
+        filters:
+          type: object
+          additionalProperties: true
+        isDefault: { type: boolean, default: false }
+
+    SavedReportFilterUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        filters:
+          type: object
+          additionalProperties: true
+        isDefault: { type: boolean }
+
+    SavedReportFilterList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/SavedReportFilter' }
+
+    SearchResponse:
+      type: object
+      required: [query, items]
+      properties:
+        query: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            required: [entityType, id, title]
+            properties:
+              entityType:
+                type: string
+                enum: [Work, Bill, Document, Expense]
+              id: { type: string }
+              title: { type: string }
+              subtitle: { type: string }
+              workId: { type: string }
+
+    BackupRecord:
+      type: object
+      required: [id, startedAt, type, status]
+      properties:
+        id: { type: string }
+        startedAt: { type: string, format: date-time }
+        finishedAt: { type: string, format: date-time, nullable: true }
+        type:
+          type: string
+          enum: [Automatic, Initial]
+        status: { $ref: '#/components/schemas/BackupStatus' }
+        identifier: { type: string }
+        retainUntil: { type: string, format: date-time, nullable: true }
+        message: { type: string, nullable: true }
+
+    BackupPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/BackupRecord' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    BackupRestoreRequest:
+      type: object
+      required: [confirmPhrase, acknowledgedDestructive]
+      properties:
+        confirmPhrase:
+          type: string
+          description: Must equal RESTORE
+          enum: [RESTORE]
+        acknowledgedDestructive: { type: boolean }
+
+    BackupRestoreResponse:
+      type: object
+      required: [backupId, status]
+      properties:
+        backupId: { type: string }
+        status:
+          type: string
+          enum: [Completed, Accepted, Failed]
+        message: { type: string }
+
+    AuditLog:
+      type: object
+      required: [id, occurredAt, module, action]
+      properties:
+        id: { type: string }
+        occurredAt: { type: string, format: date-time }
+        userId: { type: string, nullable: true }
+        userName: { type: string, nullable: true }
+        module: { type: string }
+        action: { type: string }
+        details: { type: string, nullable: true }
+        entityType: { type: string, nullable: true }
+        entityId: { type: string, nullable: true }
+
+    AuditLogPage:
+      type: object
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/AuditLog' }
+        page: { $ref: '#/components/schemas/PageMeta' }
+
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, down]
+        database: { type: string }
+        objectStorage: { type: string }
+        maintenanceMode: { type: boolean }
+
+    MetaResponse:
+      type: object
+      required: [apiVersion, maintenanceMode]
+      properties:
+        apiVersion: { type: string, example: "1.0.0" }
+        maintenanceMode: { type: boolean }
+        financialYearCalendar: { type: string, example: April-March }

@@ -1,0 +1,129 @@
+import { type FormEvent, useEffect, useState } from 'react'
+import {
+  activateUser,
+  createUser,
+  deactivateUser,
+  listUsers,
+} from '../../shared/api/domain'
+
+type UserRow = {
+  id: string
+  name: string
+  loginId: string
+  role: string
+  active: boolean
+}
+
+export function UsersPage() {
+  const [items, setItems] = useState<UserRow[]>([])
+  const [error, setError] = useState<string | null>(null)
+
+  async function reload() {
+    const res = await listUsers()
+    setItems(res.items)
+  }
+
+  useEffect(() => {
+    void reload().catch((e: Error) => setError(e.message))
+  }, [])
+
+  async function onCreate(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    try {
+      await createUser({
+        name: String(fd.get('name')),
+        loginId: String(fd.get('loginId')),
+        password: String(fd.get('password')),
+        role: String(fd.get('role')),
+        email: String(fd.get('email') || '') || undefined,
+      })
+      e.currentTarget.reset()
+      await reload()
+    } catch (err) {
+      setError((err as Error).message)
+    }
+  }
+
+  return (
+    <div>
+      <h1 style={{ marginTop: 0 }}>Users</h1>
+      {error && (
+        <div className="works__error" role="alert">
+          {error}
+        </div>
+      )}
+      <form onSubmit={onCreate} className="work-form__grid" style={{ marginBottom: 20 }}>
+        <label>
+          Name *
+          <input name="name" required />
+        </label>
+        <label>
+          Login ID *
+          <input name="loginId" required />
+        </label>
+        <label>
+          Password *
+          <input name="password" type="password" required minLength={8} />
+        </label>
+        <label>
+          Role *
+          <select name="role" defaultValue="Viewer">
+            <option value="Administrator">Administrator</option>
+            <option value="DataEntryOperator">Data Entry Operator</option>
+            <option value="Engineer">Engineer</option>
+            <option value="Accounts">Accounts</option>
+            <option value="Viewer">Viewer</option>
+          </select>
+        </label>
+        <label>
+          Email
+          <input name="email" type="email" />
+        </label>
+        <button type="submit" className="works__btn works__btn--primary">
+          Create user
+        </button>
+      </form>
+      <table className="works__table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Login</th>
+            <th>Role</th>
+            <th>Active</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((u) => (
+            <tr key={u.id}>
+              <td>{u.name}</td>
+              <td>{u.loginId}</td>
+              <td>{u.role}</td>
+              <td>{u.active ? 'Yes' : 'No'}</td>
+              <td>
+                {u.active ? (
+                  <button
+                    type="button"
+                    className="works__btn"
+                    onClick={() => void deactivateUser(u.id).then(reload)}
+                  >
+                    Deactivate
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="works__btn"
+                    onClick={() => void activateUser(u.id).then(reload)}
+                  >
+                    Activate
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
