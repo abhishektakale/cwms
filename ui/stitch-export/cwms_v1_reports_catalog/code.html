@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CWMS Pro - Reports Catalog</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#d8e2ff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed": "#001a42",
+                      "on-surface-variant": "#45464d",
+                      "inverse-primary": "#bec6e0",
+                      "surface-container-highest": "#d3e4fe",
+                      "outline-variant": "#c6c6cd",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container-high": "#dce9ff",
+                      "on-secondary-container": "#fefcff",
+                      "surface-bright": "#f8f9ff",
+                      "surface-dim": "#cbdbf5",
+                      "outline": "#76777d",
+                      "secondary-container": "#2170e4",
+                      "primary": "#000000",
+                      "surface-container": "#e5eeff",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "secondary": "#0058be",
+                      "surface-container-lowest": "#ffffff",
+                      "background": "#f8f9ff",
+                      "surface": "#f8f9ff",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#000000",
+                      "surface-variant": "#d3e4fe",
+                      "primary-fixed-dim": "#bec6e0",
+                      "error": "#ba1a1a",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#07006c",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-container": "#7c839b",
+                      "primary-container": "#131b2e",
+                      "on-background": "#0b1c30",
+                      "on-tertiary-container": "#7073ff",
+                      "inverse-surface": "#213145",
+                      "surface-container-low": "#eff4ff",
+                      "on-surface": "#0b1c30",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "on-tertiary-fixed": "#07006c",
+                      "tertiary-fixed": "#e1e0ff",
+                      "on-secondary-fixed-variant": "#004395"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "sm": "8px",
+                      "margin": "24px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "container-max": "1440px",
+                      "base": "4px",
+                      "md": "16px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "numeric-data": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Geist"
+                      ],
+                      "body-base": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "numeric-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-base": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-base antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen py-md px-sm bg-primary-container dark:bg-primary-container w-60 h-full fixed left-0 top-0 border-r border-outline-variant z-50">
+<div class="mb-lg px-sm">
+<h1 class="font-display-lg text-display-lg text-on-primary font-black tracking-tight">CWMS Pro</h1>
+<p class="font-body-sm text-body-sm text-on-primary-fixed-variant opacity-80 mt-1">Industrial ERP</p>
+</div>
+<div class="flex-1 overflow-y-auto space-y-1">
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-base text-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-body-base text-body-base">Work Register</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-body-base text-body-base">Billing</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-base text-body-base">Expenditure</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-body-base text-body-base">Documents</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assessment</span>
+<span class="font-body-base text-body-base font-semibold">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">database</span>
+<span class="font-body-base text-body-base">Masters</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-body-base text-body-base">Users</span>
+</a>
+<a class="flex items-center gap-3 px-sm py-2 rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined">settings_backup_restore</span>
+<span class="font-body-base text-body-base">Backup &amp; Restore</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-container-highest/20 flex items-center gap-3 px-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest/20 flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-sm">person</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-sm text-body-sm text-on-primary truncate">Admin User</p>
+<p class="font-label-caps text-label-caps text-on-primary-fixed-variant opacity-70 truncate">Administrator</p>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-60 min-h-screen flex flex-col w-full relative">
+<!-- TopNavBar -->
+<header class="h-16 w-full sticky top-0 z-40 bg-surface dark:bg-surface-container-low border-b border-outline-variant flex justify-between items-center px-lg transition-all duration-200">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Button (Hidden on Desktop) -->
+<button class="md:hidden text-primary p-2 -ml-2 rounded-DEFAULT hover:bg-surface-container-low focus:outline-none">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md text-primary">Reports Catalog</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary w-64" placeholder="Search reports..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant ml-2" data-alt="A small, professional user profile avatar showing a modern industrial worker or engineer in high-contrast light lighting, minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl3rFg8W1nVkxpMfjAr-Oi9cBD4WpKwKb4zkoe_eDZPz_rGxmFdXee9_LJhd-99TkyNTefo__58L_X-ZdrnYrmgUUxwI11yhKLZhnWh7tnsUpZHu8yzxKOk8JSOxkrkRokdGVVhlsWxJuQHOP5m32qd-Mr7Zp9CbMpJ3DOZ31-Mx15PPT_9JQuepJw_vl8FP8CYo8WcOhF9afsGA6u77rXBk5QZstyR1iysHZvllDnFvTrTwptoIAf"/>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-lg max-w-container-max mx-auto w-full flex-1 pb-24">
+<!-- Context Header -->
+<div class="mb-lg">
+<p class="font-body-base text-body-base text-on-surface-variant max-w-3xl">
+                    Select a report below to configure parameters and run data extracts. Reports are grouped by domain for rapid access to critical operational and financial metrics.
+                </p>
+</div>
+<!-- Bento Grid Catalog -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Report Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Operations</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Work Register Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Comprehensive summary of all active and completed work orders, including timelines, assigned contractors, and current status markers.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">receipt_long</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Finance</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Billing Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Detailed breakdown of all generated bills, client invoicing status, and outstanding receivables grouped by financial period.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Finance</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Expenditure Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Granular view of project-wise expenses, contractor payouts, and material costs to track budget adherence.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 4 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">account_balance</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Executive</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Financial Summary Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        High-level financial overview aggregating billing, expenditure, and overall profitability metrics for management review.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 5 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">donut_small</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Operations</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Work-wise Summary Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Aggregated metrics isolated by specific work categories or phases, enabling targeted progress analysis.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 6 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-error border border-error-container">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Finance</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Pending Payment Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Critical tracking of overdue invoices, blocked payments, and contractor dues requiring immediate resolution.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 7 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">folder_open</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Compliance</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Document Register</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Audit trail of all uploaded compliance documents, drawings, and contracts linked to projects and contractors.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 8 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">receipt</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Admin</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">General Expense Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Log of miscellaneous overheads, site running costs, and non-project specific expenditures.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Report Card 9 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex flex-col h-full hover:border-secondary-fixed-dim transition-colors group">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-low flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-sm">Executive</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-2 group-hover:text-secondary transition-colors">Dashboard Summary Report</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-2">
+                        Exportable version of the primary dashboard widgets, capturing a snapshot of key performance indicators at a given time.
+                    </p>
+<button class="w-full py-2 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm font-semibold text-primary hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-colors flex items-center justify-center gap-2">
+                        Run Report <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full py-md border-t border-outline-variant bg-surface-container-low dark:bg-surface-container-lowest flex justify-between items-center px-lg mt-auto">
+<span class="font-label-caps text-label-caps text-on-surface-variant">© 2024 Industrial ERP Solutions</span>
+<div class="flex gap-4">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary opacity-100 hover:opacity-80 transition-opacity" href="#">Terms</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary opacity-100 hover:opacity-80 transition-opacity" href="#">Privacy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary opacity-100 hover:opacity-80 transition-opacity" href="#">Support</a>
+</div>
+</footer>
+</main>
+</body></html>

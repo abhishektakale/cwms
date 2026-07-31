@@ -1,0 +1,144 @@
+import { type FormEvent, useEffect, useState } from 'react'
+import {
+  deleteDocument,
+  documentContentUrl,
+  listDocuments,
+  uploadDocument,
+  type DocumentRow,
+} from '../../shared/api/domain'
+import { listMasters } from '../../shared/api/masters'
+import { listWorks } from '../../shared/api/works'
+import { canMutate } from '../../shared/api/auth'
+import { useAuth } from '../auth/AuthContext'
+
+export function DocumentsPage() {
+  const { user } = useAuth()
+  const mutate = user ? canMutate(user.role) : false
+  const [items, setItems] = useState<DocumentRow[]>([])
+  const [types, setTypes] = useState<Array<{ id: string; name: string }>>([])
+  const [works, setWorks] = useState<Array<{ id: string; workCode: string }>>([])
+  const [error, setError] = useState<string | null>(null)
+
+  async function reload() {
+    const [d, t, w] = await Promise.all([
+      listDocuments(),
+      listMasters('document-types'),
+      listWorks({ pageSize: '100' }),
+    ])
+    setItems(d.items)
+    setTypes(t.items.map((x) => ({ id: x.id, name: x.name })))
+    setWorks(w.items.map((x) => ({ id: x.id, workCode: x.workCode })))
+  }
+
+  useEffect(() => {
+    void reload().catch((e: Error) => setError(e.message))
+  }, [])
+
+  async function onUpload(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    const workId = String(fd.get('workId'))
+    const form = new FormData()
+    form.set('documentTypeId', String(fd.get('documentTypeId')))
+    form.set('title', String(fd.get('title') || ''))
+    form.set('documentNumber', String(fd.get('documentNumber') || ''))
+    const file = fd.get('file')
+    if (file instanceof File) form.set('file', file)
+    try {
+      await uploadDocument(workId, form)
+      e.currentTarget.reset()
+      await reload()
+    } catch (err) {
+      setError((err as Error).message)
+    }
+  }
+
+  return (
+    <div>
+      <h1 style={{ marginTop: 0 }}>Documents</h1>
+      {error && (
+        <div className="works__error" role="alert">
+          {error}
+        </div>
+      )}
+      {mutate && (
+        <form onSubmit={onUpload} className="work-form__grid" style={{ marginBottom: 20 }}>
+          <label>
+            Work *
+            <select name="workId" required>
+              <option value="">—</option>
+              {works.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.workCode}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Type *
+            <select name="documentTypeId" required>
+              <option value="">—</option>
+              {types.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Title
+            <input name="title" />
+          </label>
+          <label>
+            Doc number
+            <input name="documentNumber" />
+          </label>
+          <label>
+            File (PDF/image ≤20MB) *
+            <input name="file" type="file" accept=".pdf,image/*" required />
+          </label>
+          <button type="submit" className="works__btn works__btn--primary">
+            Upload
+          </button>
+        </form>
+      )}
+      <table className="works__table">
+        <thead>
+          <tr>
+            <th>Work</th>
+            <th>Type</th>
+            <th>File</th>
+            <th>Size</th>
+            <th>Uploaded</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((d) => (
+            <tr key={d.id}>
+              <td>{d.workCode}</td>
+              <td>{d.documentTypeName}</td>
+              <td>{d.fileName}</td>
+              <td className="numeric">{d.sizeBytes}</td>
+              <td>{new Date(d.uploadedAt).toLocaleString()}</td>
+              <td style={{ display: 'flex', gap: 6 }}>
+                <a className="works__btn" href={documentContentUrl(d.id)}>
+                  Download
+                </a>
+                {mutate && (
+                  <button
+                    type="button"
+                    className="works__btn"
+                    onClick={() => void deleteDocument(d.id).then(reload)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}

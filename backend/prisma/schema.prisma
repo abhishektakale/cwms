@@ -1,0 +1,585 @@
+// CWMS v1.0 — Prisma schema
+// M1–M9: identity, masters, works, estimates, schedule, documents,
+// bills, expenses, reports filters, backups, settings
+// Source: docs/architecture/database/SQL-DATABASE-DESIGN.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleCode {
+  Administrator
+  DataEntryOperator
+  Engineer
+  Accounts
+  Viewer
+
+  @@map("role_code")
+}
+
+enum MasterType {
+  work_categories            @map("work-categories")
+  document_types             @map("document-types")
+  deduction_heads            @map("deduction-heads")
+  expense_categories         @map("expense-categories")
+  client_department_formats  @map("client-department-formats")
+
+  @@map("master_type")
+}
+
+enum GstType {
+  GstExtra
+  GstIncluded
+
+  @@map("gst_type")
+}
+
+enum WorkStatus {
+  Planned
+  InProgress
+  Hold
+  Completed
+
+  @@map("work_status")
+}
+
+enum SideCode {
+  LHS
+  RHS
+  Both
+
+  @@map("side_code")
+}
+
+enum TrafficLight {
+  Green
+  Yellow
+  Red
+
+  @@map("traffic_light")
+}
+
+enum BillType {
+  RaBill
+  FinalBill
+
+  @@map("bill_type")
+}
+
+enum PaymentStatus {
+  Pending
+  PartiallyReceived
+  FullyReceived
+
+  @@map("payment_status")
+}
+
+enum DeductionKind {
+  Standard
+  Other
+
+  @@map("deduction_kind")
+}
+
+enum ExpenseType {
+  WorkSpecific
+  General
+
+  @@map("expense_type")
+}
+
+enum ExpenseStatus {
+  Draft
+  Paid
+  AssignedToWork
+  Cancelled
+
+  @@map("expense_status")
+}
+
+enum PaymentMode {
+  Cash
+  BankTransfer
+  Cheque
+  UPI
+
+  @@map("payment_mode")
+}
+
+enum BackupType {
+  Automatic
+  Initial
+
+  @@map("backup_type")
+}
+
+enum BackupStatus {
+  Success
+  Failed
+  Running
+
+  @@map("backup_status")
+}
+
+enum ReportType {
+  work_register        @map("work-register")
+  billing              @map("billing")
+  expenditure          @map("expenditure")
+  financial_summary    @map("financial-summary")
+  work_wise_summary    @map("work-wise-summary")
+  pending_payment      @map("pending-payment")
+  document_register    @map("document-register")
+  general_expense      @map("general-expense")
+  dashboard_summary    @map("dashboard-summary")
+
+  @@map("report_type")
+}
+
+model User {
+  id               String    @id @default(uuid()) @db.Uuid
+  name             String    @db.VarChar(200)
+  loginId          String    @map("login_id") @db.VarChar(100)
+  passwordHash     String    @map("password_hash") @db.VarChar(255)
+  roleCode         RoleCode  @map("role_code")
+  mobile           String?   @db.VarChar(30)
+  email            String?   @db.VarChar(254)
+  isActive         Boolean   @default(true) @map("is_active")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdByUserId  String?   @map("created_by_user_id") @db.Uuid
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedByUserId  String?   @map("updated_by_user_id") @db.Uuid
+
+  sessions         AuthSession[]
+  rememberMeTokens RememberMeToken[]
+  auditLogs        AuditLog[]
+  workLocks        WorkEditLock[]
+  createdWorks     Work[] @relation("WorkCreatedBy")
+  updatedWorks     Work[] @relation("WorkUpdatedBy")
+  createdMasters   MasterOption[] @relation("MasterCreatedBy")
+  updatedMasters   MasterOption[] @relation("MasterUpdatedBy")
+  uploadedDocuments Document[] @relation("DocumentUploadedBy")
+  savedFilters     SavedReportFilter[]
+
+  createdBy User?  @relation("UserCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy User?  @relation("UserUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+  createdUsers User[] @relation("UserCreatedBy")
+  updatedUsers User[] @relation("UserUpdatedBy")
+
+  @@unique([loginId], map: "uq_users_login_id")
+  @@index([roleCode], map: "ix_users_role")
+  @@index([isActive], map: "ix_users_active")
+  @@map("users")
+}
+
+model AuthSession {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash") @db.VarChar(255)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(3)
+  lastSeenAt DateTime? @map("last_seen_at") @db.Timestamptz(3)
+  ipAddress  String?   @map("ip_address") @db.VarChar(64)
+  userAgent  String?   @map("user_agent") @db.VarChar(500)
+  revokedAt  DateTime? @map("revoked_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "ix_auth_sessions_user")
+  @@index([expiresAt], map: "ix_auth_sessions_expires")
+  @@map("auth_sessions")
+}
+
+model RememberMeToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash") @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "ix_remember_me_user")
+  @@map("remember_me_tokens")
+}
+
+model AuditLog {
+  id               String   @id @default(uuid()) @db.Uuid
+  occurredAt       DateTime @default(now()) @map("occurred_at") @db.Timestamptz(3)
+  userId           String?  @map("user_id") @db.Uuid
+  userNameSnapshot String?  @map("user_name_snapshot") @db.VarChar(200)
+  module           String   @db.VarChar(50)
+  action           String   @db.VarChar(80)
+  details          String?  @db.Text
+  entityType       String?  @map("entity_type") @db.VarChar(50)
+  entityId         String?  @map("entity_id") @db.Uuid
+  ipAddress        String?  @map("ip_address") @db.VarChar(64)
+  requestId        String?  @map("request_id") @db.VarChar(64)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([occurredAt], map: "ix_audit_occurred")
+  @@index([userId], map: "ix_audit_user")
+  @@index([module], map: "ix_audit_module")
+  @@index([entityType, entityId], map: "ix_audit_entity")
+  @@map("audit_logs")
+}
+
+model MasterOption {
+  id              String     @id @default(uuid()) @db.Uuid
+  masterType      MasterType @map("master_type")
+  name            String     @db.VarChar(200)
+  isActive        Boolean    @default(true) @map("is_active")
+  sortOrder       Int        @default(0) @map("sort_order")
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdByUserId String?    @map("created_by_user_id") @db.Uuid
+  updatedByUserId String?    @map("updated_by_user_id") @db.Uuid
+
+  createdBy User? @relation("MasterCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("MasterUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+  worksAsCategory Work[] @relation("WorkCategory")
+  worksAsClientFormat Work[] @relation("WorkClientFormat")
+  documents Document[] @relation("DocumentType")
+  billDeductions BillDeduction[]
+  expenses Expense[] @relation("ExpenseHead")
+
+  @@unique([masterType, name], map: "uq_master_type_name")
+  @@index([masterType, isActive], map: "ix_master_type_active")
+  @@map("master_options")
+}
+
+model IdSequence {
+  id        String @id @db.VarChar(40)
+  nextValue Int    @map("next_value")
+
+  @@map("id_sequences")
+}
+
+model AppSetting {
+  key       String   @id @db.VarChar(100)
+  valueJson Json     @map("value_json")
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("app_settings")
+}
+
+model Work {
+  id                        String       @id @default(uuid()) @db.Uuid
+  workCode                  String       @unique @map("work_code") @db.VarChar(20)
+  projectName               String?      @map("project_name") @db.VarChar(200)
+  workName                  String       @map("work_name") @db.VarChar(300)
+  workCategoryId            String?      @map("work_category_id") @db.Uuid
+  client                    String?      @db.VarChar(300)
+  contractor                String?      @db.VarChar(300)
+  clientDepartmentFormatId  String?      @map("client_department_format_id") @db.Uuid
+  workOrderNo               String       @map("work_order_no") @db.VarChar(100)
+  workOrderDate             DateTime     @map("work_order_date") @db.Date
+  gstType                   GstType      @map("gst_type")
+  workPortionValue          Decimal      @default(0) @map("work_portion_value") @db.Decimal(18, 2)
+  gstPercent                Decimal      @default(0) @map("gst_percent") @db.Decimal(9, 4)
+  gstAmount                 Decimal      @default(0) @map("gst_amount") @db.Decimal(18, 2)
+  totalWorkValue            Decimal      @default(0) @map("total_work_value") @db.Decimal(18, 2)
+  balanceWorkValue          Decimal      @default(0) @map("balance_work_value") @db.Decimal(18, 2)
+  financialProgressPercent  Decimal      @default(0) @map("financial_progress_percent") @db.Decimal(9, 4)
+  grossBillsRaised          Decimal      @default(0) @map("gross_bills_raised") @db.Decimal(18, 2)
+  paymentsReceived          Decimal      @default(0) @map("payments_received") @db.Decimal(18, 2)
+  outstandingAmount         Decimal      @default(0) @map("outstanding_amount") @db.Decimal(18, 2)
+  totalExpenditure          Decimal      @default(0) @map("total_expenditure") @db.Decimal(18, 2)
+  estimatedProfitLoss       Decimal      @default(0) @map("estimated_profit_loss") @db.Decimal(18, 2)
+  state                     String?      @db.VarChar(100)
+  district                  String?      @db.VarChar(100)
+  taluka                    String?      @db.VarChar(100)
+  village                   String?      @db.VarChar(100)
+  existingChainage          String?      @map("existing_chainage") @db.VarChar(100)
+  designChainage            String?      @map("design_chainage") @db.VarChar(100)
+  sideCode                  SideCode?    @map("side_code")
+  structureType             String?      @map("structure_type") @db.VarChar(200)
+  startDate                 DateTime?    @map("start_date") @db.Date
+  scheduledCompletion       DateTime?    @map("scheduled_completion") @db.Date
+  actualCompletion          DateTime?    @map("actual_completion") @db.Date
+  physicalProgressPercent   Decimal      @default(0) @map("physical_progress_percent") @db.Decimal(9, 4)
+  status                    WorkStatus
+  trafficLight              TrafficLight @default(Green) @map("traffic_light")
+  remarks                   String?      @db.Text
+  createdAt                 DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdByUserId           String?      @map("created_by_user_id") @db.Uuid
+  updatedAt                 DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedByUserId           String?      @map("updated_by_user_id") @db.Uuid
+
+  workCategory           MasterOption? @relation("WorkCategory", fields: [workCategoryId], references: [id], onDelete: Restrict)
+  clientDepartmentFormat MasterOption? @relation("WorkClientFormat", fields: [clientDepartmentFormatId], references: [id], onDelete: Restrict)
+  createdBy              User?         @relation("WorkCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  updatedBy              User?         @relation("WorkUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+  editLock               WorkEditLock?
+  estimates              Estimate[]
+  scheduleActivities     ScheduleActivity[]
+  documents              Document[]
+  bills                  Bill[]
+  expenses               Expense[]
+
+  @@unique([workOrderNo], map: "uq_works_work_order_no")
+  @@index([status], map: "ix_works_status")
+  @@index([projectName], map: "ix_works_project_name")
+  @@index([client], map: "ix_works_client")
+  @@index([contractor], map: "ix_works_contractor")
+  @@index([workOrderDate], map: "ix_works_wo_date")
+  @@index([workCategoryId], map: "ix_works_category")
+  @@index([trafficLight], map: "ix_works_traffic")
+  @@map("works")
+}
+
+model WorkEditLock {
+  workId         String   @id @map("work_id") @db.Uuid
+  lockedByUserId String   @map("locked_by_user_id") @db.Uuid
+  acquiredAt     DateTime @default(now()) @map("acquired_at") @db.Timestamptz(3)
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz(3)
+  lockToken      String   @unique @map("lock_token") @db.Uuid
+
+  work     Work @relation(fields: [workId], references: [id], onDelete: Cascade)
+  lockedBy User @relation(fields: [lockedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([expiresAt], map: "ix_work_locks_expires")
+  @@map("work_edit_locks")
+}
+
+model StoredFile {
+  id               String   @id @default(uuid()) @db.Uuid
+  storageKey       String   @unique @map("storage_key") @db.VarChar(500)
+  originalFileName String   @map("original_file_name") @db.VarChar(255)
+  contentType      String   @map("content_type") @db.VarChar(100)
+  sizeBytes        BigInt   @map("size_bytes")
+  checksumSha256   String?  @map("checksum_sha256") @db.Char(64)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  document           Document?
+  expenseAttachments ExpenseAttachment[]
+
+  @@map("stored_files")
+}
+
+model Document {
+  id               String   @id @default(uuid()) @db.Uuid
+  documentCode     String?  @unique @map("document_code") @db.VarChar(20)
+  workId           String   @map("work_id") @db.Uuid
+  documentTypeId   String   @map("document_type_id") @db.Uuid
+  documentNumber   String?  @map("document_number") @db.VarChar(100)
+  title            String?  @db.VarChar(300)
+  storedFileId     String   @unique @map("stored_file_id") @db.Uuid
+  remarks          String?  @db.Text
+  uploadedAt       DateTime @default(now()) @map("uploaded_at") @db.Timestamptz(3)
+  uploadedByUserId String   @map("uploaded_by_user_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  work         Work         @relation(fields: [workId], references: [id], onDelete: Restrict)
+  documentType MasterOption @relation("DocumentType", fields: [documentTypeId], references: [id], onDelete: Restrict)
+  storedFile   StoredFile   @relation(fields: [storedFileId], references: [id], onDelete: Restrict)
+  uploadedBy   User         @relation("DocumentUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: Restrict)
+  estimates    Estimate[]
+
+  @@index([workId], map: "ix_documents_work")
+  @@index([documentTypeId], map: "ix_documents_type")
+  @@index([uploadedAt], map: "ix_documents_uploaded")
+  @@map("documents")
+}
+
+model Estimate {
+  id               String   @id @default(uuid()) @db.Uuid
+  workId           String   @map("work_id") @db.Uuid
+  estimateNo       String   @map("estimate_no") @db.VarChar(100)
+  estimateDate     DateTime @map("estimate_date") @db.Date
+  estimatedAmount  Decimal  @map("estimated_amount") @db.Decimal(18, 2)
+  revisedEstimate  Decimal? @map("revised_estimate") @db.Decimal(18, 2)
+  approvedBy       String?  @map("approved_by") @db.VarChar(200)
+  documentId       String?  @map("document_id") @db.Uuid
+  remarks          String?  @db.Text
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdByUserId  String?  @map("created_by_user_id") @db.Uuid
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedByUserId  String?  @map("updated_by_user_id") @db.Uuid
+
+  work     Work      @relation(fields: [workId], references: [id], onDelete: Restrict)
+  document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([workId], map: "ix_estimates_work")
+  @@map("estimates")
+}
+
+model ScheduleActivity {
+  id               String    @id @default(uuid()) @db.Uuid
+  workId           String    @map("work_id") @db.Uuid
+  activity         String    @db.VarChar(300)
+  startDate        DateTime? @map("start_date") @db.Date
+  finishDate       DateTime? @map("finish_date") @db.Date
+  actualStart      DateTime? @map("actual_start") @db.Date
+  actualFinish     DateTime? @map("actual_finish") @db.Date
+  progressPercent  Decimal   @default(0) @map("progress_percent") @db.Decimal(9, 4)
+  sortOrder        Int       @default(0) @map("sort_order")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdByUserId  String?   @map("created_by_user_id") @db.Uuid
+  updatedByUserId  String?   @map("updated_by_user_id") @db.Uuid
+
+  work Work @relation(fields: [workId], references: [id], onDelete: Restrict)
+
+  @@index([workId], map: "ix_schedule_work")
+  @@index([finishDate], map: "ix_schedule_finish")
+  @@map("schedule_activities")
+}
+
+model Bill {
+  id                       String        @id @default(uuid()) @db.Uuid
+  systemBillNumber         String        @unique @map("system_bill_number") @db.VarChar(20)
+  workId                   String        @map("work_id") @db.Uuid
+  billType                 BillType      @map("bill_type")
+  raBillNo                 String?       @map("ra_bill_no") @db.VarChar(50)
+  billDate                 DateTime      @map("bill_date") @db.Date
+  periodFrom               DateTime?     @map("period_from") @db.Date
+  periodTo                 DateTime?     @map("period_to") @db.Date
+  previousBillAmount       Decimal       @default(0) @map("previous_bill_amount") @db.Decimal(18, 2)
+  currentWorkPortionAmount Decimal       @map("current_work_portion_amount") @db.Decimal(18, 2)
+  gstAmount                Decimal       @map("gst_amount") @db.Decimal(18, 2)
+  grossBillAmount          Decimal       @map("gross_bill_amount") @db.Decimal(18, 2)
+  totalDeductions          Decimal       @default(0) @map("total_deductions") @db.Decimal(18, 2)
+  netBillAmount            Decimal       @map("net_bill_amount") @db.Decimal(18, 2)
+  paymentStatus            PaymentStatus @map("payment_status")
+  paymentDate              DateTime?     @map("payment_date") @db.Date
+  amountReceived           Decimal       @default(0) @map("amount_received") @db.Decimal(18, 2)
+  outstandingAmount        Decimal       @default(0) @map("outstanding_amount") @db.Decimal(18, 2)
+  utrChequeNo              String?       @map("utr_cheque_no") @db.VarChar(100)
+  bankName                 String?       @map("bank_name") @db.VarChar(200)
+  remarks                  String?       @db.Text
+  createdAt                DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdByUserId          String?       @map("created_by_user_id") @db.Uuid
+  updatedAt                DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedByUserId          String?       @map("updated_by_user_id") @db.Uuid
+
+  work       Work            @relation(fields: [workId], references: [id], onDelete: Restrict)
+  deductions BillDeduction[]
+
+  @@index([workId], map: "ix_bills_work")
+  @@index([billDate], map: "ix_bills_date")
+  @@index([paymentStatus], map: "ix_bills_payment_status")
+  @@index([billType], map: "ix_bills_type")
+  @@map("bills")
+}
+
+model BillDeduction {
+  id              String        @id @default(uuid()) @db.Uuid
+  billId          String        @map("bill_id") @db.Uuid
+  deductionHeadId String?       @map("deduction_head_id") @db.Uuid
+  name            String        @db.VarChar(200)
+  amount          Decimal       @db.Decimal(18, 2)
+  kind            DeductionKind
+  sortOrder       Int           @default(0) @map("sort_order")
+
+  bill          Bill          @relation(fields: [billId], references: [id], onDelete: Cascade)
+  deductionHead MasterOption? @relation(fields: [deductionHeadId], references: [id], onDelete: SetNull)
+
+  @@index([billId], map: "ix_bill_deductions_bill")
+  @@map("bill_deductions")
+}
+
+model Expense {
+  id               String         @id @default(uuid()) @db.Uuid
+  expenseCode      String?        @unique @map("expense_code") @db.VarChar(20)
+  expenseType      ExpenseType    @map("expense_type")
+  workId           String?        @map("work_id") @db.Uuid
+  expenseDate      DateTime       @map("expense_date") @db.Date
+  expenseHeadId    String         @map("expense_head_id") @db.Uuid
+  vendor           String?        @db.VarChar(300)
+  description      String?        @db.Text
+  invoiceNo        String?        @map("invoice_no") @db.VarChar(100)
+  invoiceDate      DateTime?      @map("invoice_date") @db.Date
+  expenseValue     Decimal        @map("expense_value") @db.Decimal(18, 2)
+  gstPercent       Decimal        @default(0) @map("gst_percent") @db.Decimal(9, 4)
+  gstAmount        Decimal        @map("gst_amount") @db.Decimal(18, 2)
+  totalAmount      Decimal        @map("total_amount") @db.Decimal(18, 2)
+  paymentMode      PaymentMode?   @map("payment_mode")
+  paymentReference String?        @map("payment_reference") @db.VarChar(100)
+  paymentDate      DateTime?      @map("payment_date") @db.Date
+  status           ExpenseStatus
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdByUserId  String?        @map("created_by_user_id") @db.Uuid
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedByUserId  String?        @map("updated_by_user_id") @db.Uuid
+
+  work         Work?               @relation(fields: [workId], references: [id], onDelete: Restrict)
+  expenseHead  MasterOption        @relation("ExpenseHead", fields: [expenseHeadId], references: [id], onDelete: Restrict)
+  attachments  ExpenseAttachment[]
+
+  @@index([workId], map: "ix_expenses_work")
+  @@index([expenseType], map: "ix_expenses_type")
+  @@index([status], map: "ix_expenses_status")
+  @@index([expenseDate], map: "ix_expenses_date")
+  @@index([expenseHeadId], map: "ix_expenses_head")
+  @@index([vendor], map: "ix_expenses_vendor")
+  @@map("expenses")
+}
+
+model ExpenseAttachment {
+  id           String   @id @default(uuid()) @db.Uuid
+  expenseId    String   @map("expense_id") @db.Uuid
+  storedFileId String   @unique @map("stored_file_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  expense    Expense    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  storedFile StoredFile @relation(fields: [storedFileId], references: [id], onDelete: Restrict)
+
+  @@index([expenseId], map: "ix_expense_attachments_expense")
+  @@map("expense_attachments")
+}
+
+model SavedReportFilter {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @map("user_id") @db.Uuid
+  reportType  ReportType @map("report_type")
+  name        String     @db.VarChar(200)
+  filtersJson Json       @map("filters_json")
+  isDefault   Boolean    @default(false) @map("is_default")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, reportType], map: "ix_saved_filters_user_report")
+  @@map("saved_report_filters")
+}
+
+model BackupRecord {
+  id         String       @id @default(uuid()) @db.Uuid
+  identifier String       @unique @db.VarChar(100)
+  backupType BackupType   @map("backup_type")
+  status     BackupStatus
+  startedAt  DateTime     @map("started_at") @db.Timestamptz(3)
+  finishedAt DateTime?    @map("finished_at") @db.Timestamptz(3)
+  retainUntil DateTime?   @map("retain_until") @db.Timestamptz(3)
+  message    String?      @db.Text
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  artifact BackupArtifact?
+
+  @@index([status], map: "ix_backup_status")
+  @@index([retainUntil], map: "ix_backup_retain")
+  @@map("backup_records")
+}
+
+model BackupArtifact {
+  id             String   @id @default(uuid()) @db.Uuid
+  backupRecordId String   @unique @map("backup_record_id") @db.Uuid
+  storagePrefix  String   @map("storage_prefix") @db.VarChar(500)
+  dbDumpKey      String?  @map("db_dump_key") @db.VarChar(500)
+  manifestJson   Json?    @map("manifest_json")
+  sizeBytes      BigInt?  @map("size_bytes")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  backupRecord BackupRecord @relation(fields: [backupRecordId], references: [id], onDelete: Cascade)
+
+  @@map("backup_artifacts")
+}

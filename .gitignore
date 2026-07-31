@@ -1,0 +1,36 @@
+# Dependencies & build
+node_modules/
+dist/
+build/
+coverage/
+frontend/dist/
+backend/dist/
+backend/coverage/
+.turbo/
+*.tsbuildinfo
+
+# Secrets & local env (keep examples)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local runtime / temp
+scripts/cwms-cookies.txt
+scripts/login.json
+scripts/login-headers.txt
+*.pem
+*.key
+
+# Prisma engines if ever copied outside node_modules
+**/query_engine-*

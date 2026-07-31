@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CWMS Pro - Work Summary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#d8e2ff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed": "#001a42",
+                      "on-surface-variant": "#45464d",
+                      "inverse-primary": "#bec6e0",
+                      "surface-container-highest": "#d3e4fe",
+                      "outline-variant": "#c6c6cd",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container-high": "#dce9ff",
+                      "on-secondary-container": "#fefcff",
+                      "surface-bright": "#f8f9ff",
+                      "surface-dim": "#cbdbf5",
+                      "outline": "#76777d",
+                      "secondary-container": "#2170e4",
+                      "primary": "#000000",
+                      "surface-container": "#e5eeff",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "secondary": "#0058be",
+                      "surface-container-lowest": "#ffffff",
+                      "background": "#f8f9ff",
+                      "surface": "#f8f9ff",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#000000",
+                      "surface-variant": "#d3e4fe",
+                      "primary-fixed-dim": "#bec6e0",
+                      "error": "#ba1a1a",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#07006c",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-container": "#7c839b",
+                      "primary-container": "#131b2e",
+                      "on-background": "#0b1c30",
+                      "on-tertiary-container": "#7073ff",
+                      "inverse-surface": "#213145",
+                      "surface-container-low": "#eff4ff",
+                      "on-surface": "#0b1c30",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "on-tertiary-fixed": "#07006c",
+                      "tertiary-fixed": "#e1e0ff",
+                      "on-secondary-fixed-variant": "#004395"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "sm": "8px",
+                      "margin": "24px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "container-max": "1440px",
+                      "base": "4px",
+                      "md": "16px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": ["Geist"],
+                      "display-lg": ["Geist"],
+                      "numeric-data": ["JetBrains Mono"],
+                      "label-caps": ["Geist"],
+                      "body-base": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "body-sm": ["Geist"]
+              },
+              "fontSize": {
+                      "display-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "numeric-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                      "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-base": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Utility for hairline borders */
+        .hairline-b { border-bottom: 1px solid theme('colors.outline-variant'); }
+        .hairline-t { border-top: 1px solid theme('colors.outline-variant'); }
+        .hairline-l { border-left: 1px solid theme('colors.outline-variant'); }
+        .hairline-r { border-right: 1px solid theme('colors.outline-variant'); }
+        .hairline-all { border: 1px solid theme('colors.outline-variant'); }
+        
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: theme('colors.outline-variant'); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: theme('colors.outline'); }
+    </style>
+</head>
+<body class="h-full bg-slate-50 font-body-base text-on-surface antialiased flex overflow-hidden">
+<!-- SideNavBar (Hidden on Mobile) -->
+<nav class="w-60 h-full fixed left-0 top-0 bg-primary-container text-on-primary-fixed font-body-base text-body-base border-r border-outline-variant flex flex-col py-md px-sm hidden md:flex z-50 shadow-none">
+<div class="px-md mb-xl flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-on-primary flex items-center justify-center text-primary-container font-black font-display-lg text-lg">C</div>
+<div>
+<h1 class="font-display-lg text-[20px] leading-tight text-on-primary font-black tracking-tight">CWMS Pro</h1>
+<p class="font-body-sm text-body-sm text-on-primary-fixed-variant opacity-80">Industrial ERP</p>
+</div>
+</div>
+<ul class="flex flex-col gap-1 flex-1 overflow-y-auto">
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>Dashboard</a></li>
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="assignment">assignment</span>Work Register</a></li>
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="receipt_long">receipt_long</span>Billing</a></li>
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="payments">payments</span>Expenditure</a></li>
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>Documents</a></li>
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="assessment">assessment</span>Reports</a></li>
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="database">database</span>Masters</a></li>
+<li><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="group">group</span>Users</a></li>
+<li class="mt-auto pt-md hairline-t border-outline-variant/30"><a class="flex items-center gap-3 px-md py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined text-[20px]" data-icon="settings_backup_restore">settings_backup_restore</span>Backup &amp; Restore</a></li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col ml-0 md:ml-60 h-screen overflow-hidden bg-slate-50 relative">
+<!-- TopNavBar -->
+<header class="h-16 w-full flex justify-between items-center px-lg bg-surface border-b border-outline-variant shadow-none shrink-0 z-40 relative">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined" data-icon="menu">menu</span></button>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<a class="hover:text-primary transition-colors" href="#">Work Register</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-medium">WRK-2024-089</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-DEFAULT hairline-all">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm p-0 w-48 text-on-surface placeholder:text-on-surface-variant/50" placeholder="Search across project..." type="text"/>
+<div class="flex items-center gap-1 font-numeric-data text-[10px] text-on-surface-variant bg-surface-variant px-1.5 py-0.5 rounded opacity-70">
+<span>⌘</span><span>K</span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low"><span class="material-symbols-outlined" data-icon="help">help</span></button>
+<div class="w-8 h-8 rounded-full bg-surface-variant hairline-all overflow-hidden cursor-pointer shrink-0">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A macro photograph of a polished steel ball bearing resting on a dark slate surface. The lighting is studio quality, emphasizing crisp metallic reflections and sharp contrasts. The mood is precise, engineered, and professional, perfectly suited for an industrial ERP user avatar placeholder." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_5L6hyvCNwpYUEKBw8cjWFuaXUKKGaGyQONRJ0HBv7SGdyT-_dRxCEx6Os7lERbf4zxx3xEKWGGq7bKdbxVh16ddMZzJpFLCUU672lZw3aGoiQJtuGAujsbI1CRwXfxW9vfFswOgV7Q6GWs3TIb-LsaTGIjG6Ni2mi4wzLTcDks7bQa7cS8GYR7aVjM357MfvimncEcdttzzdJHSiLZJRHZJPrsnZkmLYH2elgaKiwGTI6MhaXtnu"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-md md:p-margin relative z-0">
+<div class="max-w-[1440px] mx-auto w-full flex flex-col gap-gutter">
+<!-- Header Actions -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 flex items-center justify-center rounded-DEFAULT bg-surface text-on-surface-variant hairline-all hover:bg-surface-container-low hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">arrow_back</span></button>
+<h2 class="font-headline-md text-headline-md text-on-surface">Work Summary</h2>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-4 py-2 rounded-DEFAULT bg-surface text-on-surface font-body-sm text-body-sm font-medium hairline-all hover:bg-surface-container-low flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="print">print</span>
+                            Print Summary
+                        </button>
+<button class="px-4 py-2 rounded-DEFAULT bg-primary text-on-primary font-body-sm text-body-sm font-medium shadow-[0_1px_2px_rgba(0,0,0,0.1)] hover:bg-primary/90 flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+                            Edit Work
+                        </button>
+</div>
+</div>
+<!-- Digital Work File Header (Identity) -->
+<div class="bg-surface rounded-lg hairline-all p-md sm:p-lg flex flex-col gap-md">
+<!-- Top Row: Identity & Status -->
+<div class="flex flex-col lg:flex-row justify-between gap-4 lg:items-start pb-md hairline-b">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3 flex-wrap">
+<span class="font-numeric-data text-[20px] text-primary font-bold tracking-tight">WRK-2024-089</span>
+<div class="h-4 w-[1px] bg-outline-variant hidden sm:block"></div>
+<span class="font-body-sm text-body-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">WO No: 4599-TX-22</span>
+<!-- Status Chip -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E0E7FF] border border-[#C7D2FE] ml-auto sm:ml-0">
+<div class="w-2 h-2 rounded-full bg-[#4F46E5] animate-pulse"></div>
+<span class="font-label-caps text-label-caps text-[#4338CA]">In Progress</span>
+</div>
+<!-- Traffic Light -->
+<div class="flex items-center gap-1 ml-2">
+<div class="w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.4)]" title="On Schedule"></div>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface max-w-3xl">Construction of Retaining Wall and Earthworks for Sector 4 Expansion Phase II</h3>
+</div>
+<!-- Client/Contractor Meta -->
+<div class="grid grid-cols-2 gap-x-8 gap-y-4 lg:text-right w-full lg:w-auto shrink-0 pt-4 lg:pt-0">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Client</span>
+<span class="font-body-base text-body-base text-on-surface font-medium">L&amp;T Infrastructure</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Contractor</span>
+<span class="font-body-base text-body-base text-on-surface font-medium">Apex Builders Ltd.</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Project</span>
+<span class="font-body-base text-body-base text-on-surface">Navi Mumbai Metro P3</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">Date of Award</span>
+<span class="font-numeric-data text-numeric-data text-on-surface">14-Aug-2024</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section Switcher Tabs -->
+<div class="border-b border-outline-variant w-full overflow-x-auto no-scrollbar">
+<nav aria-label="Tabs" class="flex gap-6 min-w-max px-2">
+<button class="font-body-sm text-body-sm font-bold text-primary border-b-2 border-primary pb-3 px-1 transition-colors whitespace-nowrap">Work Summary</button>
+<button class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary pb-3 px-1 border-b-2 border-transparent hover:border-outline-variant transition-colors whitespace-nowrap">Estimate details</button>
+<button class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary pb-3 px-1 border-b-2 border-transparent hover:border-outline-variant transition-colors whitespace-nowrap">Schedule</button>
+<button class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary pb-3 px-1 border-b-2 border-transparent hover:border-outline-variant transition-colors whitespace-nowrap">Documents <span class="bg-surface-variant text-on-surface-variant text-[10px] px-1.5 py-0.5 rounded-full ml-1 font-numeric-data">4</span></button>
+<button class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary pb-3 px-1 border-b-2 border-transparent hover:border-outline-variant transition-colors whitespace-nowrap">Billing</button>
+<button class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary pb-3 px-1 border-b-2 border-transparent hover:border-outline-variant transition-colors whitespace-nowrap">Expenditure</button>
+<button class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary pb-3 px-1 border-b-2 border-transparent hover:border-outline-variant transition-colors whitespace-nowrap">Reports</button>
+</nav>
+</div>
+<!-- Primary Financial Summary (Bento Grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+<!-- Core Values Card (Left Col) -->
+<div class="bg-surface rounded-lg hairline-all p-md flex flex-col h-full col-span-1">
+<div class="flex items-center justify-between mb-md">
+<h4 class="font-label-caps text-label-caps text-on-surface-variant">Contract Value</h4>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="account_balance">account_balance</span>
+</div>
+<div class="flex flex-col gap-4 flex-1">
+<div class="flex justify-between items-end">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Work Portion</span>
+<span class="font-numeric-data text-numeric-data text-on-surface">₹ 45,00,000.00</span>
+</div>
+<div class="flex justify-between items-end pb-3 hairline-b">
+<span class="font-body-sm text-body-sm text-on-surface-variant">GST (18%)</span>
+<span class="font-numeric-data text-[13px] text-on-surface-variant">₹ 8,10,000.00</span>
+</div>
+<div class="flex justify-between items-end mt-auto pt-2">
+<span class="font-body-base text-body-base font-medium text-on-surface">Total Awarded Value</span>
+<span class="font-numeric-data text-[20px] font-bold text-primary tracking-tight">₹ 53,10,000.00</span>
+</div>
+</div>
+</div>
+<!-- Progress Metrics (Middle Col) -->
+<div class="bg-surface rounded-lg hairline-all p-md flex flex-col h-full col-span-1">
+<div class="flex items-center justify-between mb-md">
+<h4 class="font-label-caps text-label-caps text-on-surface-variant">Billing Progress</h4>
+<div class="flex items-center gap-2">
+<span class="font-numeric-data text-[12px] font-medium text-[#059669]">42.5%</span>
+<div class="w-16 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-[#10B981] w-[42.5%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-4 flex-1">
+<div class="flex justify-between items-center p-3 rounded bg-surface-container-lowest hairline-all">
+<div class="flex flex-col">
+<span class="font-body-sm text-[12px] text-on-surface-variant leading-none mb-1">Gross Bills Raised</span>
+<span class="font-numeric-data text-numeric-data text-on-surface font-medium">₹ 22,56,750.00</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-outline-variant" data-icon="receipt">receipt</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded bg-[#F0FDF4] border border-[#BBF7D0]">
+<div class="flex flex-col">
+<span class="font-body-sm text-[12px] text-[#166534] leading-none mb-1">Payments Received</span>
+<span class="font-numeric-data text-numeric-data text-[#14532D] font-bold">₹ 18,00,000.00</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-[#22C55E]" data-icon="check_circle">check_circle</span>
+</div>
+<div class="flex justify-between items-center p-3 rounded bg-[#FEF2F2] border border-[#FECACA]">
+<div class="flex flex-col">
+<span class="font-body-sm text-[12px] text-[#991B1B] leading-none mb-1">Outstanding (AR)</span>
+<span class="font-numeric-data text-numeric-data text-[#7F1D1D] font-medium">₹ 4,56,750.00</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-[#EF4444]" data-icon="warning">warning</span>
+</div>
+</div>
+</div>
+<!-- Cost & Projection (Right Col) -->
+<div class="bg-surface rounded-lg hairline-all p-md flex flex-col h-full col-span-1">
+<div class="flex items-center justify-between mb-md">
+<h4 class="font-label-caps text-label-caps text-on-surface-variant">Cost &amp; Projection</h4>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="trending_up">trending_up</span>
+</div>
+<div class="flex flex-col gap-4 flex-1">
+<div class="flex justify-between items-end">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Booked Expenditure</span>
+<span class="font-numeric-data text-numeric-data text-on-surface">₹ 14,20,500.00</span>
+</div>
+<div class="flex justify-between items-end pb-3 hairline-b">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Balance Work Value</span>
+<span class="font-numeric-data text-[13px] text-on-surface-variant">₹ 30,53,250.00</span>
+</div>
+<div class="mt-auto pt-2 bg-surface-container px-3 py-3 rounded hairline-all flex flex-col gap-1">
+<span class="font-label-caps text-[10px] text-on-surface-variant">ESTIMATED P/L (TO DATE)</span>
+<div class="flex items-end justify-between">
+<span class="font-numeric-data text-[18px] font-bold text-[#0369A1] tracking-tight">₹ 8,36,250.00</span>
+<span class="font-numeric-data text-[12px] text-[#0369A1] bg-[#E0F2FE] px-1.5 py-0.5 rounded">37.0% margin</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

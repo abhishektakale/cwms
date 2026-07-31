@@ -1,0 +1,49 @@
+@import '../../../ui/design-system/tokens.css';
+@import '../../../ui/color-palette/color-palette.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--cwms-font-sans);
+  font-size: var(--cwms-font-body-base-size);
+  line-height: var(--cwms-font-body-base-line);
+  color: var(--cwms-on-surface);
+  background: var(--cwms-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+.numeric {
+  font-family: var(--cwms-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: var(--cwms-secondary);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 20px;
+  line-height: 1;
+  user-select: none;
+}
+
+.auth-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  color: var(--cwms-on-surface-variant);
+}
+

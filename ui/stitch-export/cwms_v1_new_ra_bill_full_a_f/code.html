@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CWMS V1 - New RA Bill</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600;900&family=JetBrains+Mono:wght@500&display=swap');
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#d8e2ff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed": "#001a42",
+                      "on-surface-variant": "#45464d",
+                      "inverse-primary": "#bec6e0",
+                      "surface-container-highest": "#d3e4fe",
+                      "outline-variant": "#c6c6cd",
+                      "on-primary-fixed": "#131b2e",
+                      "surface-container-high": "#dce9ff",
+                      "on-secondary-container": "#fefcff",
+                      "surface-bright": "#f8f9ff",
+                      "surface-dim": "#cbdbf5",
+                      "outline": "#76777d",
+                      "secondary-container": "#2170e4",
+                      "primary": "#000000",
+                      "surface-container": "#e5eeff",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "secondary": "#0058be",
+                      "surface-container-lowest": "#ffffff",
+                      "background": "#f8f9ff",
+                      "surface": "#f8f9ff",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "primary-fixed": "#dae2fd",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#000000",
+                      "surface-variant": "#d3e4fe",
+                      "primary-fixed-dim": "#bec6e0",
+                      "error": "#ba1a1a",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "tertiary-container": "#07006c",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-primary-container": "#7c839b",
+                      "primary-container": "#131b2e",
+                      "on-background": "#0b1c30",
+                      "on-tertiary-container": "#7073ff",
+                      "inverse-surface": "#213145",
+                      "surface-container-low": "#eff4ff",
+                      "on-surface": "#0b1c30",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "on-tertiary-fixed": "#07006c",
+                      "tertiary-fixed": "#e1e0ff",
+                      "on-secondary-fixed-variant": "#004395"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "sm": "8px",
+                      "margin": "24px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "container-max": "1440px",
+                      "base": "4px",
+                      "md": "16px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "numeric-data": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Geist"
+                      ],
+                      "body-base": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "numeric-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-base": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-body-base h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="w-60 h-full fixed left-0 top-0 border-r border-outline-variant flex flex-col py-md px-sm bg-primary-container z-50">
+<div class="mb-xl px-sm flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-on-primary font-display-lg text-sm font-black">C</div>
+<div>
+<h1 class="font-display-lg text-display-lg text-on-primary font-black text-lg leading-tight">CWMS Pro</h1>
+<p class="font-label-caps text-label-caps text-inverse-primary">Industrial ERP</p>
+</div>
+</div>
+<ul class="flex-1 space-y-xs overflow-y-auto">
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">dashboard</span>Dashboard</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">assignment</span>Work Register</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">receipt_long</span>Billing</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">payments</span>Expenditure</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">description</span>Documents</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">assessment</span>Reports</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">database</span>Masters</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">group</span>Users</a></li>
+<li><a class="flex items-center gap-sm px-sm py-sm rounded-DEFAULT text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 font-body-base text-body-base" href="#"><span class="material-symbols-outlined">settings_backup_restore</span>Backup &amp; Restore</a></li>
+</ul>
+</nav>
+<!-- Main Content Canvas -->
+<main class="ml-60 flex-1 flex flex-col h-full bg-slate-50 relative">
+<!-- TopAppBar -->
+<header class="h-16 w-full sticky top-0 z-40 border-b border-outline-variant bg-surface flex justify-between items-center px-lg">
+<div class="flex items-center gap-md">
+<span class="font-display-lg text-display-lg text-primary text-xl tracking-tight">CWMS ERP</span>
+<div class="h-6 w-px bg-outline-variant mx-sm"></div>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm">
+<a class="hover:text-primary transition-colors" href="#">Billing</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-bold">New RA Bill</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm bg-surface-container-low px-sm py-xs rounded-full border border-outline-variant/50">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Draft</span>
+</div>
+<button class="p-sm text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-DEFAULT transition-all duration-200">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden border border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A small circular profile picture of an industrial construction manager wearing a hard hat, lit by warm office lighting, professional headshot style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHsRwgyEtg0qXOccRmSklZzL0AmimYUnLY02jfLOG7CpZxMPX4nP8MjiLxNdw7EDrdc3cd6KE8mU15wng-3Yqh-8AuuHM4bGs4rc-uUSD_3Q-pMwYW4VaAp5cnYJwCCuCkizZgw09r2MYrMHddCWvzpb1L9eQ7g3PaKuMf5E0hzDOnxYEmZK8tZiIplLGBAWrcPWJUNGGNUtC2pTGVVT84ZrLKLIdl8a6S9HtySUjhfeaHj53r3kDZ"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-lg pb-32">
+<div class="max-w-container-max mx-auto space-y-md">
+<!-- Section A: Work Details -->
+<section class="bg-surface border border-outline-variant rounded-DEFAULT p-md">
+<h2 class="font-headline-md text-headline-md text-primary mb-md pb-sm border-b border-outline-variant">Section A: Work Details</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Work Code</label>
+<input class="w-full bg-surface-container-lowest border-outline-variant rounded-DEFAULT font-numeric-data text-numeric-data text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-shadow" readonly="" type="text" value="WRK-2024-089"/>
+</div>
+<div class="md:col-span-2">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Work Name</label>
+<input class="w-full bg-surface-container-lowest border-outline-variant rounded-DEFAULT font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-shadow" readonly="" type="text" value="Phase 2 Foundation Concrete Pour"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Project</label>
+<input class="w-full bg-surface-container-lowest border-outline-variant rounded-DEFAULT font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-shadow" readonly="" type="text" value="Skyline Tower B"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Client</label>
+<input class="w-full bg-surface-container-lowest border-outline-variant rounded-DEFAULT font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-shadow" readonly="" type="text" value="Apex Development Group"/>
+</div>
+<div>
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Contractor</label>
+<select class="w-full bg-surface-container-lowest border-outline-variant rounded-DEFAULT font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-shadow">
+<option>Select Contractor...</option>
+<option selected="">BuildCorp Pvt Ltd</option>
+<option>Structura Engineering</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Financial Sections Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-md">
+<!-- Sections B & C -->
+<div class="space-y-md">
+<section class="bg-surface border border-outline-variant rounded-DEFAULT overflow-hidden">
+<div class="p-sm bg-surface-container-low border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary text-sm">Section B: Work Done Since Last Bill</h3>
+<button class="text-secondary font-label-caps text-label-caps hover:underline">Add Item</button>
+</div>
+<div class="p-0">
+<table class="w-full text-left">
+<thead class="bg-surface-container-lowest border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant">
+<tr>
+<th class="p-sm font-normal">Item Description</th>
+<th class="p-sm font-normal text-right w-24">Qty</th>
+<th class="p-sm font-normal text-right w-24">Rate (₹)</th>
+<th class="p-sm font-normal text-right w-32">Amount (₹)</th>
+</tr>
+</thead>
+<tbody class="font-body-base text-body-base divide-y divide-outline-variant/50">
+<tr>
+<td class="p-sm">M30 Grade Concrete</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">150.5</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">6,500.00</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">9,78,250.00</td>
+</tr>
+<tr>
+<td class="p-sm">TMT Steel Rebar (500D)</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">45.2</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">82,000.00</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data">37,06,400.00</td>
+</tr>
+</tbody>
+<tfoot class="bg-surface-container-lowest border-t border-outline-variant">
+<tr>
+<td class="p-sm text-right font-label-caps text-label-caps text-on-surface-variant" colspan="3">Subtotal B:</td>
+<td class="p-sm text-right font-numeric-data text-numeric-data font-bold">46,84,650.00</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</section>
+<section class="bg-surface border border-outline-variant rounded-DEFAULT overflow-hidden">
+<div class="p-sm bg-surface-container-low border-b border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-primary text-sm">Section C: Adjustments &amp; Deductions</h3>
+</div>
+<div class="p-md space-y-sm">
+<div class="flex justify-between items-center">
+<span class="font-body-base text-body-base text-on-surface">Retention Money (5%)</span>
+<span class="font-numeric-data text-numeric-data text-error">- 2,34,232.50</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-base text-body-base text-on-surface">Mobilization Advance Recovery</span>
+<span class="font-numeric-data text-numeric-data text-error">- 1,00,000.00</span>
+</div>
+<div class="pt-sm border-t border-outline-variant flex justify-between items-center font-bold">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Total Deductions:</span>
+<span class="font-numeric-data text-numeric-data text-error">- 3,34,232.50</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Sections D, E, F -->
+<div class="space-y-md">
+<section class="bg-surface border border-outline-variant rounded-DEFAULT p-md flex flex-col justify-between h-full">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary text-sm mb-md border-b border-outline-variant pb-sm">Section D &amp; E: Taxes &amp; Net Amount</h3>
+<div class="space-y-sm mb-md">
+<div class="flex justify-between items-center">
+<span class="font-body-base text-body-base text-on-surface-variant">Taxable Value (B - C)</span>
+<span class="font-numeric-data text-numeric-data">43,50,417.50</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-base text-body-base text-on-surface-variant">CGST (9%)</span>
+<span class="font-numeric-data text-numeric-data">3,91,537.57</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-base text-body-base text-on-surface-variant">SGST (9%)</span>
+<span class="font-numeric-data text-numeric-data">3,91,537.57</span>
+</div>
+</div>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-md">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Section F: Total Payable</p>
+<div class="flex justify-between items-end">
+<span class="font-body-sm text-body-sm text-outline">INR</span>
+<span class="font-display-lg text-display-lg text-primary">₹ 51,33,492.64</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer Actions -->
+<div class="fixed bottom-0 left-60 right-0 bg-surface/90 backdrop-blur-sm border-t border-outline-variant p-md flex justify-end gap-md z-30">
+<button class="px-lg py-sm border border-outline-variant text-on-surface rounded-DEFAULT font-body-base text-body-base hover:bg-surface-container-lowest transition-colors">Cancel</button>
+<button class="px-lg py-sm bg-surface-container-high text-on-surface rounded-DEFAULT font-body-base text-body-base hover:bg-surface-container-highest transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">print</span> Save &amp; Print
+            </button>
+<button class="px-lg py-sm bg-primary text-on-primary rounded-DEFAULT font-body-base text-body-base hover:bg-primary/90 transition-colors shadow-sm">Save Bill</button>
+</div>
+</main>
+</body></html>

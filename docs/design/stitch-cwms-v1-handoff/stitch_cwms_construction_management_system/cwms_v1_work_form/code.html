@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-[#f8f9ff]" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CWMS Pro - Work Form</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-fixed": "#d8e2ff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001a42",
+                        "on-surface-variant": "#45464d",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#fefcff",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "outline": "#76777d",
+                        "secondary-container": "#2170e4",
+                        "primary": "#000000",
+                        "surface-container": "#e5eeff",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "secondary": "#0058be",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f8f9ff",
+                        "surface": "#f8f9ff",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#000000",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed-dim": "#bec6e0",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#07006c",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary-container": "#7c839b",
+                        "primary-container": "#131b2e",
+                        "on-background": "#0b1c30",
+                        "on-tertiary-container": "#7073ff",
+                        "inverse-surface": "#213145",
+                        "surface-container-low": "#eff4ff",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary-fixed-variant": "#004395"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "xl": "32px",
+                        "sm": "8px",
+                        "margin": "24px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "md": "16px",
+                        "gutter": "16px"
+                    },
+                    fontFamily: {
+                        "display-lg-mobile": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "numeric-data": ["JetBrains Mono"],
+                        "label-caps": ["Geist"],
+                        "body-base": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-sm": ["Geist"]
+                    },
+                    fontSize: {
+                        "display-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "display-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "numeric-data": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+                        "label-caps": ["11px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "body-base": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "headline-md": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full flex overflow-hidden bg-background">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen py-md px-sm bg-primary-container text-on-primary-fixed border-r border-outline-variant w-60 fixed left-0 top-0 z-50">
+<div class="mb-xl px-md">
+<h1 class="font-display-lg text-display-lg text-on-primary font-black">CWMS Pro</h1>
+<p class="font-label-caps text-label-caps text-on-primary-container mt-xs">Industrial ERP</p>
+</div>
+<ul class="flex flex-col gap-sm flex-1 overflow-y-auto">
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="dashboard">dashboard</span>
+<span class="font-body-base text-body-base">Dashboard</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="assignment" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<span class="font-body-base text-body-base font-semibold">Work Register</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="receipt_long">receipt_long</span>
+<span class="font-body-base text-body-base">Billing</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="payments">payments</span>
+<span class="font-body-base text-body-base">Expenditure</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="description">description</span>
+<span class="font-body-base text-body-base">Documents</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="assessment">assessment</span>
+<span class="font-body-base text-body-base">Reports</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="database">database</span>
+<span class="font-body-base text-body-base">Masters</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="group">group</span>
+<span class="font-body-base text-body-base">Users</span>
+</li>
+<li class="group cursor-pointer active:scale-95 px-md py-sm rounded flex items-center gap-md text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined font-body-base text-body-base" data-icon="settings_backup_restore">settings_backup_restore</span>
+<span class="font-body-base text-body-base">Backup &amp; Restore</span>
+</li>
+</ul>
+<div class="mt-auto pt-md border-t border-outline-variant/30 flex items-center gap-sm px-sm">
+<img alt="Organization Logo" class="w-8 h-8 rounded-full bg-surface-container-highest/20 object-cover" data-alt="A small, circular avatar image showing a professional organization logo or abstract geometric shape in a dark blue and white color scheme, indicating a user profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHi5NkGh7m7I1DHyGO6FjCa2FmhiR0E_LqkiaaOEkY8_4lpZ0MdximECLTNS5LR7se97Y_Ut39QLY4-P60C1MMdOJsshXZaW7b1Kx5sINM447swx4Oe0WZhFXLd4bYWimNjEWDjFW0JaYkxiB13ESu7bNkIf58JOMODSHthnp-XBUt2Luxa6Kzu5K83tYKawQMytRk0kj_-d6p3n8qT2cHkw4DvabnnPngXTwyqBa8mCXcZRpJKw35"/>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-primary">Admin User</span>
+<span class="font-label-caps text-label-caps text-on-primary-container">Org ID: 9482</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-60 h-screen overflow-hidden bg-background">
+<!-- TopNavBar -->
+<header class="h-16 w-full flex justify-between items-center px-lg bg-surface border-b border-outline-variant z-40 sticky top-0">
+<div class="flex items-center gap-md">
+<div class="flex items-center text-on-surface-variant font-body-sm text-body-sm">
+<span class="hover:text-primary cursor-pointer transition-colors">Work Register</span>
+<span class="material-symbols-outlined mx-xs text-outline-variant" data-icon="chevron_right" style="font-size: 16px;">chevron_right</span>
+<span class="text-primary font-semibold">New Work</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="pl-xl pr-sm py-sm border border-outline-variant rounded bg-surface-container-lowest text-on-surface font-body-sm text-body-sm focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-shadow w-48" placeholder="Search..." type="text"/>
+</div>
+<button class="p-sm rounded hover:bg-surface-container-low text-primary transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto p-lg pb-32">
+<div class="max-w-container-max mx-auto">
+<!-- Page Title & Core Info (Bento-ish Top) -->
+<div class="mb-lg flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary mb-xs">Create New Work Order</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Fill in the details below to initiate a new project assignment.</p>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-low px-md py-sm rounded border border-outline-variant">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Work Code</span>
+<span class="font-numeric-data text-numeric-data text-primary">WK-AUTO</span>
+</div>
+</div>
+<!-- Tabs -->
+<div class="mb-lg border-b border-outline-variant flex overflow-x-auto hide-scrollbar">
+<button class="px-md py-sm font-body-base text-body-base text-primary font-bold border-b-2 border-primary whitespace-nowrap">General</button>
+<button class="px-md py-sm font-body-base text-body-base text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Financial</button>
+<button class="px-md py-sm font-body-base text-body-base text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Location</button>
+<button class="px-md py-sm font-body-base text-body-base text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Schedule</button>
+<button class="px-md py-sm font-body-base text-body-base text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Documents</button>
+<button class="px-md py-sm font-body-base text-body-base text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap">Summary</button>
+</div>
+<!-- Form Content (General Tab Active) -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant p-lg shadow-[0_4px_6px_-1px_rgb(0,0,0,0.1),0_2px_4px_-2px_rgb(0,0,0,0.1)]">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Project Selection -->
+<div class="col-span-1 md:col-span-2 lg:col-span-3">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Project <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full border border-outline-variant rounded bg-surface-container-lowest py-sm pl-sm pr-xl font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-2 focus:ring-secondary-fixed transition-shadow appearance-none">
+<option disabled="" selected="" value="">Select a Project...</option>
+<option value="p1">PRJ-2024-001: Metro Line B Extension</option>
+<option value="p2">PRJ-2024-045: Highway 4 Resurfacing</option>
+<option value="p3">PRJ-2023-112: Commercial Complex Alpha</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none" data-icon="unfold_more">unfold_more</span>
+</div>
+</div>
+<!-- Work Title -->
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Work Title <span class="text-error">*</span></label>
+<input class="w-full border border-outline-variant rounded bg-surface-container-lowest p-sm font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-2 focus:ring-secondary-fixed transition-shadow" placeholder="e.g., Foundation Pouring Phase 1" type="text"/>
+</div>
+<!-- Work Type -->
+<div class="col-span-1">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Work Type</label>
+<div class="relative">
+<select class="w-full border border-outline-variant rounded bg-surface-container-lowest py-sm pl-sm pr-xl font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-2 focus:ring-secondary-fixed transition-shadow appearance-none">
+<option>Civil</option>
+<option>Electrical</option>
+<option>Plumbing</option>
+<option>HVAC</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+<!-- Description -->
+<div class="col-span-1 md:col-span-2 lg:col-span-3">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Description</label>
+<textarea class="w-full border border-outline-variant rounded bg-surface-container-lowest p-sm font-body-base text-body-base text-on-surface focus:border-secondary-container focus:ring-2 focus:ring-secondary-fixed transition-shadow resize-y" placeholder="Detailed description of the work to be performed..." rows="4"></textarea>
+</div>
+<!-- Priority & Status -->
+<div class="col-span-1">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-xs">Priority</label>
+<div class="flex gap-sm">
+<label class="flex-1 flex items-center justify-center gap-xs border border-outline-variant rounded p-sm cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="text-secondary-container focus:ring-secondary-container" name="priority" type="radio" value="low"/>
+<span class="font-body-sm text-body-sm text-on-surface">Low</span>
+</label>
+<label class="flex-1 flex items-center justify-center gap-xs border border-outline-variant rounded p-sm cursor-pointer bg-surface-container-low ring-1 ring-secondary-container">
+<input checked="" class="text-secondary-container focus:ring-secondary-container" name="priority" type="radio" value="medium"/>
+<span class="font-body-sm text-body-sm text-primary font-medium">Med</span>
+</label>
+<label class="flex-1 flex items-center justify-center gap-xs border border-outline-variant rounded p-sm cursor-pointer hover:bg-error-container/50 transition-colors">
+<input class="text-error focus:ring-error" name="priority" type="radio" value="high"/>
+<span class="font-body-sm text-body-sm text-on-surface">High</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Footer -->
+<div class="fixed bottom-0 right-0 w-full md:w-[calc(100%-240px)] bg-surface-container-lowest border-t border-outline-variant p-md flex justify-between items-center z-40 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)]">
+<button class="px-lg py-sm rounded font-body-base text-body-base text-on-surface-variant border border-outline-variant hover:bg-surface-container-low transition-colors">Cancel</button>
+<div class="flex gap-md">
+<button class="px-lg py-sm rounded font-body-base text-body-base text-secondary border border-secondary hover:bg-secondary-fixed transition-colors">Save &amp; New</button>
+<button class="px-lg py-sm rounded font-body-base text-body-base text-on-primary bg-primary hover:bg-on-surface transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined" data-icon="save" style="font-size: 18px;">save</span>
+                    Save
+                </button>
+</div>
+</div>
+</div>
+<style>
+        /* Hide scrollbar for tabs but allow scroll */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

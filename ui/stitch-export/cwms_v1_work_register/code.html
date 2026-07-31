@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CWMS Pro - Work Register</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "secondary-fixed": "#d8e2ff",
+                            "error-container": "#ffdad6",
+                            "on-secondary-fixed": "#001a42",
+                            "on-surface-variant": "#45464d",
+                            "inverse-primary": "#bec6e0",
+                            "surface-container-highest": "#d3e4fe",
+                            "outline-variant": "#c6c6cd",
+                            "on-primary-fixed": "#131b2e",
+                            "surface-container-high": "#dce9ff",
+                            "on-secondary-container": "#fefcff",
+                            "surface-bright": "#f8f9ff",
+                            "surface-dim": "#cbdbf5",
+                            "outline": "#76777d",
+                            "secondary-container": "#2170e4",
+                            "primary": "#000000",
+                            "surface-container": "#e5eeff",
+                            "tertiary-fixed-dim": "#c0c1ff",
+                            "secondary": "#0058be",
+                            "surface-container-lowest": "#ffffff",
+                            "background": "#f8f9ff",
+                            "surface": "#f8f9ff",
+                            "on-primary": "#ffffff",
+                            "surface-tint": "#565e74",
+                            "primary-fixed": "#dae2fd",
+                            "on-primary-fixed-variant": "#3f465c",
+                            "on-tertiary": "#ffffff",
+                            "tertiary": "#000000",
+                            "surface-variant": "#d3e4fe",
+                            "primary-fixed-dim": "#bec6e0",
+                            "error": "#ba1a1a",
+                            "on-secondary": "#ffffff",
+                            "on-error-container": "#93000a",
+                            "tertiary-container": "#07006c",
+                            "on-tertiary-fixed-variant": "#2f2ebe",
+                            "on-error": "#ffffff",
+                            "inverse-on-surface": "#eaf1ff",
+                            "on-primary-container": "#7c839b",
+                            "primary-container": "#131b2e",
+                            "on-background": "#0b1c30",
+                            "on-tertiary-container": "#7073ff",
+                            "inverse-surface": "#213145",
+                            "surface-container-low": "#eff4ff",
+                            "on-surface": "#0b1c30",
+                            "secondary-fixed-dim": "#adc6ff",
+                            "on-tertiary-fixed": "#07006c",
+                            "tertiary-fixed": "#e1e0ff",
+                            "on-secondary-fixed-variant": "#004395"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "xl": "32px",
+                            "sm": "8px",
+                            "margin": "24px",
+                            "xs": "4px",
+                            "lg": "24px",
+                            "container-max": "1440px",
+                            "base": "4px",
+                            "md": "16px",
+                            "gutter": "16px"
+                    },
+                    "fontFamily": {
+                            "display-lg-mobile": [
+                                    "Geist"
+                            ],
+                            "display-lg": [
+                                    "Geist"
+                            ],
+                            "numeric-data": [
+                                    "JetBrains Mono"
+                            ],
+                            "label-caps": [
+                                    "Geist"
+                            ],
+                            "body-base": [
+                                    "Geist"
+                            ],
+                            "headline-md": [
+                                    "Geist"
+                            ],
+                            "body-sm": [
+                                    "Geist"
+                            ]
+                    },
+                    "fontSize": {
+                            "display-lg-mobile": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "32px",
+                                            "letterSpacing": "-0.01em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "display-lg": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "40px",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "numeric-data": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "fontWeight": "500"
+                                    }
+                            ],
+                            "label-caps": [
+                                    "11px",
+                                    {
+                                            "lineHeight": "16px",
+                                            "letterSpacing": "0.05em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "body-base": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "headline-md": [
+                                    "20px",
+                                    {
+                                            "lineHeight": "28px",
+                                            "letterSpacing": "-0.01em",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "body-sm": [
+                                    "13px",
+                                    {
+                                            "lineHeight": "18px",
+                                            "fontWeight": "400"
+                                    }
+                            ]
+                    }
+            },
+                },
+        }
+    </script>
+<style>
+        .table-row-hover:hover {
+            background-color: theme('colors.surface-container-low');
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-bg-planned { background-color: rgba(118, 119, 125, 0.1); color: #45464d; }
+        .status-dot-planned { background-color: #76777d; }
+        
+        .status-bg-progress { background-color: rgba(33, 112, 228, 0.1); color: #004395; }
+        .status-dot-progress { background-color: #2170e4; }
+        
+        .status-bg-hold { background-color: rgba(186, 26, 26, 0.1); color: #93000a; }
+        .status-dot-hold { background-color: #ba1a1a; }
+        
+        .status-bg-completed { background-color: rgba(0, 88, 190, 0.1); color: #001a42; } /* Reusing secondary for demo since no success color in config */
+        .status-dot-completed { background-color: #0058be; }
+
+        .traffic-light-red { background-color: #ba1a1a; }
+        .traffic-light-yellow { background-color: #d69e2e; } /* Hardcoded yellow as it's missing from config for traffic light */
+        .traffic-light-green { background-color: #38a169; } /* Hardcoded green as it's missing from config for traffic light */
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased flex h-screen overflow-hidden font-body-base">
+<!-- SideNavBar -->
+<nav class="bg-primary-container dark:bg-primary-container text-on-primary-fixed dark:text-on-primary-fixed font-body-base text-body-base w-60 h-full fixed left-0 top-0 border-r border-outline-variant flex flex-col h-screen py-md px-sm z-50">
+<div class="mb-xl px-md">
+<h1 class="font-display-lg text-display-lg text-on-primary font-black tracking-tighter">CWMS Pro</h1>
+<p class="text-on-primary-fixed-variant font-label-caps text-label-caps uppercase mt-1">Industrial ERP</p>
+</div>
+<div class="flex-1 overflow-y-auto space-y-1">
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary border-l-4 border-secondary-container bg-surface-container-highest/10 cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">assignment</span>
+<span>Work Register</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">receipt_long</span>
+<span>Billing</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">payments</span>
+<span>Expenditure</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">description</span>
+<span>Documents</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">assessment</span>
+<span>Reports</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">database</span>
+<span>Masters</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">group</span>
+<span>Users</span>
+</a>
+<a class="flex items-center gap-3 px-md py-sm rounded text-on-primary-fixed-variant opacity-70 hover:bg-surface-container-highest/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings_backup_restore</span>
+<span>Backup &amp; Restore</span>
+</a>
+</div>
+<div class="mt-auto pt-md flex items-center gap-3 px-md">
+<div class="w-8 h-8 rounded-full bg-surface-tint overflow-hidden flex-shrink-0">
+<img alt="Organization Logo" class="w-full h-full object-cover" data-alt="A minimalist, geometric organization logo featuring intertwined steel beams forming a stylized letter C in monochrome metallic tones against a stark white background. The lighting is soft and flat, emphasizing the clean architectural lines of the industrial ERP brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkYTdIEaPOphtRBCmkcjlnXeeieCuxK6ZqwP_cViFNB3ajA3YKky3mcd1vhCeLYS1e8vXnt8ryUUi1DyWAv09zfw8GI6mHbfmejgfjWNmjwgZGJLuBbrSkxj6G6hW9GM-4xPJ9tZGg1h9ROxOC18-YHUptKnUBQtgzXKz48wrPSueORKNup4Y-cedxLx_CTiobEqH5YUCumrNnkG3ITyE-W0Kf6QNMMR-iUO8S1lOJlB-0zAe8Pj5x"/>
+</div>
+<div class="overflow-hidden">
+<p class="text-on-primary text-body-sm font-body-sm truncate">Admin User</p>
+<p class="text-on-primary-fixed-variant text-label-caps font-label-caps uppercase truncate">System Admin</p>
+</div>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col ml-60 min-w-0 bg-background">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-low text-primary dark:text-on-surface font-headline-md text-headline-md h-16 w-full sticky top-0 z-40 border-b border-outline-variant flex justify-between items-center px-lg transition-all duration-200 shadow-sm">
+<!-- Breadcrumbs / Page Title -->
+<div class="flex items-center gap-2 text-on-surface-variant font-body-base text-body-base">
+<span>Modules</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-headline-md text-headline-md font-bold tracking-tight">Work Register</span>
+</div>
+<!-- Global Actions -->
+<div class="flex items-center gap-lg">
+<!-- Search -->
+<div class="relative hidden lg:block w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded pl-10 pr-4 py-1.5 text-body-sm font-body-sm focus:outline-none focus:border-secondary-container focus:ring-1 focus:ring-secondary-container transition-shadow" placeholder="Search Work Orders..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="relative text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</button>
+<div class="w-8 h-8 rounded-full border border-outline-variant overflow-hidden cursor-pointer hover:border-primary transition-colors">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of an Indian construction project manager in a clean, modern white hardhat and hi-vis vest, set against a blurred background of a well-lit, organized industrial office space. The lighting is bright and neutral, fitting a corporate ERP user profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2Wv-8vdXbhJeQmCavecQHrRJoIrcodX2ii336hS-VXGBYi7yWomrlqZ4NdIIaCcTkpaJeeklLtRXxh84FGQIZmMHPvhoMu12GhsI7PxuloOeBtPCtOP0lV54QHsjg-Mfk9lggmDop_GDXFGRsNLLWWCwYwLvSwB_vfPsof7YKluPTqfD_Jmvql1PO9QGk7NvbM72nfcKVKE8czGriRr0eY-T2qEbmVLnHLRnlZzihYIKv0X_5URm4"/>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<main class="flex-1 overflow-auto p-lg">
+<div class="max-w-container-max mx-auto space-y-md">
+<!-- Filter Bar -->
+<div class="bg-surface rounded-DEFAULT border border-outline-variant p-sm flex flex-wrap items-center justify-between gap-md">
+<div class="flex flex-wrap items-center gap-sm">
+<!-- Filters -->
+<div class="flex items-center gap-2 border border-outline-variant rounded px-2 py-1 bg-surface-container-lowest">
+<span class="text-on-surface-variant text-label-caps font-label-caps uppercase">Status:</span>
+<select class="bg-transparent border-none text-body-sm font-body-sm py-0 pl-1 pr-6 focus:ring-0 text-primary cursor-pointer appearance-none">
+<option>All Active</option>
+<option>Planned</option>
+<option>In Progress</option>
+<option>Hold</option>
+</select>
+</div>
+<div class="flex items-center gap-2 border border-outline-variant rounded px-2 py-1 bg-surface-container-lowest">
+<span class="text-on-surface-variant text-label-caps font-label-caps uppercase">Project:</span>
+<select class="bg-transparent border-none text-body-sm font-body-sm py-0 pl-1 pr-6 focus:ring-0 text-primary cursor-pointer appearance-none">
+<option>All Projects</option>
+<option>PRJ-A-23</option>
+<option>PRJ-B-24</option>
+</select>
+</div>
+<div class="flex items-center gap-2 border border-outline-variant rounded px-2 py-1 bg-surface-container-lowest">
+<span class="text-on-surface-variant text-label-caps font-label-caps uppercase">FY:</span>
+<select class="bg-transparent border-none text-body-sm font-body-sm py-0 pl-1 pr-6 focus:ring-0 text-primary cursor-pointer appearance-none">
+<option>2023-24</option>
+<option>2022-23</option>
+</select>
+</div>
+</div>
+<!-- Table Actions -->
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-3 py-1.5 border border-outline-variant rounded hover:bg-surface-container-low transition-colors text-body-sm font-body-sm text-primary">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                            Export
+                        </button>
+<button class="flex items-center gap-2 px-3 py-1.5 border border-outline-variant rounded hover:bg-surface-container-low transition-colors text-body-sm font-body-sm text-primary">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                            Edit
+                        </button>
+<button class="flex items-center gap-2 px-3 py-1.5 border border-error-container text-error rounded hover:bg-error-container/20 transition-colors text-body-sm font-body-sm">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+                            Delete
+                        </button>
+<button class="flex items-center gap-2 px-4 py-1.5 bg-secondary-container text-on-secondary-container rounded hover:bg-secondary transition-colors text-body-sm font-body-sm font-bold ml-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                            New Work
+                        </button>
+</div>
+</div>
+<!-- High Density Data Table -->
+<div class="bg-surface border border-outline-variant rounded-DEFAULT overflow-hidden shadow-sm flex flex-col h-[calc(100vh-220px)]">
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse whitespace-nowrap">
+<thead class="bg-surface-container-low sticky top-0 z-10 border-b border-outline-variant">
+<tr>
+<th class="w-10 px-sm py-2 text-center">
+<input class="rounded-sm border-outline-variant text-secondary-container focus:ring-secondary-container cursor-pointer" type="checkbox"/>
+</th>
+<th class="w-10 px-sm py-2 text-center text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">traffic</span></th>
+<th class="px-sm py-2 text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Work Code</th>
+<th class="px-sm py-2 text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">WO No.</th>
+<th class="px-sm py-2 text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Name</th>
+<th class="px-sm py-2 text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Client</th>
+<th class="px-sm py-2 text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Project</th>
+<th class="px-sm py-2 text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-sm py-2 text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider text-right">Balance Value (₹)</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="table-row-hover transition-colors group cursor-pointer">
+<td class="px-sm py-2 text-center">
+<input class="rounded-sm border-outline-variant text-secondary-container focus:ring-secondary-container cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-sm py-2 text-center"><div class="status-dot traffic-light-green mx-auto"></div></td>
+<td class="px-sm py-2 text-primary font-numeric-data text-numeric-data">CWMS-2024-0012</td>
+<td class="px-sm py-2 text-on-surface-variant font-numeric-data text-numeric-data">WO/24/A-112</td>
+<td class="px-sm py-2 text-primary font-medium truncate max-w-[200px]" title="Foundation Excavation Block A">Foundation Excavation Block A</td>
+<td class="px-sm py-2 text-on-surface-variant truncate max-w-[150px]">L&amp;T Construction</td>
+<td class="px-sm py-2 text-on-surface-variant">PRJ-BLR-01</td>
+<td class="px-sm py-2">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full status-bg-progress border border-secondary-fixed">
+<span class="status-dot status-dot-progress"></span>
+<span class="font-label-caps text-label-caps uppercase font-bold">In Progress</span>
+</div>
+</td>
+<td class="px-sm py-2 text-right text-primary font-numeric-data text-numeric-data">14,50,000.00</td>
+</tr>
+<!-- Row 2 -->
+<tr class="table-row-hover transition-colors group cursor-pointer">
+<td class="px-sm py-2 text-center">
+<input class="rounded-sm border-outline-variant text-secondary-container focus:ring-secondary-container cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-sm py-2 text-center"><div class="status-dot traffic-light-yellow mx-auto"></div></td>
+<td class="px-sm py-2 text-primary font-numeric-data text-numeric-data">CWMS-2024-0013</td>
+<td class="px-sm py-2 text-on-surface-variant font-numeric-data text-numeric-data">WO/24/A-113</td>
+<td class="px-sm py-2 text-primary font-medium truncate max-w-[200px]" title="Steel Reinforcement Procurement">Steel Reinforcement Procurement</td>
+<td class="px-sm py-2 text-on-surface-variant truncate max-w-[150px]">Tata Projects</td>
+<td class="px-sm py-2 text-on-surface-variant">PRJ-MUM-04</td>
+<td class="px-sm py-2">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full status-bg-planned border border-outline-variant/30">
+<span class="status-dot status-dot-planned"></span>
+<span class="font-label-caps text-label-caps uppercase font-bold">Planned</span>
+</div>
+</td>
+<td class="px-sm py-2 text-right text-primary font-numeric-data text-numeric-data">8,25,500.00</td>
+</tr>
+<!-- Row 3 -->
+<tr class="table-row-hover transition-colors group cursor-pointer bg-error-container/10">
+<td class="px-sm py-2 text-center">
+<input class="rounded-sm border-outline-variant text-secondary-container focus:ring-secondary-container cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-sm py-2 text-center"><div class="status-dot traffic-light-red mx-auto animate-pulse"></div></td>
+<td class="px-sm py-2 text-primary font-numeric-data text-numeric-data">CWMS-2023-0899</td>
+<td class="px-sm py-2 text-on-surface-variant font-numeric-data text-numeric-data">WO/23/C-445</td>
+<td class="px-sm py-2 text-primary font-medium truncate max-w-[200px]" title="HVAC Ducting Phase 2">HVAC Ducting Phase 2</td>
+<td class="px-sm py-2 text-on-surface-variant truncate max-w-[150px]">Voltas Eng.</td>
+<td class="px-sm py-2 text-on-surface-variant">PRJ-DEL-02</td>
+<td class="px-sm py-2">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full status-bg-hold border border-error-container">
+<span class="status-dot status-dot-hold"></span>
+<span class="font-label-caps text-label-caps uppercase font-bold">Hold</span>
+</div>
+</td>
+<td class="px-sm py-2 text-right text-error font-numeric-data text-numeric-data font-bold">45,00,000.00</td>
+</tr>
+<!-- Row 4 -->
+<tr class="table-row-hover transition-colors group cursor-pointer">
+<td class="px-sm py-2 text-center">
+<input class="rounded-sm border-outline-variant text-secondary-container focus:ring-secondary-container cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-sm py-2 text-center"><div class="status-dot traffic-light-green mx-auto"></div></td>
+<td class="px-sm py-2 text-primary font-numeric-data text-numeric-data">CWMS-2024-0005</td>
+<td class="px-sm py-2 text-on-surface-variant font-numeric-data text-numeric-data">WO/24/B-021</td>
+<td class="px-sm py-2 text-primary font-medium truncate max-w-[200px]" title="Site Office Setup &amp; Utilities">Site Office Setup &amp; Utilities</td>
+<td class="px-sm py-2 text-on-surface-variant truncate max-w-[150px]">Internal</td>
+<td class="px-sm py-2 text-on-surface-variant">PRJ-HYD-09</td>
+<td class="px-sm py-2">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full status-bg-completed border border-secondary-fixed">
+<span class="status-dot status-dot-completed"></span>
+<span class="font-label-caps text-label-caps uppercase font-bold">Completed</span>
+</div>
+</td>
+<td class="px-sm py-2 text-right text-on-surface-variant font-numeric-data text-numeric-data">0.00</td>
+</tr>
+<!-- Row 5 -->
+<tr class="table-row-hover transition-colors group cursor-pointer">
+<td class="px-sm py-2 text-center">
+<input class="rounded-sm border-outline-variant text-secondary-container focus:ring-secondary-container cursor-pointer" type="checkbox"/>
+</td>
+<td class="px-sm py-2 text-center"><div class="status-dot traffic-light-green mx-auto"></div></td>
+<td class="px-sm py-2 text-primary font-numeric-data text-numeric-data">CWMS-2024-0021</td>
+<td class="px-sm py-2 text-on-surface-variant font-numeric-data text-numeric-data">WO/24/A-120</td>
+<td class="px-sm py-2 text-primary font-medium truncate max-w-[200px]" title="Concrete Pouring Level 1">Concrete Pouring Level 1</td>
+<td class="px-sm py-2 text-on-surface-variant truncate max-w-[150px]">L&amp;T Construction</td>
+<td class="px-sm py-2 text-on-surface-variant">PRJ-BLR-01</td>
+<td class="px-sm py-2">
+<div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full status-bg-progress border border-secondary-fixed">
+<span class="status-dot status-dot-progress"></span>
+<span class="font-label-caps text-label-caps uppercase font-bold">In Progress</span>
+</div>
+</td>
+<td class="px-sm py-2 text-right text-primary font-numeric-data text-numeric-data">89,20,000.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="bg-surface-container-lowest border-t border-outline-variant p-sm flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<div>
+                            Showing <span class="font-bold text-primary">1</span> to <span class="font-bold text-primary">5</span> of <span class="font-bold text-primary">248</span> entries
+                        </div>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-low disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-secondary-container text-on-secondary-container font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-low text-primary">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-low text-primary">3</button>
+<span class="px-1">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-low text-primary">50</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-low">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
