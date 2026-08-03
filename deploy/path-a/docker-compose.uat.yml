@@ -1,0 +1,57 @@
+# UAT overlay for Path A — use with:
+# docker compose -f deploy/docker/docker-compose.yml -f deploy/path-a/docker-compose.uat.yml --env-file deploy/path-a/.env.uat up -d --build
+#
+# Requires deploy/path-a/.env.uat (from .env.uat.example).
+
+services:
+  postgres:
+    ports: !override []
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cwms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.uat}
+      POSTGRES_DB: ${POSTGRES_DB:-cwms}
+
+  minio:
+    ports: !override []
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env.uat}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env.uat}
+
+  minio-init:
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      mc mb --ignore-existing local/cwms-documents;
+      mc mb --ignore-existing local/cwms-backups;
+      exit 0;
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+  backend:
+    ports: !override []
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      API_PREFIX: api/v1
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cwms}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-cwms}?schema=public
+      SESSION_IDLE_TIMEOUT_MINUTES: "30"
+      REMEMBER_ME_DAYS: "14"
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN=https://YOUR_DOMAIN in .env.uat}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      S3_BUCKET_DOCUMENTS: cwms-documents
+      S3_BUCKET_BACKUPS: cwms-backups
+      S3_FORCE_PATH_STYLE: "true"
+      PROFIT_LOSS_MODE: gross_minus_expenditure
+      CWMS_SEED: ${CWMS_SEED:-true}
+
+  frontend:
+    ports:
+      - "8080:80"

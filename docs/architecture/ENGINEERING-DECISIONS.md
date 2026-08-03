@@ -21,6 +21,8 @@
 | 2026-07-31 | ED-014 | Local Docker Postgres published on host **5433** (avoid conflict with other local PG on 5432) | Dev environment |
 | 2026-07-31 | ED-015 | Dashboard body placeholder until alerts/KPI milestone; shell+nav in M1 | Architecture M1 exit |
 | 2026-07-31 | ED-016 | Dev ops ritual: **before each milestone** tear down local setup; **after each milestone** start setup for verification | PO instruction 2026-07-31 |
+| 2026-07-31 | ED-017 | Full local stack in Docker Compose: Postgres + MinIO + API + SPA (nginx proxies `/api` → backend); app URL `http://localhost:8080` | PO: manage app setup in Docker |
+| 2026-08-03 | ED-018 | Cloud UAT split deploy: Neon + R2 + Render/Railway API + Pages/Vercel SPA; cross-origin cookies via `COOKIE_SAMESITE=none` + `COOKIE_SECURE`; configs in `render.yaml` / `railway.toml` / `vercel.json` / `deploy/README.md` | PO: deploy for testers on free/cheap stack |
 
 ## Free hosting target (initial)
 
@@ -30,3 +32,5 @@
 | Backend | Render / Railway |
 | Database | Neon PostgreSQL |
 | Files | Cloudflare R2 |
+
+**How to deploy:** see [`deploy/README.md`](../../deploy/README.md) and [`deploy/cloud.env.example`](../../deploy/cloud.env.example).

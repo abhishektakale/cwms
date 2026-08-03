@@ -1,0 +1,21 @@
+# Keep Docker build context lean; do NOT exclude ui/design-system or frontend assets.
+node_modules
+**/node_modules
+**/dist
+**/coverage
+.git
+.github
+.cursor
+**/.env
+**/.env.*
+!**/.env.example
+*.log
+scripts/cwms-cookies.txt
+scripts/login.json
+scripts/login-headers.txt
+.turbo
+*.tsbuildinfo
+Thumbs.db
+.DS_Store
+docs/design
+ui/stitch-export

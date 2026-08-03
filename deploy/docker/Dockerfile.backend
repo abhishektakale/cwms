@@ -1,0 +1,61 @@
+# CWMS API image (NestJS + Prisma)
+# Build from repository root:
+#   docker build -f deploy/docker/Dockerfile.backend -t cwms-backend .
+
+FROM node:20-bookworm-slim AS deps
+WORKDIR /app
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+COPY backend/package.json ./backend/
+COPY frontend/package.json ./frontend/
+COPY ui/design-system/package.json ./ui/design-system/
+
+# Skip root postinstall (prisma generate) until schema is present
+RUN npm ci --ignore-scripts \
+  && npm rebuild argon2 --build-from-source -w backend
+
+FROM deps AS build
+WORKDIR /app
+COPY backend ./backend
+RUN npx prisma generate --schema backend/prisma/schema.prisma \
+  && npm run build -w backend \
+  && npx tsc \
+    --pretty false \
+    --module commonjs \
+    --target es2021 \
+    --esModuleInterop \
+    --moduleResolution node \
+    --skipLibCheck \
+    --outDir backend/prisma \
+    backend/prisma/seed.ts
+# Keep prisma CLI for migrate; seed runs as compiled JS (avoids ts-node in container)
+
+FROM node:20-bookworm-slim AS runtime
+WORKDIR /app
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV API_PREFIX=api/v1
+
+COPY --from=build /app/package.json /app/package-lock.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/backend ./backend
+
+COPY deploy/docker/backend-entrypoint.sh /usr/local/bin/backend-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/backend-entrypoint.sh \
+  && chmod +x /usr/local/bin/backend-entrypoint.sh \
+  && chown -R node:node /app
+
+USER node
+WORKDIR /app/backend
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/local/bin/backend-entrypoint.sh"]

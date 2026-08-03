@@ -6,6 +6,15 @@ import {
 } from './storage.port';
 import { MinioStorageAdapter } from './minio-storage.adapter';
 
+function resolveForcePathStyle(endpoint: string): boolean {
+  const override = process.env.S3_FORCE_PATH_STYLE?.toLowerCase();
+  if (override === 'true') return true;
+  if (override === 'false') return false;
+  // Cloudflare R2 virtual-hosted style; MinIO local needs path-style
+  if (endpoint.includes('r2.cloudflarestorage.com')) return false;
+  return true;
+}
+
 function createStorage(): StoragePort {
   const endpoint = process.env.S3_ENDPOINT;
   const accessKey = process.env.S3_ACCESS_KEY;
@@ -15,10 +24,10 @@ function createStorage(): StoragePort {
   }
   return new MinioStorageAdapter(
     endpoint,
-    process.env.S3_REGION ?? 'us-east-1',
+    process.env.S3_REGION ?? 'auto',
     accessKey,
     secretKey,
-    process.env.S3_FORCE_PATH_STYLE !== 'false',
+    resolveForcePathStyle(endpoint),
   );
 }
 

@@ -1,7 +1,8 @@
-# CWMS local setup scripts (ED-016)
+# CWMS local setup scripts (ED-016 / ED-017)
 #
-# Before each milestone:  pull-down.ps1
-# After each milestone:   start-up.ps1
+# Full stack in Docker: Postgres, MinIO, API, SPA
+#   powershell -File scripts/setup.ps1 -Action up
+#   powershell -File scripts/setup.ps1 -Action down
 
 param(
   [ValidateSet('down', 'up')]
@@ -32,15 +33,19 @@ if ($Action -eq 'down') {
   exit 0
 }
 
-Write-Host '=== CWMS start-up ==='
-docker compose -f $Compose up -d
-Start-Sleep -Seconds 3
+Write-Host '=== CWMS start-up (full Docker stack) ==='
+Stop-CwmsNodeProcesses
+docker compose -f $Compose up -d --build
+Start-Sleep -Seconds 5
 docker compose -f $Compose ps
 
 Write-Host ''
-Write-Host 'Start API and SPA in separate terminals:'
+Write-Host 'App (SPA + API proxy):  http://localhost:8080'
+Write-Host 'API direct:             http://localhost:3000/api/v1/health'
+Write-Host 'Postgres:               localhost:5433'
+Write-Host 'MinIO console:          http://localhost:9001'
+Write-Host 'Demo login:             Administrator / Password@123'
+Write-Host ''
+Write-Host 'Optional host-side Vite/Nest (infra already in Docker):'
 Write-Host '  npm run dev:backend'
 Write-Host '  npm run dev:frontend'
-Write-Host ''
-Write-Host 'SPA http://localhost:5173  |  API http://localhost:3000/api/v1/health'
-Write-Host 'Postgres localhost:5433  |  MinIO console localhost:9001'
