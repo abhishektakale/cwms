@@ -1,0 +1,11 @@
+# Used when Cloudflare runs from the monorepo root (common on new Pages UI).
+# Deploy command should be: npx wrangler pages deploy frontend/dist
+# If the UI forces `wrangler deploy`, [assets] below covers that path too.
+
+name = "cwms"
+compatibility_date = "2025-08-01"
+pages_build_output_dir = "frontend/dist"
+
+[assets]
+directory = "frontend/dist"
+not_found_handling = "single-page-application"

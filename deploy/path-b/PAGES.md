@@ -2,21 +2,23 @@
 
 Repo: https://github.com/abhishektakale/cwms
 
-Cloudflare Wrangler cannot deploy from the **monorepo root** (npm workspaces).
-Use **Root directory = `frontend`**.
+Your **build already succeeded**. The failure is the **deploy command**:
+`npx wrangler deploy` (Workers). For this SPA use **Pages** deploy.
 
 ---
 
-## Cloudflare Pages settings
+## Dashboard settings (use these)
 
 | Field | Value |
 |-------|--------|
-| Framework preset | **None** (not Vite / Workers) |
-| **Root directory** | `frontend` |
-| Build command | `npm install && npm run build` |
-| Build output directory | `dist` |
+| Framework preset | **None** |
+| Root directory | *(leave **empty**)* |
+| **Build command** | `npm run build -w frontend` |
+| **Deploy command** | `npx wrangler pages deploy frontend/dist` |
 
-### Environment variable (Production)
+If there is no separate “Build output directory” field, ignore it — the deploy command points at `frontend/dist`.
+
+### Environment (Production)
 
 | Key | Value |
 |-----|--------|
@@ -24,28 +26,33 @@ Use **Root directory = `frontend`**.
 
 ---
 
-## Critical: Root directory must be `frontend`
+## Important: change Deploy command
 
-If the build log shows `cwms@0.1.0 postinstall` or `prisma:generate`, Pages is still using the **repo root**.
+Wrong (what failed):
 
-In Pages → **Settings** → **Builds & deployments** → **Build configuration**:
+```text
+npx wrangler deploy
+```
 
-- **Root directory:** `frontend` (exact string — not empty, not `/`)
-- Save → **Retry deployment**
+Right:
 
-With Root = `frontend`, install uses only `frontend/package.json` (no Prisma).
+```text
+npx wrangler pages deploy frontend/dist
+```
+
+Find it under **Settings → Builds & deployments** (sometimes “Deploy command” / “Non-production branch deploy command”).
+
+---
+
+## Why Prisma appeared in the log
+
+Empty Root = monorepo root install. That is fine now (postinstall soft-fails).  
+SPA build is `npm run build -w frontend` → output `frontend/dist`.
 
 ---
 
 ## After deploy
 
-1. Copy SPA URL (e.g. `https://cwms.pages.dev`)
-2. Render API: `CORS_ORIGIN=<that URL>` → redeploy
-3. Login: `Administrator` / `Password@123`
-
----
-
-## Vercel (alternative)
-
-Root Directory empty; `vercel.json` at repo root handles build.  
-Env: `VITE_API_BASE_URL=https://YOUR-API/api/v1`
+1. Copy SPA URL  
+2. Render `CORS_ORIGIN=<SPA URL>` → redeploy API  
+3. Login `Administrator` / `Password@123`
