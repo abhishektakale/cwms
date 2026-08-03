@@ -24,14 +24,16 @@ Use **Root directory = `frontend`**.
 
 ---
 
-## Why you saw the workspace error
+## Critical: Root directory must be `frontend`
 
-Building from the **repo root** runs Wrangler in an npm workspace →  
+If the build log shows `cwms@0.1.0 postinstall` or `prisma:generate`, Pages is still using the **repo root**.
 
-`application detection logic has been run in the root of a workspace`
+In Pages → **Settings** → **Builds & deployments** → **Build configuration**:
 
-**Fix:** Root directory = `frontend` so Wrangler targets one app.  
-Design CSS is vendored under `frontend/src/styles/` so the Pages build does not need the `ui/` folder.
+- **Root directory:** `frontend` (exact string — not empty, not `/`)
+- Save → **Retry deployment**
+
+With Root = `frontend`, install uses only `frontend/package.json` (no Prisma).
 
 ---
 
