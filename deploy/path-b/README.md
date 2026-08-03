@@ -132,10 +132,12 @@ Testers use **this** URL.
 
 | Field | Value |
 |-------|--------|
-| Framework preset | None |
-| Root directory | *(leave blank / empty — not `/`)* |
-| Build command | `npm ci --include=dev && npm run build -w frontend` |
-| Build output directory | `frontend/dist` |
+| Framework preset | **None** |
+| **Root directory** | `frontend` |
+| Build command | `npm install && npm run build` |
+| Build output directory | `dist` |
+
+Do **not** leave Root as the repo root (Wrangler fails on npm workspaces). See [`PAGES.md`](./PAGES.md).
 
 3. Env (Production):
 
