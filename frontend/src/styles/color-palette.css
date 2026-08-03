@@ -1,0 +1,15 @@
+/* Semantic color aliases for quick reference — mirrors tokens.css */
+:root {
+  --palette-background: var(--cwms-background);
+  --palette-surface: var(--cwms-surface-container-lowest);
+  --palette-nav: var(--cwms-nav);
+  --palette-primary-text: var(--cwms-on-surface);
+  --palette-muted-text: var(--cwms-on-surface-variant);
+  --palette-action: var(--cwms-action);
+  --palette-secondary: var(--cwms-secondary);
+  --palette-border: var(--cwms-border-hairline);
+  --palette-error: var(--cwms-error);
+  --palette-status-ok: var(--cwms-status-completed);
+  --palette-status-warn: var(--cwms-status-hold);
+  --palette-status-info: var(--cwms-status-in-progress);
+}

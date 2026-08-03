@@ -1,0 +1,108 @@
+/* CWMS Design Tokens — sourced from ui/design-system/DESIGN.md (Industrial Precision)
+ * Stitch HTML screens remain visual source of truth for layout fidelity.
+ */
+
+:root {
+  /* Colors — Stitch YAML tokens */
+  --cwms-surface: #f8f9ff;
+  --cwms-surface-dim: #cbdbf5;
+  --cwms-surface-bright: #f8f9ff;
+  --cwms-surface-container-lowest: #ffffff;
+  --cwms-surface-container-low: #eff4ff;
+  --cwms-surface-container: #e5eeff;
+  --cwms-surface-container-high: #dce9ff;
+  --cwms-surface-container-highest: #d3e4fe;
+  --cwms-on-surface: #0b1c30;
+  --cwms-on-surface-variant: #45464d;
+  --cwms-inverse-surface: #213145;
+  --cwms-inverse-on-surface: #eaf1ff;
+  --cwms-outline: #76777d;
+  --cwms-outline-variant: #c6c6cd;
+  --cwms-surface-tint: #565e74;
+  --cwms-primary: #000000;
+  --cwms-on-primary: #ffffff;
+  --cwms-primary-container: #131b2e;
+  --cwms-on-primary-container: #7c839b;
+  --cwms-inverse-primary: #bec6e0;
+  --cwms-secondary: #0058be;
+  --cwms-on-secondary: #ffffff;
+  --cwms-secondary-container: #2170e4;
+  --cwms-on-secondary-container: #fefcff;
+  --cwms-tertiary: #000000;
+  --cwms-on-tertiary: #ffffff;
+  --cwms-tertiary-container: #07006c;
+  --cwms-on-tertiary-container: #7073ff;
+  --cwms-error: #ba1a1a;
+  --cwms-on-error: #ffffff;
+  --cwms-error-container: #ffdad6;
+  --cwms-on-error-container: #93000a;
+  --cwms-primary-fixed: #dae2fd;
+  --cwms-primary-fixed-dim: #bec6e0;
+  --cwms-on-primary-fixed: #131b2e;
+  --cwms-on-primary-fixed-variant: #3f465c;
+  --cwms-secondary-fixed: #d8e2ff;
+  --cwms-secondary-fixed-dim: #adc6ff;
+  --cwms-on-secondary-fixed: #001a42;
+  --cwms-on-secondary-fixed-variant: #004395;
+  --cwms-tertiary-fixed: #e1e0ff;
+  --cwms-tertiary-fixed-dim: #c0c1ff;
+  --cwms-on-tertiary-fixed: #07006c;
+  --cwms-on-tertiary-fixed-variant: #2f2ebe;
+  --cwms-background: #f8f9ff;
+  --cwms-on-background: #0b1c30;
+  --cwms-surface-variant: #d3e4fe;
+
+  /* Narrative palette aliases from DESIGN.md prose (status / chrome) */
+  --cwms-nav: #0f172a;
+  --cwms-action: #3b82f6;
+  --cwms-border-hairline: #e2e8f0;
+  --cwms-status-completed: #10b981;
+  --cwms-status-hold: #f59e0b;
+  --cwms-status-in-progress: #6366f1;
+  --cwms-status-alert: #ef4444;
+
+  /* Typography */
+  --cwms-font-sans: "Geist", "Segoe UI", system-ui, sans-serif;
+  --cwms-font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --cwms-font-display-lg-size: 32px;
+  --cwms-font-display-lg-weight: 600;
+  --cwms-font-display-lg-line: 40px;
+  --cwms-font-display-lg-tracking: -0.02em;
+  --cwms-font-display-lg-mobile-size: 24px;
+  --cwms-font-headline-md-size: 20px;
+  --cwms-font-headline-md-weight: 600;
+  --cwms-font-headline-md-line: 28px;
+  --cwms-font-body-base-size: 14px;
+  --cwms-font-body-base-line: 20px;
+  --cwms-font-body-sm-size: 13px;
+  --cwms-font-body-sm-line: 18px;
+  --cwms-font-label-caps-size: 11px;
+  --cwms-font-label-caps-weight: 600;
+  --cwms-font-label-caps-tracking: 0.05em;
+  --cwms-font-numeric-size: 14px;
+  --cwms-font-numeric-weight: 500;
+
+  /* Radius */
+  --cwms-radius-sm: 0.25rem;
+  --cwms-radius: 0.5rem;
+  --cwms-radius-md: 0.75rem;
+  --cwms-radius-lg: 1rem;
+  --cwms-radius-xl: 1.5rem;
+  --cwms-radius-full: 9999px;
+
+  /* Spacing (4px base / 8px grid) */
+  --cwms-space-base: 4px;
+  --cwms-space-xs: 4px;
+  --cwms-space-sm: 8px;
+  --cwms-space-md: 16px;
+  --cwms-space-lg: 24px;
+  --cwms-space-xl: 32px;
+  --cwms-space-gutter: 16px;
+  --cwms-space-margin: 24px;
+  --cwms-container-max: 1440px;
+  --cwms-sidebar-expanded: 240px;
+  --cwms-sidebar-collapsed: 64px;
+
+  /* Elevation */
+  --cwms-shadow-overlay: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}

@@ -1,5 +1,8 @@
-@import '../../../ui/design-system/tokens.css';
-@import '../../../ui/color-palette/color-palette.css';
+/* Local copies of ui/design-system + ui/color-palette for Cloudflare Pages
+ * (Root Directory = frontend). Prefer editing the ui/ sources, then re-copy.
+ */
+@import './tokens.css';
+@import './color-palette.css';
 
 *,
 *::before,
