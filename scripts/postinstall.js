@@ -1,8 +1,13 @@
 /**
  * Root postinstall: generate Prisma client when backend tooling is present.
- * Cloudflare Pages / production installs may omit devDependencies — skip cleanly.
+ * Skip entirely on frontend-only hosts (Vercel / Cloudflare Pages).
  */
 const { spawnSync } = require('child_process')
+
+if (process.env.VERCEL || process.env.CF_PAGES) {
+  console.log('postinstall: skipped on frontend host (VERCEL/CF_PAGES).')
+  process.exit(0)
+}
 
 const result = spawnSync(
   'npm',
@@ -12,6 +17,6 @@ const result = spawnSync(
 
 if (result.status !== 0) {
   console.warn(
-    'postinstall: prisma generate skipped (install Nest/Prisma for API builds, or set Pages Root Directory to frontend).',
+    'postinstall: prisma generate skipped (devDependencies missing or Prisma not installed).',
   )
 }
