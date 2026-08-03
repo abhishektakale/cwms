@@ -8,7 +8,7 @@ services:
     name: cwms-api
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build -w backend
+    buildCommand: npm ci --include=dev && npm run build -w backend
     startCommand: sh deploy/render/start.sh
     healthCheckPath: /api/v1/health
     envVars:
