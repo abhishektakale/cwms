@@ -19,7 +19,7 @@ Files skipped for now (no `S3_*`).
 | Name | `cwms-api` |
 | Instance type | **Free** |
 | Root Directory | *(leave empty)* |
-| Build Command | `npm ci && npm run build -w backend` |
+| Build Command | `npm ci --include=dev && npm run build -w backend` |
 | Start Command | `sh deploy/render/start.sh` |
 | Health Check Path | `/api/v1/health` |
 
@@ -92,6 +92,7 @@ If health fails on first try, wait (Free cold start / migrate) and retry.
 
 | Issue | Fix |
 |-------|-----|
+| Build fails `nest: not found` | Use `npm ci --include=dev` (Free/`NODE_ENV=production` skips devDependencies) |
 | Build fails `workspace` | Root Directory must be empty; build from repo root |
 | `Cannot find module` / wrong main | Confirm start command is `npm run start:render -w backend` |
 | `database: down` | Neon **pooler** URL + `sslmode=require` |
