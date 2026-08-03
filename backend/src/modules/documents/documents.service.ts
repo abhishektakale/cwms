@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   PayloadTooLargeException,
+  ServiceUnavailableException,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { createHash, randomUUID } from 'crypto';
@@ -11,6 +12,7 @@ import { MasterType, Prisma, User } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import {
   STORAGE_PORT,
+  isDocumentUploadEnabled,
   type StoragePort,
 } from '../../infrastructure/storage/storage.port';
 import { AuditService } from '../audit/audit.service';
@@ -142,6 +144,7 @@ export class DocumentsService {
     file: Express.Multer.File,
     user: User,
   ) {
+    this.assertUploadsEnabled();
     await this.assertWork(workId);
     await this.assertDocType(meta.documentTypeId);
     this.validateFile(file);
@@ -276,6 +279,17 @@ export class DocumentsService {
       contentType: row.storedFile.contentType,
       fileName: row.storedFile.originalFileName,
     };
+  }
+
+  private assertUploadsEnabled() {
+    if (isDocumentUploadEnabled()) return;
+    throw new ServiceUnavailableException({
+      title: 'Service Unavailable',
+      status: 503,
+      detail:
+        'Document upload is disabled for this deployment (object storage not configured).',
+      code: 'DOCUMENTS_UPLOAD_DISABLED',
+    });
   }
 
   private validateFile(file?: Express.Multer.File) {

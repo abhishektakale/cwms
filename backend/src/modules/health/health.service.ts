@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import {
   STORAGE_PORT,
+  isDocumentUploadEnabled,
+  isObjectStorageConfigured,
   type StoragePort,
 } from '../../infrastructure/storage/storage.port';
 
@@ -14,9 +16,15 @@ export class HealthService {
 
   async getHealth() {
     const database = await this.prisma.ping();
-    const storage = await this.storage.ping();
+    const uploadsEnabled = isDocumentUploadEnabled();
+    const storageConfigured = isObjectStorageConfigured();
 
-    const degraded = database !== 'up' || storage !== 'up';
+    let storage: 'up' | 'down' | 'skipped' = 'skipped';
+    if (storageConfigured) {
+      storage = await this.storage.ping();
+    }
+
+    const degraded = database !== 'up' || storage === 'down';
 
     return {
       status: degraded ? 'degraded' : 'ok',
@@ -25,6 +33,9 @@ export class HealthService {
       checks: {
         database,
         storage,
+      },
+      features: {
+        documentUpload: uploadsEnabled,
       },
       timestamp: new Date().toISOString(),
     };

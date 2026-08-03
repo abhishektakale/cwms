@@ -25,6 +25,26 @@ export interface StoragePort {
   deleteObject(params: { bucket: string; key: string }): Promise<void>;
 }
 
+/** True when S3/MinIO/R2 env is present. */
+export function isObjectStorageConfigured(): boolean {
+  return Boolean(
+    process.env.S3_ENDPOINT &&
+      process.env.S3_ACCESS_KEY &&
+      process.env.S3_SECRET_KEY,
+  );
+}
+
+/**
+ * Uploads allowed only with real object storage, unless explicitly forced.
+ * Set DOCUMENTS_UPLOAD_ENABLED=false to disable even with S3 configured.
+ */
+export function isDocumentUploadEnabled(): boolean {
+  const override = process.env.DOCUMENTS_UPLOAD_ENABLED?.toLowerCase();
+  if (override === 'false') return false;
+  if (override === 'true') return true;
+  return isObjectStorageConfigured();
+}
+
 export class FakeStorageAdapter implements StoragePort {
   private readonly store = new Map<string, StoredObject>();
 

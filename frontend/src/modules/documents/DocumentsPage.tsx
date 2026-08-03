@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from 'react'
 import {
   deleteDocument,
   documentContentUrl,
+  getHealth,
   listDocuments,
   uploadDocument,
   type DocumentRow,
@@ -18,16 +19,21 @@ export function DocumentsPage() {
   const [types, setTypes] = useState<Array<{ id: string; name: string }>>([])
   const [works, setWorks] = useState<Array<{ id: string; workCode: string }>>([])
   const [error, setError] = useState<string | null>(null)
+  const [uploadEnabled, setUploadEnabled] = useState(true)
 
   async function reload() {
-    const [d, t, w] = await Promise.all([
+    const [d, t, w, health] = await Promise.all([
       listDocuments(),
       listMasters('document-types'),
       listWorks({ pageSize: '100' }),
+      getHealth().catch(() => null),
     ])
     setItems(d.items)
     setTypes(t.items.map((x) => ({ id: x.id, name: x.name })))
     setWorks(w.items.map((x) => ({ id: x.id, workCode: x.workCode })))
+    if (health) {
+      setUploadEnabled(health.features.documentUpload)
+    }
   }
 
   useEffect(() => {
@@ -36,6 +42,7 @@ export function DocumentsPage() {
 
   async function onUpload(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (!uploadEnabled) return
     const fd = new FormData(e.currentTarget)
     const workId = String(fd.get('workId'))
     const form = new FormData()
@@ -61,7 +68,13 @@ export function DocumentsPage() {
           {error}
         </div>
       )}
-      {mutate && (
+      {!uploadEnabled && (
+        <p role="status" style={{ marginBottom: 16, color: 'var(--color-text-muted, #5c6570)' }}>
+          File upload is disabled for this deployment (object storage not
+          configured). Listing and other modules still work.
+        </p>
+      )}
+      {mutate && uploadEnabled && (
         <form onSubmit={onUpload} className="work-form__grid" style={{ marginBottom: 20 }}>
           <label>
             Work *
