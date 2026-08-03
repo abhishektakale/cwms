@@ -133,8 +133,8 @@ Testers use **this** URL.
 | Field | Value |
 |-------|--------|
 | Framework preset | None |
-| Root directory | `/` |
-| Build command | `npm ci && npm run build -w frontend` |
+| Root directory | *(leave blank / empty — not `/`)* |
+| Build command | `npm ci --include=dev && npm run build -w frontend` |
 | Build output directory | `frontend/dist` |
 
 3. Env (Production):

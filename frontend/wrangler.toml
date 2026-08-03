@@ -1,0 +1,4 @@
+# Cloudflare Pages — SPA lives in the `frontend` workspace package
+name = "cwms"
+compatibility_date = "2025-08-01"
+pages_build_output_dir = "dist"
