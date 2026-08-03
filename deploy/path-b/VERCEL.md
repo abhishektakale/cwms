@@ -2,11 +2,12 @@
 
 Repo: https://github.com/abhishektakale/cwms
 
+Browsers often block cookies on cross-site calls (`vercel.app` → `onrender.com`).  
+`frontend/vercel.json` proxies `/api/*` to Render so the SPA and cookies stay **same-origin**.
+
 ---
 
-## Recommended settings (simplest)
-
-Because design CSS is inside `frontend/`, use the SPA folder as the Vercel root:
+## Settings
 
 | Field | Value |
 |-------|--------|
@@ -15,30 +16,32 @@ Because design CSS is inside `frontend/`, use the SPA folder as the Vercel root:
 | Build Command | `npm run build` |
 | Output Directory | `dist` |
 
-`frontend/vercel.json` already sets build + `dist` + SPA rewrites.
-
-### Environment variable
+### Environment variable (required)
 
 | Key | Value |
 |-----|--------|
-| `VITE_API_BASE_URL` | `https://YOUR-RENDER-API.onrender.com/api/v1` |
+| `VITE_API_BASE_URL` | `/api/v1` |
 
----
+Must be the **relative** path (not `https://…onrender.com…`). Redeploy after changing it.
 
-## Do not use
+### Proxy target
 
-| Wrong | Why |
-|-------|-----|
-| Root empty + Output `dist` only | Monorepo install; Vite may write under `frontend/dist` |
-| Root `frontend` + build `node scripts/vercel-prepare…` | Script lives at **repo** `scripts/`, not under `frontend/` |
+In `frontend/vercel.json`, the rewrite destination must match your Render URL:
+
+`https://cwms-mplm.onrender.com/api/:path*`
+
+If the Render hostname changes, edit that line and push.
 
 ---
 
 ## After deploy
 
-1. Copy Vercel URL  
-2. Render: `CORS_ORIGIN=https://YOUR-APP.vercel.app` → redeploy API  
-3. Login: `Administrator` / `Password@123`
+1. Vercel env: `VITE_API_BASE_URL=/api/v1` → Redeploy  
+2. Render: `CORS_ORIGIN=https://cwms-frontend-uo98.vercel.app` (keep for safety)  
+3. Render: `COOKIE_SAMESITE=none`, `COOKIE_SECURE=true`  
+4. Login: `Administrator` / `Password@123`
+
+Cold start on free Render can take ~30–60s on first API call.
 
 ---
 
@@ -46,6 +49,7 @@ Because design CSS is inside `frontend/`, use the SPA folder as the Vercel root:
 
 | Issue | Fix |
 |-------|-----|
-| `Cannot find module .../frontend/scripts/vercel-prepare-output.js` | Root is `frontend` — use Build `npm run build` only (no prepare script) |
-| CORS / login cookie issues | Render `COOKIE_SAMESITE=none`, `COOKIE_SECURE=true`, matching `CORS_ORIGIN` |
-| Wrong API host | Redeploy after setting `VITE_API_BASE_URL` |
+| 401 on `/auth/me` then dashboard | Expected when logged out; after login, cookies must stick — use `/api/v1` + proxy |
+| Login works then immediately 401 | Old build still calling `onrender.com` directly — set `VITE_API_BASE_URL=/api/v1` and redeploy |
+| CORS errors | Only if SPA still calls Render directly; switch to `/api/v1` |
+| Proxy 502 / timeout | Wake Render (hit `/api/v1/health` once), wait, retry |
