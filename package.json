@@ -9,7 +9,7 @@
     "ui/design-system"
   ],
   "scripts": {
-    "postinstall": "npm run prisma:generate -w backend",
+    "postinstall": "node scripts/postinstall.js",
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run start:dev -w backend",
     "build": "npm run build -w backend && npm run build -w frontend",
