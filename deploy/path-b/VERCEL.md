@@ -21,8 +21,8 @@ Root config: [`vercel.json`](../../vercel.json)
 | Field | Value |
 |-------|--------|
 | Root Directory | **Leave empty** (repo root) |
-| Build Command | `npm run build -w frontend` *(from `vercel.json`; OK if shown)* |
-| Output Directory | `frontend/dist` *(from `vercel.json`)* |
+| Build Command | *(from `vercel.json` — builds frontend then copies to `dist`)* |
+| Output Directory | `dist` |
 | Install Command | `npm install` (default is fine) |
 
 Do **not** set Root Directory to `frontend` or `/`.
