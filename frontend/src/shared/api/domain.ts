@@ -265,3 +265,13 @@ export async function globalSearch(q: string) {
     items: Array<{ entityType: string; id: string; title: string; workId?: string }>
   }>(`/search?q=${encodeURIComponent(q)}`)
 }
+
+export type HealthResponse = {
+  status: string
+  checks: { database: string; storage: string }
+  features: { documentUpload: boolean }
+}
+
+export async function getHealth() {
+  return apiFetch<HealthResponse>('/health')
+}
