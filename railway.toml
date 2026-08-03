@@ -1,0 +1,14 @@
+# Railway — deploy API from repo root
+# https://docs.railway.app/guides/dockerfiles
+#
+# Set variables from deploy/cloud.env.example in the Railway service.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "deploy/docker/Dockerfile.backend"
+
+[deploy]
+healthcheckPath = "/api/v1/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

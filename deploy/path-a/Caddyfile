@@ -1,0 +1,7 @@
+# Replace YOUR_DOMAIN with the same host as CORS_ORIGIN (no https://).
+# Example: cwms-uat.example.com
+
+YOUR_DOMAIN {
+	encode gzip
+	reverse_proxy localhost:8080
+}

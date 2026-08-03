@@ -12,7 +12,7 @@ import { PasswordPolicyService } from '../../shared/auth/password-policy.service
 import {
   REMEMBER_COOKIE,
   SESSION_COOKIE,
-  cookieSecure,
+  cookieBaseOptions,
   rememberMeMs,
   sessionIdleMs,
 } from '../../shared/auth/auth.constants';
@@ -384,29 +384,23 @@ export class AuthService {
 
   private setSessionCookie(res: Response, token: string, expiresAt: Date) {
     res.cookie(SESSION_COOKIE, token, {
-      httpOnly: true,
-      secure: cookieSecure(),
-      sameSite: 'lax',
-      path: '/',
+      ...cookieBaseOptions(),
       expires: expiresAt,
     });
   }
 
   private setRememberCookie(res: Response, token: string, expiresAt: Date) {
     res.cookie(REMEMBER_COOKIE, token, {
-      httpOnly: true,
-      secure: cookieSecure(),
-      sameSite: 'lax',
-      path: '/',
+      ...cookieBaseOptions(),
       expires: expiresAt,
     });
   }
 
   clearSessionCookie(res: Response) {
-    res.clearCookie(SESSION_COOKIE, { path: '/' });
+    res.clearCookie(SESSION_COOKIE, cookieBaseOptions());
   }
 
   clearRememberCookie(res: Response) {
-    res.clearCookie(REMEMBER_COOKIE, { path: '/' });
+    res.clearCookie(REMEMBER_COOKIE, cookieBaseOptions());
   }
 }

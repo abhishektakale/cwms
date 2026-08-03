@@ -18,7 +18,10 @@
     "lint": "npm run lint -w frontend && npm run lint -w backend",
     "test": "npm run test -w backend && npm run test -w frontend",
     "typecheck": "npm run typecheck -w frontend && npm run typecheck -w backend",
-    "docker:up": "docker compose -f deploy/docker/docker-compose.yml up -d"
+    "docker:up": "docker compose -f deploy/docker/docker-compose.yml up -d --build",
+    "docker:down": "docker compose -f deploy/docker/docker-compose.yml down",
+    "docker:ps": "docker compose -f deploy/docker/docker-compose.yml ps",
+    "docker:logs": "docker compose -f deploy/docker/docker-compose.yml logs -f --tail=100"
   },
   "engines": {
     "node": ">=20"

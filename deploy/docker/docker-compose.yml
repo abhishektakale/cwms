@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: cwms_dev_password
       POSTGRES_DB: cwms
     ports:
-      - "5432:5432"
+      # Host 5433 avoids clash with other local Postgres on 5432 (ED-014)
+      - "5433:5432"
     volumes:
       - cwms_pg_data:/var/lib/postgresql/data
     healthcheck:
@@ -50,6 +51,66 @@ services:
       mc mb --ignore-existing local/cwms-backups;
       exit 0;
       "
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.backend
+    container_name: cwms-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      API_PREFIX: api/v1
+      DATABASE_URL: postgresql://cwms:cwms_dev_password@postgres:5432/cwms?schema=public
+      SESSION_IDLE_TIMEOUT_MINUTES: "30"
+      REMEMBER_ME_DAYS: "14"
+      # SPA is served on :8080; also allow direct Vite when developing on host
+      CORS_ORIGIN: http://localhost:8080,http://localhost:5173
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY: cwmsminio
+      S3_SECRET_KEY: cwmsminio_dev_password
+      S3_BUCKET_DOCUMENTS: cwms-documents
+      S3_BUCKET_BACKUPS: cwms-backups
+      S3_FORCE_PATH_STYLE: "true"
+      PROFIT_LOSS_MODE: gross_minus_expenditure
+      CWMS_SEED: "true"
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: /api/v1
+    container_name: cwms-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
 
 volumes:
   cwms_pg_data:
