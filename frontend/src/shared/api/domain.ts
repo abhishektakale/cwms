@@ -44,6 +44,14 @@ export type Bill = {
   deductions?: Array<{ id?: string; name: string; amount: string; kind: string }>
 }
 
+export type ExpenseAttachment = {
+  id: string
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  createdAt: string
+}
+
 export type Expense = {
   id: string
   expenseType: 'WorkSpecific' | 'General'
@@ -58,6 +66,17 @@ export type Expense = {
   gstAmount: string
   totalAmount: string
   status: 'Draft' | 'Paid' | 'AssignedToWork' | 'Cancelled'
+  attachmentDocumentIds?: string[]
+  attachments?: ExpenseAttachment[]
+}
+
+export type SavedReportFilter = {
+  id: string
+  reportType: string
+  name: string
+  filters: Record<string, unknown>
+  isDefault: boolean
+  updatedAt: string
 }
 
 export type DocumentRow = {
@@ -150,6 +169,47 @@ export async function deleteExpense(id: string) {
   return apiFetch<void>(`/expenses/${id}`, { method: 'DELETE' })
 }
 
+export async function uploadExpenseAttachment(
+  expenseId: string,
+  file: File,
+) {
+  const form = new FormData()
+  form.set('file', file)
+  const res = await fetch(`${API_BASE}/expenses/${expenseId}/attachments`, {
+    method: 'POST',
+    credentials: 'include',
+    body: form,
+  })
+  if (!res.ok) {
+    let detail = 'Upload failed'
+    try {
+      const body = (await res.json()) as { detail?: string }
+      if (body.detail) detail = body.detail
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail)
+  }
+  return (await res.json()) as ExpenseAttachment
+}
+
+export async function deleteExpenseAttachment(
+  expenseId: string,
+  attachmentId: string,
+) {
+  return apiFetch<void>(
+    `/expenses/${expenseId}/attachments/${attachmentId}?confirm=true`,
+    { method: 'DELETE' },
+  )
+}
+
+export function expenseAttachmentContentUrl(
+  expenseId: string,
+  attachmentId: string,
+) {
+  return `${API_BASE}/expenses/${expenseId}/attachments/${attachmentId}/content?disposition=attachment`
+}
+
 export async function listDocuments(params: Record<string, string | undefined> = {}) {
   const q = new URLSearchParams()
   Object.entries(params).forEach(([k, v]) => {
@@ -221,6 +281,40 @@ export async function exportReport(
   })
   if (!res.ok) throw new Error('Export failed')
   return res.blob()
+}
+
+export async function listSavedFilters(reportType: string) {
+  return apiFetch<{ items: SavedReportFilter[] }>(
+    `/reports/${reportType}/saved-filters`,
+  )
+}
+
+export async function createSavedFilter(
+  reportType: string,
+  body: { name: string; filters: object; isDefault?: boolean },
+) {
+  return apiFetch<SavedReportFilter>(
+    `/reports/${reportType}/saved-filters`,
+    { method: 'POST', body: JSON.stringify(body) },
+  )
+}
+
+export async function updateSavedFilter(
+  reportType: string,
+  filterId: string,
+  body: { name?: string; filters?: object; isDefault?: boolean },
+) {
+  return apiFetch<SavedReportFilter>(
+    `/reports/${reportType}/saved-filters/${filterId}`,
+    { method: 'PATCH', body: JSON.stringify(body) },
+  )
+}
+
+export async function deleteSavedFilter(reportType: string, filterId: string) {
+  return apiFetch<void>(
+    `/reports/${reportType}/saved-filters/${filterId}`,
+    { method: 'DELETE' },
+  )
 }
 
 export async function listBackups() {

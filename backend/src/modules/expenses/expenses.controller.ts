@@ -9,7 +9,11 @@ import {
   Patch,
   Post,
   Query,
+  Res,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import * as Prisma from '@prisma/client';
 import { ExpenseStatus, ExpenseType } from '@prisma/client';
 import {
@@ -19,6 +23,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
+import type { Response } from 'express';
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { RequiresMutate } from '../../shared/auth/roles.decorator';
 import { ExpensesService, ExpenseWrite } from './expenses.service';
@@ -178,5 +183,59 @@ export class ExpensesController {
   @Get('works/:workId/expenses')
   listWork(@Param('workId', ParseUUIDPipe) workId: string) {
     return this.expenses.listByWork(workId);
+  }
+
+  @Get('expenses/:expenseId/attachments')
+  listAttachments(@Param('expenseId', ParseUUIDPipe) expenseId: string) {
+    return this.expenses.listAttachments(expenseId);
+  }
+
+  @Post('expenses/:expenseId/attachments')
+  @RequiresMutate()
+  @HttpCode(201)
+  @UseInterceptors(FileInterceptor('file'))
+  uploadAttachment(
+    @Param('expenseId', ParseUUIDPipe) expenseId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() user: Prisma.User,
+  ) {
+    return this.expenses.uploadAttachment(expenseId, file, user);
+  }
+
+  @Get('expenses/:expenseId/attachments/:attachmentId/content')
+  async attachmentContent(
+    @Param('expenseId', ParseUUIDPipe) expenseId: string,
+    @Param('attachmentId', ParseUUIDPipe) attachmentId: string,
+    @Query('disposition') disposition: string | undefined,
+    @Res() res: Response,
+  ) {
+    const file = await this.expenses.getAttachmentContent(
+      expenseId,
+      attachmentId,
+    );
+    const disp = disposition === 'attachment' ? 'attachment' : 'inline';
+    res.setHeader('Content-Type', file.contentType);
+    res.setHeader(
+      'Content-Disposition',
+      `${disp}; filename="${file.fileName.replace(/"/g, '')}"`,
+    );
+    res.send(file.body);
+  }
+
+  @Delete('expenses/:expenseId/attachments/:attachmentId')
+  @RequiresMutate()
+  @HttpCode(204)
+  async removeAttachment(
+    @Param('expenseId', ParseUUIDPipe) expenseId: string,
+    @Param('attachmentId', ParseUUIDPipe) attachmentId: string,
+    @Query('confirm') confirm: string,
+    @CurrentUser() user: Prisma.User,
+  ): Promise<void> {
+    await this.expenses.removeAttachment(
+      expenseId,
+      attachmentId,
+      confirm === 'true' || confirm === '1',
+      user,
+    );
   }
 }

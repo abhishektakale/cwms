@@ -4,7 +4,11 @@ import {
   cancelExpense,
   createExpense,
   deleteExpense,
+  deleteExpenseAttachment,
+  expenseAttachmentContentUrl,
+  getHealth,
   listExpenses,
+  uploadExpenseAttachment,
   type Expense,
 } from '../../shared/api/domain'
 import { listMasters } from '../../shared/api/masters'
@@ -19,16 +23,20 @@ export function ExpenditurePage() {
   const [heads, setHeads] = useState<Array<{ id: string; name: string }>>([])
   const [works, setWorks] = useState<Array<{ id: string; workCode: string }>>([])
   const [error, setError] = useState<string | null>(null)
+  const [uploadEnabled, setUploadEnabled] = useState(true)
+  const [attachFor, setAttachFor] = useState<string | null>(null)
 
   async function reload() {
-    const [e, h, w] = await Promise.all([
+    const [e, h, w, health] = await Promise.all([
       listExpenses(),
       listMasters('expense-categories'),
       listWorks({ pageSize: '100' }),
+      getHealth().catch(() => null),
     ])
     setItems(e.items)
     setHeads(h.items.map((x) => ({ id: x.id, name: x.name })))
     setWorks(w.items.map((x) => ({ id: x.id, workCode: x.workCode })))
+    if (health) setUploadEnabled(health.features.documentUpload)
   }
 
   useEffect(() => {
@@ -38,10 +46,9 @@ export function ExpenditurePage() {
   async function onCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
-    const expenseType = String(fd.get('expenseType'))
     try {
       await createExpense({
-        expenseType,
+        expenseType: String(fd.get('expenseType')),
         workId: String(fd.get('workId') || '') || undefined,
         expenseDate: String(fd.get('expenseDate')),
         expenseHeadId: String(fd.get('expenseHeadId')),
@@ -58,6 +65,25 @@ export function ExpenditurePage() {
     }
   }
 
+  async function onUploadAttachment(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!attachFor || !uploadEnabled) return
+    const fd = new FormData(e.currentTarget)
+    const file = fd.get('file')
+    if (!(file instanceof File) || !file.size) {
+      setError('Choose a PDF or image file to attach')
+      return
+    }
+    try {
+      await uploadExpenseAttachment(attachFor, file)
+      e.currentTarget.reset()
+      setAttachFor(null)
+      await reload()
+    } catch (err) {
+      setError((err as Error).message)
+    }
+  }
+
   return (
     <div>
       <h1 style={{ marginTop: 0 }}>Expenditure</h1>
@@ -65,6 +91,15 @@ export function ExpenditurePage() {
         <div className="works__error" role="alert">
           {error}
         </div>
+      )}
+      {!uploadEnabled && (
+        <p
+          role="status"
+          style={{ marginBottom: 16, color: 'var(--color-text-muted, #5c6570)' }}
+        >
+          Attachment upload is disabled for this deployment (object storage not
+          configured). Expenses still work without files.
+        </p>
       )}
       {mutate && (
         <form onSubmit={onCreate} className="work-form__grid" style={{ marginBottom: 20 }}>
@@ -137,6 +172,31 @@ export function ExpenditurePage() {
           </button>
         </form>
       )}
+      {mutate && uploadEnabled && attachFor && (
+        <form
+          onSubmit={onUploadAttachment}
+          className="work-form__grid"
+          style={{ marginBottom: 20 }}
+        >
+          <p style={{ gridColumn: '1 / -1', margin: 0 }}>
+            Attach supporting file (PDF/image ≤20MB) to selected expense
+          </p>
+          <label>
+            File *
+            <input name="file" type="file" accept=".pdf,image/*" required />
+          </label>
+          <button type="submit" className="works__btn works__btn--primary">
+            Upload attachment
+          </button>
+          <button
+            type="button"
+            className="works__btn"
+            onClick={() => setAttachFor(null)}
+          >
+            Cancel
+          </button>
+        </form>
+      )}
       <table className="works__table">
         <thead>
           <tr>
@@ -146,6 +206,7 @@ export function ExpenditurePage() {
             <th>Head</th>
             <th>Total</th>
             <th>Status</th>
+            <th>Attachments</th>
             <th />
           </tr>
         </thead>
@@ -158,7 +219,51 @@ export function ExpenditurePage() {
               <td>{row.expenseHeadName}</td>
               <td className="numeric">{row.totalAmount}</td>
               <td>{row.status}</td>
-              <td style={{ display: 'flex', gap: 6 }}>
+              <td>
+                {(row.attachments ?? []).length === 0 ? (
+                  '—'
+                ) : (
+                  <ul style={{ margin: 0, paddingLeft: 16 }}>
+                    {(row.attachments ?? []).map((a) => (
+                      <li key={a.id} style={{ marginBottom: 4 }}>
+                        <a
+                          href={expenseAttachmentContentUrl(row.id, a.id)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {a.fileName}
+                        </a>
+                        {mutate && (
+                          <>
+                            {' '}
+                            <button
+                              type="button"
+                              className="works__btn"
+                              onClick={() =>
+                                void deleteExpenseAttachment(row.id, a.id)
+                                  .then(reload)
+                                  .catch((err: Error) => setError(err.message))
+                              }
+                            >
+                              Remove
+                            </button>
+                          </>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </td>
+              <td style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {mutate && uploadEnabled && (
+                  <button
+                    type="button"
+                    className="works__btn"
+                    onClick={() => setAttachFor(row.id)}
+                  >
+                    Attach
+                  </button>
+                )}
                 {mutate && row.expenseType === 'General' && !row.workId && works[0] && (
                   <button
                     type="button"
