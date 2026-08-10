@@ -48,11 +48,11 @@ npx wrangler pages deploy frontend/dist --project-name=cwms
 
 ---
 
-### Option C — Vercel (if Pages keeps fighting you)
+### Option C — Vercel (recommended; see [`VERCEL.md`](./VERCEL.md))
 
 1. Import `abhishektakale/cwms` on Vercel  
-2. Root empty; `vercel.json` already set  
-3. Env: `VITE_API_BASE_URL=https://YOUR-RENDER-API.onrender.com/api/v1`
+2. Root Directory = `frontend` (`frontend/vercel.json` + `/api` proxy)  
+3. Env: `VITE_API_BASE_URL=/api/v1`
 
 ---
 

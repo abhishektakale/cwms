@@ -23,7 +23,7 @@ CWMS/
 │   └── cloud.env.example
 ├── render.yaml           # Render Blueprint (API)
 ├── railway.toml          # Railway (API)
-├── vercel.json           # Vercel (SPA)
+├── frontend/vercel.json  # Vercel SPA (Root Directory = frontend)
 └── scripts/
 ```
 
@@ -94,7 +94,7 @@ Use `DATABASE_URL` with host port **5433** when talking to Docker Postgres from 
 | Path | Guide | Stack |
 |------|-------|--------|
 | **A** — one VM | [`deploy/path-a/README.md`](deploy/path-a/README.md) | Docker Compose (Postgres + MinIO + API + SPA) |
-| **B** — split cloud | [`deploy/path-b/README.md`](deploy/path-b/README.md) | Neon + MinIO + Render/Railway + Pages/Vercel |
+| **B** — split cloud | [`deploy/path-b/README.md`](deploy/path-b/README.md) | Neon + R2 + Render/Railway + Vercel/Pages |
 
 Env worksheet (Path B): [`deploy/path-b/env.worksheet.example`](deploy/path-b/env.worksheet.example) · overview: [`deploy/README.md`](deploy/README.md)
 

@@ -21,6 +21,10 @@ deploy/path-a/.env.uat
 sample
 **/sample
 
+# Filled deploy worksheets (keep *.example)
+**/env.worksheet
+!**/env.worksheet.example
+
 # Logs & OS
 *.log
 .DS_Store

@@ -38,8 +38,14 @@ If the Render hostname changes, edit that line and push.
 
 1. Vercel env: `VITE_API_BASE_URL=/api/v1` → Redeploy  
 2. Render: `CORS_ORIGIN=https://cwms-frontend-uo98.vercel.app` (keep for safety)  
-3. Render: `COOKIE_SAMESITE=none`, `COOKIE_SECURE=true`  
+3. Render: `COOKIE_SAMESITE=none`, `COOKIE_SECURE=true` + R2 `S3_*` (see [`RENDER.md`](./RENDER.md))  
 4. Login: `Administrator` / `Password@123`
+
+### Smoke (after R2 on API)
+
+1. `GET /api/v1/health` → `storage: up`, `documentUpload: true`  
+2. Documents → upload PDF/image ≤20MB → open → delete  
+3. Expenditure → Attach → open → remove  
 
 Cold start on free Render can take ~30–60s on first API call.
 

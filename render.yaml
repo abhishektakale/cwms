@@ -1,7 +1,7 @@
 # Render Blueprint — Free tier Node API (no Docker required)
 # Path B: deploy/path-b/RENDER.md
 #
-# After create: set DATABASE_URL + CORS_ORIGIN in the dashboard.
+# After create: set DATABASE_URL, CORS_ORIGIN, and R2 S3_* in the dashboard.
 
 services:
   - type: web
@@ -22,15 +22,27 @@ services:
         value: none
       - key: COOKIE_SECURE
         value: "true"
-      - key: DOCUMENTS_UPLOAD_ENABLED
-        value: "false"
       - key: PROFIT_LOSS_MODE
         value: gross_minus_expenditure
       - key: SESSION_IDLE_TIMEOUT_MINUTES
         value: "30"
       - key: REMEMBER_ME_DAYS
         value: "14"
+      - key: S3_REGION
+        value: auto
+      - key: S3_BUCKET_DOCUMENTS
+        value: cwms-documents
+      - key: S3_BUCKET_BACKUPS
+        value: cwms-backups
+      - key: S3_FORCE_PATH_STYLE
+        value: "false"
       - key: DATABASE_URL
         sync: false
       - key: CORS_ORIGIN
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
         sync: false

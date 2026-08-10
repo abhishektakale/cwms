@@ -1,7 +1,7 @@
-# CWMS Path B — split cloud (Neon + API + SPA)
+# CWMS Path B — split cloud (Neon + R2 + API + SPA)
 #
 # Testers open: the SPA URL only (Pages or Vercel)
-# File storage (MinIO/R2) is **skipped for now** — document upload disabled.
+# File storage: Cloudflare R2 (Documents + expense attachments)
 
 ## Big picture
 
@@ -10,29 +10,28 @@
      │
      ▼
   SPA ──────────────► API ──────► Neon (Postgres)
-  Pages / Vercel      Render /
-                      Railway
+  Pages / Vercel      Render /         │
+                      Railway          ▼
+                                 Cloudflare R2
 ```
 
 | Piece | Service | You get |
 |-------|---------|---------|
 | **DB** | [Neon](https://neon.tech) | `DATABASE_URL` |
-| **Files** | *Skipped* | No MinIO/R2; upload disabled |
+| **Files** | [Cloudflare R2](https://developers.cloudflare.com/r2/) | `S3_*` credentials |
 | **API** | [Render](https://render.com) or [Railway](https://railway.app) | `https://…/api/v1` |
-| **SPA** | [Cloudflare Pages](https://pages.cloudflare.com) or [Vercel](https://vercel.com) | tester URL |
+| **SPA** | [Vercel](https://vercel.com) or [Cloudflare Pages](https://pages.cloudflare.com) | tester URL |
 
-**Recommended combo now:** Neon + Render + Cloudflare Pages.
+**Recommended combo:** Neon + R2 + Render + Vercel (same-origin `/api` proxy).
 
 Worksheet: [`env.worksheet.example`](./env.worksheet.example)  
-Repo: `render.yaml`, `railway.toml`, `vercel.json`, `deploy/docker/Dockerfile.backend`
+Also: [`RENDER.md`](./RENDER.md), [`VERCEL.md`](./VERCEL.md), [`deploy/cloud.env.example`](../cloud.env.example)
 
-**Order:** Neon → API → SPA → set API `CORS_ORIGIN` to SPA URL.
+**Order:** Neon → R2 → API → SPA → set API `CORS_ORIGIN` to SPA URL.
 
 ---
 
 ## 0. Push latest code
-
-Upload-disable + cloud cookie support must be on GitHub `main` before you deploy.
 
 ```bash
 git push origin main
@@ -53,105 +52,90 @@ Migrations run on API boot (`prisma migrate deploy`). No laptop migrate needed.
 
 ---
 
-## 2. Files → skipped
+## 2. Files → Cloudflare R2
 
-Do **not** create MinIO or R2.
+1. [Cloudflare Dashboard](https://dash.cloudflare.com) → **R2** → create two buckets:
+   - `cwms-documents` (Documents + expense attachments)
+   - `cwms-backups` (reserved; backup feature still stub)
+2. **R2** → **Manage R2 API Tokens** → create token with **Object Read & Write**.
+3. Copy **Access Key ID** and **Secret Access Key**.
+4. Note **Account ID** → endpoint:
 
-On the API:
-- Leave all `S3_*` **unset**
-- Set `DOCUMENTS_UPLOAD_ENABLED=false` (optional but clear)
+```text
+https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com
+```
 
-Then:
-- Health: `"storage":"skipped"`, `"features":{"documentUpload":false}`
-- Documents page: upload form hidden + notice
-- API rejects upload with 503 if someone calls it anyway
+The API does **not** create buckets. If `cwms-documents` is missing or the token cannot `HeadBucket`, health shows `"storage":"down"` and Render logs a warning.
 
-You can add MinIO later; see older notes in git history / Path A if needed.
+Omit all `S3_*` only if you intentionally want uploads disabled (`storage: skipped`).
 
 ---
 
 ## 3. API → Render (recommended)
 
-1. [https://dashboard.render.com](https://dashboard.render.com) → **New** → **Blueprint** (`render.yaml`)  
-   **or** **Web Service**:
-   - GitHub repo: `abhishektakale/cwms`
-   - Runtime: **Docker**
-   - Dockerfile: `deploy/docker/Dockerfile.backend`
-   - Context: repo **root**
-   - Health check: `/api/v1/health`
-2. Environment variables:
+See [`RENDER.md`](./RENDER.md) for Free Node build/start commands.
+
+Environment variables:
 
 | Key | Value |
 |-----|--------|
 | `NODE_ENV` | `production` |
-| `PORT` | `3000` |
 | `API_PREFIX` | `api/v1` |
 | `DATABASE_URL` | Neon pooled URL |
-| `CORS_ORIGIN` | temporary `https://example.com` until SPA exists |
+| `CORS_ORIGIN` | SPA origin (no trailing slash) |
 | `COOKIE_SAMESITE` | `none` |
 | `COOKIE_SECURE` | `true` |
-| `DOCUMENTS_UPLOAD_ENABLED` | `false` |
 | `CWMS_SEED` | `true` |
 | `SESSION_IDLE_TIMEOUT_MINUTES` | `30` |
 | `REMEMBER_ME_DAYS` | `14` |
 | `PROFIT_LOSS_MODE` | `gross_minus_expenditure` |
+| `S3_ENDPOINT` | `https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com` |
+| `S3_REGION` | `auto` |
+| `S3_ACCESS_KEY` | R2 access key |
+| `S3_SECRET_KEY` | R2 secret |
+| `S3_BUCKET_DOCUMENTS` | `cwms-documents` |
+| `S3_BUCKET_BACKUPS` | `cwms-backups` |
+| `S3_FORCE_PATH_STYLE` | `false` |
 
-**Do not set** `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, etc.
+Do **not** set `DOCUMENTS_UPLOAD_ENABLED=false` once R2 is wired (or set it to `true`).  
+Do **not** set `PORT` on Render Free (platform injects it).
 
-3. Deploy. Note API URL, e.g. `https://cwms-api.onrender.com`.
-4. Smoke:
+Deploy, then:
 
 ```bash
 curl https://YOUR_API_HOST/api/v1/health
 ```
 
-Expect something like:
+Expect:
 
 ```json
 {
   "status": "ok",
-  "checks": { "database": "up", "storage": "skipped" },
-  "features": { "documentUpload": false }
+  "checks": { "database": "up", "storage": "up" },
+  "features": { "documentUpload": true }
 }
 ```
 
 ### API → Railway (alternative)
 
-1. Deploy from GitHub; `railway.toml` → `deploy/docker/Dockerfile.backend`.
-2. Same env vars as the table (no `S3_*`).
-3. Generate public domain; health `/api/v1/health`.
+Same env vars including `S3_*`. Health check `/api/v1/health`.
 
 ---
 
-## 4. SPA → Cloudflare Pages (recommended)
+## 4. SPA → Vercel (recommended)
 
-Testers use **this** URL.
-
-1. Cloudflare → **Workers & Pages** → Create → Connect Git → `cwms` / `main`.
-2. Build:
+See [`VERCEL.md`](./VERCEL.md).
 
 | Field | Value |
 |-------|--------|
-| Framework preset | **None** |
-| **Root directory** | `frontend` |
-| Build command | `npm install && npm run build` |
-| Build output directory | `dist` |
+| Root Directory | `frontend` |
+| `VITE_API_BASE_URL` | `/api/v1` (same-origin proxy to Render) |
 
-Do **not** leave Root as the repo root (Wrangler fails on npm workspaces). See [`PAGES.md`](./PAGES.md).
+Upload traffic goes through the API (and Vercel `/api` rewrite); no public R2 CORS needed.
 
-3. Env (Production):
+### SPA → Cloudflare Pages (alternative)
 
-| Key | Value |
-|-----|--------|
-| `VITE_API_BASE_URL` | `https://YOUR_API_HOST/api/v1` |
-
-4. Deploy. Note SPA URL, e.g. `https://cwms.pages.dev`.
-
-### SPA → Vercel (alternative)
-
-1. Import repo (`vercel.json` already set).
-2. Env: `VITE_API_BASE_URL=https://YOUR_API_HOST/api/v1`.
-3. Deploy; copy URL.
+Root directory `frontend`. Env: `VITE_API_BASE_URL=https://YOUR_API_HOST/api/v1` (or same-origin if you add a proxy). See [`PAGES.md`](./PAGES.md).
 
 ---
 
@@ -159,26 +143,37 @@ Do **not** leave Root as the repo root (Wrangler fails on npm workspaces). See [
 
 | Where | Variable | Value |
 |-------|----------|--------|
-| API | `CORS_ORIGIN` | Exact SPA URL, e.g. `https://cwms.pages.dev` (no trailing slash) |
+| API | `CORS_ORIGIN` | Exact SPA URL (no trailing slash) |
 | API | `COOKIE_SAMESITE` | `none` |
 | API | `COOKIE_SECURE` | `true` |
-| SPA | `VITE_API_BASE_URL` | `https://YOUR_API/api/v1` (rebuild SPA if changed) |
+| SPA | `VITE_API_BASE_URL` | `/api/v1` on Vercel (or full API URL on Pages) |
 
-1. Set API `CORS_ORIGIN` to the real SPA URL → redeploy API.  
+1. Set API `CORS_ORIGIN` → redeploy API.  
 2. Open **SPA** → login `Administrator` / `Password@123`.  
-3. Smoke: dashboard, works, billing — **skip Documents upload**.
+3. Smoke (see below).
+
+---
+
+## 6. Smoke after R2 is live
+
+1. Health: `storage: up`, `documentUpload: true`
+2. **Documents** → upload a PDF or image ≤20MB → open/download → delete
+3. **Expenditure** → Attach on an expense → open → remove
+4. Dashboard / works / billing still work
 
 ---
 
 ## Checklist
 
-- [ ] Latest code on `main` (upload-skip + cookies)
+- [ ] Latest code on `main`
 - [ ] Neon `DATABASE_URL` (pooled + ssl)
-- [ ] No `S3_*` / no MinIO
-- [ ] API health: `storage: skipped`, `documentUpload: false`
-- [ ] SPA `VITE_API_BASE_URL` points at API
+- [ ] R2 buckets `cwms-documents` + `cwms-backups`
+- [ ] API `S3_*` set; `DOCUMENTS_UPLOAD_ENABLED` not `false`
+- [ ] API health: `storage: up`, `documentUpload: true`
+- [ ] SPA `VITE_API_BASE_URL` correct + redeployed
 - [ ] API `CORS_ORIGIN` = SPA origin
 - [ ] Login works from SPA
+- [ ] Documents + expense attachment upload smoke pass
 
 **Share with testers:** SPA URL only.  
 Demo: `Administrator` / `Password@123`
@@ -190,10 +185,13 @@ Demo: `Administrator` / `Password@123`
 | Symptom | Fix |
 |---------|-----|
 | CORS error | `CORS_ORIGIN` must match SPA origin exactly |
-| Login then 401 / logged out | `COOKIE_SAMESITE=none` + `COOKIE_SECURE=true` + HTTPS |
+| Login then 401 / logged out | `COOKIE_SAMESITE=none` + `COOKIE_SECURE=true` + HTTPS; Vercel use `/api/v1` |
 | SPA hits wrong host | Fix `VITE_API_BASE_URL` and **rebuild** SPA |
 | `database: down` | Use Neon **pooled** URL + `sslmode=require` |
-| Upload form still shows | Redeploy API/SPA with latest code; confirm no `S3_*` |
+| `storage: skipped` | `S3_ENDPOINT` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` missing |
+| `storage: down` | Create `cwms-documents` bucket; check R2 token + endpoint Account ID; see Render logs for HeadBucket warning |
+| Upload form hidden | Health `documentUpload` false — remove `DOCUMENTS_UPLOAD_ENABLED=false`, redeploy |
+| Upload 503 | Same as above; confirm R2 env on API |
 | Render first hit slow | Free tier cold start — wait 30–60s |
 
 ---
@@ -203,6 +201,6 @@ Demo: `Administrator` / `Password@123`
 | | Path A | Path B |
 |---|--------|--------|
 | Guide | [`../path-a/README.md`](../path-a/README.md) | this file |
-| Hosting | One VM + full Docker (includes MinIO) | Neon + Render/Railway + Pages/Vercel |
-| Files now | MinIO on the VM | Skipped |
-| Cookies | `lax` | `none` |
+| Hosting | One VM + full Docker (includes MinIO) | Neon + R2 + Render/Railway + Pages/Vercel |
+| Files | MinIO on the VM | Cloudflare R2 |
+| Cookies | `lax` | `none` (or same-origin via Vercel `/api` proxy) |

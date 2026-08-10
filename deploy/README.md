@@ -35,23 +35,19 @@ Local Docker (`npm run docker:up` → http://localhost:8080) is separate and unc
 | **DB** | PostgreSQL data | **Neon** | `DATABASE_URL` on the API |
 | **Files** | Uploaded documents / backups bucket | **Cloudflare R2** | `S3_*` on the API |
 | **API** | Nest backend (login, CRUD, reports) | **Render** or **Railway** | `Dockerfile.backend`, `render.yaml` / `railway.toml` |
-| **SPA** | React UI testers open in the browser | **Cloudflare Pages** or **Vercel** | `vercel.json`, `_redirects`, `VITE_API_BASE_URL` |
+| **SPA** | React UI testers open in the browser | **Vercel** or **Cloudflare Pages** | `frontend/vercel.json`, `_redirects`, `VITE_API_BASE_URL` |
 
 **Recommended Path A (one VM + MinIO):** [`path-a/README.md`](./path-a/README.md).  
-**Recommended Path B (split cloud + MinIO, no R2 card):** [`path-b/README.md`](./path-b/README.md).
+**Recommended Path B (split cloud + R2):** [`path-b/README.md`](./path-b/README.md).
 
-**If using R2 instead of MinIO on Path B:** set R2 `S3_*` from [`cloud.env.example`](./cloud.env.example) (`S3_FORCE_PATH_STYLE=false`).  
-**If skipping files:** omit all `S3_*` (in-memory fake storage).
+**Path B files:** Cloudflare R2 (`S3_*` from [`cloud.env.example`](./cloud.env.example), `S3_FORCE_PATH_STYLE=false`).  
+**If skipping files:** omit all `S3_*` (health `storage: skipped`, uploads disabled).
 
 Env template: [`cloud.env.example`](./cloud.env.example).
 
 ---
 
-## MinIO instead of R2
-
-Same `S3_*` env vars. MinIO is what you already run locally in Docker.
-
-You have **two deploy shapes**:
+## Deploy shapes
 
 ### Path A — One VM + full Docker Compose (simplest with MinIO)
 
@@ -101,67 +97,23 @@ This is the path of least friction when you want real file uploads without R2/ca
 
 ---
 
-### Path B — Split cloud: Neon + MinIO service + API + SPA
+### Path B — Split cloud: Neon + R2 + API + SPA
 
 ```text
-SPA (Pages/Vercel) → API (Render/Railway) → Neon
-                                   └──────→ MinIO (Railway/Render Docker or small VM)
+SPA (Vercel/Pages) → API (Render/Railway) → Neon
+                                   └──────→ Cloudflare R2
 ```
 
 | Piece | Service |
 |-------|---------|
 | DB | Neon |
-| Files | **MinIO** (Railway template, Render Docker, or tiny VM) |
+| Files | **Cloudflare R2** |
 | API | Render / Railway |
-| SPA | Pages / Vercel |
+| SPA | Vercel (recommended) / Pages |
 
-#### B1. Deploy MinIO
+Full steps: [`path-b/README.md`](./path-b/README.md) · Render: [`path-b/RENDER.md`](./path-b/RENDER.md) · Vercel: [`path-b/VERCEL.md`](./path-b/VERCEL.md).
 
-**On Railway (template):**
-
-1. New service → MinIO template (or Docker image `minio/minio`).
-2. Command: `server /data --console-address ":9001"`.
-3. Set `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` (strong values).
-4. Attach a **volume** on `/data` so files survive restarts.
-5. Generate a **public HTTPS URL** for the API port **9000** (S3 API), e.g. `https://minio-xxxx.up.railway.app`.
-6. Open console (9001) once, or use `mc`, and create buckets:
-   - `cwms-documents`
-   - `cwms-backups`
-
-**On a tiny VM (always free / cheap):**
-
-```bash
-docker run -d --name minio --restart unless-stopped \
-  -p 9000:9000 -p 9001:9001 \
-  -e MINIO_ROOT_USER=cwmsminio \
-  -e MINIO_ROOT_PASSWORD='choose-a-strong-password' \
-  -v minio_data:/data \
-  minio/minio server /data --console-address ":9001"
-```
-
-Put HTTPS in front of `:9000` (Caddy). Create the two buckets in the console at `:9001`.
-
-#### B2. Point the API at MinIO
-
-On Render/Railway API env (instead of R2):
-
-```text
-S3_ENDPOINT=https://your-minio-public-host
-S3_REGION=us-east-1
-S3_ACCESS_KEY=cwmsminio
-S3_SECRET_KEY=choose-a-strong-password
-S3_BUCKET_DOCUMENTS=cwms-documents
-S3_BUCKET_BACKUPS=cwms-backups
-S3_FORCE_PATH_STYLE=true
-```
-
-Keep the rest of the split guide: Neon `DATABASE_URL`, `COOKIE_SAMESITE=none`, `COOKIE_SECURE=true`, SPA `VITE_API_BASE_URL`, `CORS_ORIGIN` = SPA URL.
-
-#### B3. Deploy SPA + wire CORS
-
-Same as the main guide (Pages/Vercel + API cookie/CORS checklist).
-
-**Note:** MinIO must be reachable from the **API container** over HTTPS (or internal Railway private URL if both services are in the same Railway project — prefer private URL + no public MinIO if possible).
+**Alternate files for Path B:** a public MinIO HTTPS endpoint works with the same `S3_*` keys (`S3_FORCE_PATH_STYLE=true`). Prefer R2 for free-tier UAT.
 
 ---
 
@@ -320,17 +272,17 @@ Expect `"status":"ok"` and database/storage checks up.
 5. Save and deploy. Copy SPA URL, e.g. `https://cwms.pages.dev`.
 6. Client-side routes are handled by `frontend/public/_redirects`.
 
-### Option B — Vercel (alternative)
+### Option B — Vercel (recommended for Path B)
 
 1. [https://vercel.com](https://vercel.com) → Import GitHub repo.
-2. Root `vercel.json` already sets build command + `frontend/dist` + SPA rewrites.
+2. **Root Directory** = `frontend` (uses [`frontend/vercel.json`](../frontend/vercel.json) with `/api` → Render proxy).
 3. Project → **Settings → Environment Variables**:
 
 | Key | Value |
 |-----|--------|
-| `VITE_API_BASE_URL` | `https://YOUR_API_HOST/api/v1` |
+| `VITE_API_BASE_URL` | `/api/v1` |
 
-4. Deploy. Copy the Vercel URL (and add it to API `CORS_ORIGIN`).
+4. Deploy. Copy the Vercel URL (and add it to API `CORS_ORIGIN`). See [`path-b/VERCEL.md`](./path-b/VERCEL.md).
 
 ---
 
@@ -398,7 +350,7 @@ git push origin main
 | Health `database: down` | Bad `DATABASE_URL` | Use Neon **pooled** URL + `sslmode=require` |
 | Health `storage: down` | Bad R2 env / bucket name | Check endpoint, keys, bucket names |
 | Render slow first hit | Free tier sleep | Wait 30–60s; upgrade plan if needed |
-| Blank page on deep link | SPA rewrite missing | Confirm `_redirects` (Pages) or `vercel.json` rewrites |
+| Blank page on deep link | SPA rewrite missing | Confirm `_redirects` (Pages) or `frontend/vercel.json` rewrites |
 
 ---
 
@@ -419,5 +371,5 @@ git push origin main
 | [`docker/Dockerfile.frontend`](./docker/Dockerfile.frontend) | Optional container SPA (local/compose) |
 | [`../render.yaml`](../render.yaml) | Render Blueprint |
 | [`../railway.toml`](../railway.toml) | Railway |
-| [`../vercel.json`](../vercel.json) | Vercel SPA |
+| [`../frontend/vercel.json`](../frontend/vercel.json) | Vercel SPA (Root Directory = `frontend`) |
 | [`../frontend/public/_redirects`](../frontend/public/_redirects) | Cloudflare Pages SPA routes |

@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -9,6 +10,8 @@ import type { StoragePort, StoredObject } from './storage.port';
 
 export class MinioStorageAdapter implements StoragePort {
   private readonly client: S3Client;
+  private readonly logger = new Logger(MinioStorageAdapter.name);
+  private warnedHeadBucket = false;
 
   constructor(
     endpoint: string,
@@ -30,10 +33,21 @@ export class MinioStorageAdapter implements StoragePort {
 
   async ping(): Promise<'up' | 'down'> {
     const bucket = process.env.S3_BUCKET_DOCUMENTS ?? 'cwms-documents';
+    const endpoint = process.env.S3_ENDPOINT ?? '(unset)';
     try {
       await this.client.send(new HeadBucketCommand({ Bucket: bucket }));
+      this.warnedHeadBucket = false;
       return 'up';
-    } catch {
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      if (!this.warnedHeadBucket) {
+        this.warnedHeadBucket = true;
+        this.logger.warn(
+          `Object storage HeadBucket failed for bucket="${bucket}" endpoint="${endpoint}": ${detail}. ` +
+            'Create the bucket (e.g. Cloudflare R2 cwms-documents), check S3_ACCESS_KEY/S3_SECRET_KEY, ' +
+            'and confirm S3_ENDPOINT Account ID. Health will report storage: down until this succeeds.',
+        );
+      }
       return 'down';
     }
   }

@@ -2,12 +2,11 @@
 
 NestJS modular monolith. API prefix: `/api/v1`.
 
-## M0 surface
+## Surface
 
-- `GET /api/v1/health` — public health (DB + storage ping)
-- Auth stub guard — denies non-`@Public()` routes until M1 sessions
-- Prisma skeleton schema (`_schema_bootstrap` placeholder)
-- Fake storage port (S3 adapter in M4)
+- Auth (session cookies), masters, works, estimates, schedule, documents, billing, expenditure, dashboard, reports, users, search
+- `GET /api/v1/health` — DB + object-storage ping; `features.documentUpload` when `S3_*` is configured
+- Prisma schema + migrations; S3-compatible storage (MinIO local / R2 cloud)
 
 ## Commands
 
@@ -17,4 +16,4 @@ npm run test -w backend
 npm run prisma:generate -w backend
 ```
 
-See root `README.md` for Docker / env setup.
+See root `README.md` for Docker / env setup and `deploy/path-b/` for cloud UAT.
