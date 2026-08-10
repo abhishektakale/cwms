@@ -36,7 +36,8 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
 
   async function onEstimate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const fd = new FormData(form)
     try {
       await createEstimate(workId, {
         estimateNo: String(fd.get('estimateNo')),
@@ -44,7 +45,7 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
         estimatedAmount: String(fd.get('estimatedAmount')),
         approvedBy: String(fd.get('approvedBy') || '') || null,
       })
-      e.currentTarget.reset()
+      form.reset()
       await reload()
     } catch (err) {
       setError((err as Error).message)
@@ -53,7 +54,8 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
 
   async function onSchedule(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const fd = new FormData(form)
     try {
       await createSchedule(workId, {
         activity: String(fd.get('activity')),
@@ -61,7 +63,7 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
         finishDate: String(fd.get('finishDate') || '') || undefined,
         progressPercent: String(fd.get('progressPercent') || '0'),
       })
-      e.currentTarget.reset()
+      form.reset()
       await reload()
     } catch (err) {
       setError((err as Error).message)

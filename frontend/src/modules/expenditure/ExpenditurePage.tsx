@@ -45,7 +45,8 @@ export function ExpenditurePage() {
 
   async function onCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const fd = new FormData(form)
     try {
       await createExpense({
         expenseType: String(fd.get('expenseType')),
@@ -58,7 +59,7 @@ export function ExpenditurePage() {
         status: String(fd.get('status')),
         paymentMode: String(fd.get('paymentMode') || '') || undefined,
       })
-      e.currentTarget.reset()
+      form.reset()
       await reload()
     } catch (err) {
       setError((err as Error).message)
@@ -68,7 +69,8 @@ export function ExpenditurePage() {
   async function onUploadAttachment(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!attachFor || !uploadEnabled) return
-    const fd = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const fd = new FormData(form)
     const file = fd.get('file')
     if (!(file instanceof File) || !file.size) {
       setError('Choose a PDF or image file to attach')
@@ -76,7 +78,7 @@ export function ExpenditurePage() {
     }
     try {
       await uploadExpenseAttachment(attachFor, file)
-      e.currentTarget.reset()
+      form.reset()
       setAttachFor(null)
       await reload()
     } catch (err) {

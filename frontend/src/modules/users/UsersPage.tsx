@@ -29,7 +29,8 @@ export function UsersPage() {
 
   async function onCreate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const fd = new FormData(form)
     try {
       await createUser({
         name: String(fd.get('name')),
@@ -38,7 +39,7 @@ export function UsersPage() {
         role: String(fd.get('role')),
         email: String(fd.get('email') || '') || undefined,
       })
-      e.currentTarget.reset()
+      form.reset()
       await reload()
     } catch (err) {
       setError((err as Error).message)

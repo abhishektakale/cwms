@@ -43,7 +43,8 @@ export function DocumentsPage() {
   async function onUpload(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!uploadEnabled) return
-    const fd = new FormData(e.currentTarget)
+    const formEl = e.currentTarget
+    const fd = new FormData(formEl)
     const workId = String(fd.get('workId'))
     const form = new FormData()
     form.set('documentTypeId', String(fd.get('documentTypeId')))
@@ -53,7 +54,7 @@ export function DocumentsPage() {
     if (file instanceof File) form.set('file', file)
     try {
       await uploadDocument(workId, form)
-      e.currentTarget.reset()
+      formEl.reset()
       await reload()
     } catch (err) {
       setError((err as Error).message)
