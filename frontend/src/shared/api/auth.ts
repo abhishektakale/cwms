@@ -1,3 +1,5 @@
+import { trackRequest } from '../loading/requestTracker'
+
 export type RoleCode =
   | 'Administrator'
   | 'DataEntryOperator'
@@ -55,28 +57,34 @@ export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init?.headers ?? {}),
-    },
-    ...init,
-  })
-  if (!res.ok) {
-    const problem = await parseError(res)
-    const err = new Error(problem.detail ?? problem.title ?? 'Request failed') as Error & {
-      status: number
-      problem: ProblemDetails
-    }
-    err.status = res.status
-    err.problem = problem
-    throw err
-  }
-  if (res.status === 204) {
-    return undefined as T
-  }
-  return (await res.json()) as T
+  return trackRequest(
+    (async () => {
+      const res = await fetch(`${API_BASE}${path}`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(init?.headers ?? {}),
+        },
+        ...init,
+      })
+      if (!res.ok) {
+        const problem = await parseError(res)
+        const err = new Error(
+          problem.detail ?? problem.title ?? 'Request failed',
+        ) as Error & {
+          status: number
+          problem: ProblemDetails
+        }
+        err.status = res.status
+        err.problem = problem
+        throw err
+      }
+      if (res.status === 204) {
+        return undefined as T
+      }
+      return (await res.json()) as T
+    })(),
+  )
 }
 
 export function login(username: string, password: string, rememberMe: boolean) {

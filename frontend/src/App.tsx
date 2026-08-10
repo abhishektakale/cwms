@@ -16,11 +16,13 @@ import { DocumentsPage } from './modules/documents/DocumentsPage'
 import { ReportsPage } from './modules/reports/ReportsPage'
 import { UsersPage } from './modules/users/UsersPage'
 import { BackupPage } from './modules/backup/BackupPage'
+import { GlobalLoader } from './shared/loading/GlobalLoader'
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <GlobalLoader />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />

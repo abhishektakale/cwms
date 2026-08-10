@@ -1,5 +1,6 @@
 import { apiFetch } from './http'
 import { API_BASE } from './auth'
+import { trackRequest } from '../loading/requestTracker'
 
 export type Estimate = {
   id: string
@@ -175,22 +176,26 @@ export async function uploadExpenseAttachment(
 ) {
   const form = new FormData()
   form.set('file', file)
-  const res = await fetch(`${API_BASE}/expenses/${expenseId}/attachments`, {
-    method: 'POST',
-    credentials: 'include',
-    body: form,
-  })
-  if (!res.ok) {
-    let detail = 'Upload failed'
-    try {
-      const body = (await res.json()) as { detail?: string }
-      if (body.detail) detail = body.detail
-    } catch {
-      /* ignore */
-    }
-    throw new Error(detail)
-  }
-  return (await res.json()) as ExpenseAttachment
+  return trackRequest(
+    (async () => {
+      const res = await fetch(`${API_BASE}/expenses/${expenseId}/attachments`, {
+        method: 'POST',
+        credentials: 'include',
+        body: form,
+      })
+      if (!res.ok) {
+        let detail = 'Upload failed'
+        try {
+          const body = (await res.json()) as { detail?: string }
+          if (body.detail) detail = body.detail
+        } catch {
+          /* ignore */
+        }
+        throw new Error(detail)
+      }
+      return (await res.json()) as ExpenseAttachment
+    })(),
+  )
 }
 
 export async function deleteExpenseAttachment(
@@ -224,13 +229,17 @@ export async function uploadDocument(
   workId: string,
   form: FormData,
 ) {
-  const res = await fetch(`${API_BASE}/works/${workId}/documents`, {
-    method: 'POST',
-    credentials: 'include',
-    body: form,
-  })
-  if (!res.ok) throw new Error('Upload failed')
-  return (await res.json()) as DocumentRow
+  return trackRequest(
+    (async () => {
+      const res = await fetch(`${API_BASE}/works/${workId}/documents`, {
+        method: 'POST',
+        credentials: 'include',
+        body: form,
+      })
+      if (!res.ok) throw new Error('Upload failed')
+      return (await res.json()) as DocumentRow
+    })(),
+  )
 }
 
 export async function deleteDocument(id: string) {
@@ -273,14 +282,18 @@ export async function exportReport(
   format: 'pdf' | 'excel',
   filters: object,
 ) {
-  const res = await fetch(`${API_BASE}/reports/${reportType}/export`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ filters, format }),
-  })
-  if (!res.ok) throw new Error('Export failed')
-  return res.blob()
+  return trackRequest(
+    (async () => {
+      const res = await fetch(`${API_BASE}/reports/${reportType}/export`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filters, format }),
+      })
+      if (!res.ok) throw new Error('Export failed')
+      return res.blob()
+    })(),
+  )
 }
 
 export async function listSavedFilters(reportType: string) {
