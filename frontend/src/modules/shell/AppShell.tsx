@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { ROLE_LABEL, isAdmin } from '../../shared/api/auth'
@@ -46,10 +46,12 @@ export function AppShell() {
     }
   }
 
+  const homeTo = user ? '/dashboard' : '/'
+
   return (
     <div className="shell">
       <nav className="shell__nav" aria-label="Primary">
-        <div className="shell__brand">
+        <Link to={homeTo} className="shell__brand" aria-label="CWMS home">
           <CwmsLogo
             className="shell__brand-mark"
             variant="color"
@@ -58,11 +60,13 @@ export function AppShell() {
             height={40}
             aria-hidden
           />
-          <div>
-            <div className="shell__brand-title">CWMS</div>
-            <div className="shell__brand-sub">Plan · Manage · Build · Succeed</div>
-          </div>
-        </div>
+          <span className="shell__brand-text">
+            <span className="shell__brand-title">CWMS</span>
+            <span className="shell__brand-sub">
+              Plan · Manage · Build · Succeed
+            </span>
+          </span>
+        </Link>
         <ul className="shell__nav-list">
           {NAV_ITEMS.filter((item) => !item.adminOnly || admin).map((item) => (
             <li key={item.to}>
@@ -89,15 +93,17 @@ export function AppShell() {
       <div className="shell__content">
         <header className="shell__header">
           <div className="shell__header-left">
-            <CwmsLogo
-              className="shell__header-mark"
-              variant="color"
-              showWordmark={false}
-              width={28}
-              height={28}
-              aria-label="CWMS"
-            />
-            <span className="shell__header-brand">CWMS</span>
+            <Link to={homeTo} className="shell__header-home" aria-label="CWMS home">
+              <CwmsLogo
+                className="shell__header-mark"
+                variant="color"
+                showWordmark={false}
+                width={28}
+                height={28}
+                aria-hidden
+              />
+              <span className="shell__header-brand">CWMS</span>
+            </Link>
             <div className="shell__search" role="search">
               <span className="material-symbols-outlined">search</span>
               <input

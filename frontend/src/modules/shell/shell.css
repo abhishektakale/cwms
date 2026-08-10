@@ -19,11 +19,24 @@
 }
 
 .shell__brand {
-  display: flex;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
   align-items: center;
-  gap: var(--cwms-space-sm);
-  padding: 0 var(--cwms-space-sm);
+  column-gap: 12px;
+  padding: 4px 8px;
   margin-bottom: var(--cwms-space-lg);
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--cwms-radius-sm);
+}
+
+.shell__brand:hover {
+  background: color-mix(in srgb, var(--cwms-surface-container-highest) 14%, transparent);
+}
+
+.shell__brand:focus-visible {
+  outline: 2px solid var(--cwms-secondary-container);
+  outline-offset: 2px;
 }
 
 .shell__brand-mark {
@@ -34,21 +47,37 @@
   border-radius: var(--cwms-radius-sm);
   background: var(--cwms-surface-container-lowest);
   padding: 2px;
+  display: block;
+}
+
+.shell__brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
 }
 
 .shell__brand-title {
-  font-size: 24px;
+  display: block;
+  font-size: 20px;
   font-weight: 800;
   line-height: 1;
+  letter-spacing: 0.04em;
 }
 
 .shell__brand-sub {
-  font-size: var(--cwms-font-label-caps-size);
-  letter-spacing: var(--cwms-font-label-caps-tracking);
+  display: block;
+  font-size: 9px;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  opacity: 0.8;
-  margin-top: var(--cwms-space-xs);
   color: var(--cwms-on-primary-container);
+  opacity: 0.9;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .shell__nav-list {
@@ -123,16 +152,39 @@
   gap: var(--cwms-space-md);
 }
 
+.shell__header-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--cwms-radius-sm);
+  padding: 4px 6px;
+  margin-left: -6px;
+}
+
+.shell__header-home:hover {
+  background: var(--cwms-surface-container-low);
+}
+
+.shell__header-home:focus-visible {
+  outline: 2px solid var(--cwms-secondary);
+  outline-offset: 2px;
+}
+
 .shell__header-mark {
   width: 28px;
   height: 28px;
   object-fit: contain;
   flex-shrink: 0;
+  display: block;
 }
 
 .shell__header-brand {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
 }
 
 .shell__search {
