@@ -54,6 +54,17 @@
   margin-bottom: var(--cwms-space-xl);
 }
 
+.login-page__home {
+  display: inline-block;
+  text-decoration: none;
+  border-radius: var(--cwms-radius-sm);
+}
+
+.login-page__home:focus-visible {
+  outline: 2px solid var(--cwms-secondary);
+  outline-offset: 4px;
+}
+
 .login-page__logo {
   display: block;
   width: min(280px, 100%);
@@ -218,6 +229,8 @@
   margin-top: var(--cwms-space-lg);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--cwms-space-md);
   color: var(--cwms-outline);
   font-size: var(--cwms-font-body-sm-size);
@@ -226,6 +239,23 @@
 .login-page__footer a {
   color: inherit;
   text-decoration: none;
+}
+
+.login-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--cwms-secondary) !important;
+  font-weight: 600;
+}
+
+.login-page__back .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.login-page__back:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .login-page__dot {

@@ -48,7 +48,9 @@ export function LoginPage() {
       </div>
       <main className="login-page__main">
         <header className="login-page__brand">
-          <CwmsLogo className="login-page__logo" variant="color" width={280} height={86} />
+          <Link to="/" className="login-page__home" aria-label="Back to CWMS home">
+            <CwmsLogo className="login-page__logo" variant="color" width={280} height={86} />
+          </Link>
         </header>
 
         {error && (
@@ -143,9 +145,16 @@ export function LoginPage() {
           Demo: <code>Administrator</code> / <code>Password@123</code>
         </p>
         <div className="login-page__footer">
+          <Link to="/" className="login-page__back">
+            <span className="material-symbols-outlined" aria-hidden>
+              arrow_back
+            </span>
+            Back to home
+          </Link>
+          <span className="login-page__dot" />
           <span>Help Center</span>
           <span className="login-page__dot" />
-          <Link to="/login">Privacy Policy</Link>
+          <span>Privacy Policy</span>
         </div>
       </main>
     </div>
