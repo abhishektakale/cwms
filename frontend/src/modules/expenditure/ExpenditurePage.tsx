@@ -14,6 +14,8 @@ import {
 import { listMasters } from '../../shared/api/masters'
 import { listWorks } from '../../shared/api/works'
 import { canMutate } from '../../shared/api/auth'
+import { formatDate } from '../../shared/format/datetime'
+import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/AuthContext'
 
 export function ExpenditurePage() {
@@ -169,9 +171,11 @@ export function ExpenditurePage() {
               <option value="UPI">UPI</option>
             </select>
           </label>
-          <button type="submit" className="works__btn works__btn--primary">
-            Add expense
-          </button>
+          <div className="form-actions">
+            <button type="submit" className="works__btn works__btn--primary">
+              Add expense
+            </button>
+          </div>
         </form>
       )}
       {mutate && uploadEnabled && attachFor && (
@@ -187,16 +191,18 @@ export function ExpenditurePage() {
             File *
             <input name="file" type="file" accept=".pdf,image/*" required />
           </label>
-          <button type="submit" className="works__btn works__btn--primary">
-            Upload attachment
-          </button>
-          <button
-            type="button"
-            className="works__btn"
-            onClick={() => setAttachFor(null)}
-          >
-            Cancel
-          </button>
+          <div className="form-actions">
+            <button type="submit" className="works__btn works__btn--primary">
+              Upload attachment
+            </button>
+            <button
+              type="button"
+              className="works__btn"
+              onClick={() => setAttachFor(null)}
+            >
+              Cancel
+            </button>
+          </div>
         </form>
       )}
       <table className="works__table">
@@ -213,9 +219,20 @@ export function ExpenditurePage() {
           </tr>
         </thead>
         <tbody>
-          {items.map((row) => (
+          {items.length === 0 ? (
+            <EmptyState
+              colSpan={8}
+              title="No expenses yet"
+              detail={
+                mutate
+                  ? 'Add an expense above to track spend against works.'
+                  : undefined
+              }
+            />
+          ) : (
+            items.map((row) => (
             <tr key={row.id}>
-              <td>{row.expenseDate}</td>
+              <td>{formatDate(row.expenseDate)}</td>
               <td>{row.expenseType}</td>
               <td>{row.workCode ?? '—'}</td>
               <td>{row.expenseHeadName}</td>
@@ -297,7 +314,8 @@ export function ExpenditurePage() {
                 )}
               </td>
             </tr>
-          ))}
+            ))
+          )}
         </tbody>
       </table>
     </div>

@@ -5,6 +5,7 @@ import {
   deactivateUser,
   listUsers,
 } from '../../shared/api/domain'
+import { EmptyState } from '../../shared/ui/EmptyState'
 
 type UserRow = {
   id: string
@@ -81,9 +82,11 @@ export function UsersPage() {
           Email
           <input name="email" type="email" />
         </label>
-        <button type="submit" className="works__btn works__btn--primary">
-          Create user
-        </button>
+        <div className="form-actions">
+          <button type="submit" className="works__btn works__btn--primary">
+            Create user
+          </button>
+        </div>
       </form>
       <table className="works__table">
         <thead>
@@ -96,33 +99,41 @@ export function UsersPage() {
           </tr>
         </thead>
         <tbody>
-          {items.map((u) => (
-            <tr key={u.id}>
-              <td>{u.name}</td>
-              <td>{u.loginId}</td>
-              <td>{u.role}</td>
-              <td>{u.active ? 'Yes' : 'No'}</td>
-              <td>
-                {u.active ? (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() => void deactivateUser(u.id).then(reload)}
-                  >
-                    Deactivate
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() => void activateUser(u.id).then(reload)}
-                  >
-                    Activate
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+          {items.length === 0 ? (
+            <EmptyState
+              colSpan={5}
+              title="No users yet"
+              detail="Create the first user above."
+            />
+          ) : (
+            items.map((u) => (
+              <tr key={u.id}>
+                <td>{u.name}</td>
+                <td>{u.loginId}</td>
+                <td>{u.role}</td>
+                <td>{u.active ? 'Yes' : 'No'}</td>
+                <td>
+                  {u.active ? (
+                    <button
+                      type="button"
+                      className="works__btn"
+                      onClick={() => void deactivateUser(u.id).then(reload)}
+                    >
+                      Deactivate
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="works__btn"
+                      onClick={() => void activateUser(u.id).then(reload)}
+                    >
+                      Activate
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

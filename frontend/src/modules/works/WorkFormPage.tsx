@@ -218,7 +218,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
             ['general', 'General'],
             ['financial', 'Financial'],
             ['location', 'Location'],
-            ['schedule', 'Schedule'],
+            ['schedule', 'Key dates'],
             ['summary', 'Summary'],
           ] as const
         ).map(([id, label]) => (
@@ -508,6 +508,14 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
               <dd>{form.workName || '—'}</dd>
             </div>
             <div>
+              <dt>Project</dt>
+              <dd>{form.projectName || '—'}</dd>
+            </div>
+            <div>
+              <dt>Client</dt>
+              <dd>{form.client || '—'}</dd>
+            </div>
+            <div>
               <dt>WO</dt>
               <dd>
                 {form.workOrderNo || '—'} · {form.workOrderDate}
@@ -518,8 +526,14 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
               <dd>{STATUS_LABEL[form.status]}</dd>
             </div>
             <div>
-              <dt>Total Work Value</dt>
-              <dd className="numeric">₹ {preview.total}</dd>
+              <dt>Location</dt>
+              <dd>
+                {[form.district, form.state].filter(Boolean).join(', ') || '—'}
+              </dd>
+            </div>
+            <div>
+              <dt>Work portion</dt>
+              <dd className="numeric">₹ {preview.portion}</dd>
             </div>
             <div>
               <dt>GST</dt>
@@ -527,6 +541,14 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 {form.gstType === 'GstExtra' ? 'Extra' : 'Included'} ·{' '}
                 {form.gstPercent}% · ₹ {preview.gstAmount}
               </dd>
+            </div>
+            <div>
+              <dt>Total Work Value</dt>
+              <dd className="numeric">₹ {preview.total}</dd>
+            </div>
+            <div>
+              <dt>Physical progress</dt>
+              <dd>{form.physicalProgressPercent || '0'}%</dd>
             </div>
           </dl>
         )}
@@ -552,7 +574,12 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
         </div>
       </form>
 
-      {workId && mode !== 'new' && <WorkChildrenPanels workId={workId} />}
+      {workId && mode !== 'new' && (
+        <>
+          <h2 className="work-form__children-title">Estimates & activity plan</h2>
+          <WorkChildrenPanels workId={workId} />
+        </>
+      )}
     </div>
   )
 }

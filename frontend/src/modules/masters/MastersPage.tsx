@@ -9,6 +9,8 @@ import {
   type MasterType,
 } from '../../shared/api/masters'
 import type { ProblemDetails } from '../../shared/api/auth'
+import { formatDateTime } from '../../shared/format/datetime'
+import { EmptyState } from '../../shared/ui/EmptyState'
 import './masters.css'
 
 export function MastersPage() {
@@ -109,7 +111,10 @@ export function MastersPage() {
       {loading ? (
         <p>Loading…</p>
       ) : items.length === 0 ? (
-        <p className="masters__empty">No values yet. Add the first one.</p>
+        <EmptyState
+          title="No values yet"
+          detail="Add the first value above for this master list."
+        />
       ) : (
         <table className="masters__table">
           <thead>
@@ -142,9 +147,7 @@ export function MastersPage() {
                   )}
                 </td>
                 <td>{item.active ? 'Yes' : 'No'}</td>
-                <td className="numeric">
-                  {new Date(item.updatedAt).toLocaleString()}
-                </td>
+                <td className="numeric">{formatDateTime(item.updatedAt)}</td>
                 <td className="masters__actions">
                   <button type="button" onClick={() => setEditing(item)}>
                     Edit

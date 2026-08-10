@@ -7,6 +7,8 @@ import {
 } from '../../shared/api/domain'
 import { listWorks } from '../../shared/api/works'
 import { canMutate } from '../../shared/api/auth'
+import { formatDate } from '../../shared/format/datetime'
+import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/AuthContext'
 
 export function BillingPage() {
@@ -117,9 +119,11 @@ export function BillingPage() {
             Amount received
             <input name="amountReceived" defaultValue="0" />
           </label>
-          <button type="submit" className="works__btn works__btn--primary">
-            Create bill
-          </button>
+          <div className="form-actions">
+            <button type="submit" className="works__btn works__btn--primary">
+              Create bill
+            </button>
+          </div>
         </form>
       )}
       <table className="works__table">
@@ -135,29 +139,41 @@ export function BillingPage() {
           </tr>
         </thead>
         <tbody>
-          {items.map((b) => (
-            <tr key={b.id}>
-              <td className="numeric">{b.systemBillNumber}</td>
-              <td>
-                {b.workCode} {b.workName}
-              </td>
-              <td>{b.billDate}</td>
-              <td className="numeric">{b.grossBillAmount}</td>
-              <td className="numeric">{b.netBillAmount}</td>
-              <td>{b.paymentStatus}</td>
-              <td>
-                {mutate && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() => void deleteBill(b.id).then(reload)}
-                  >
-                    Delete
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+          {items.length === 0 ? (
+            <EmptyState
+              colSpan={7}
+              title="No bills yet"
+              detail={
+                mutate
+                  ? 'Create a bill above to start tracking receivables.'
+                  : undefined
+              }
+            />
+          ) : (
+            items.map((b) => (
+              <tr key={b.id}>
+                <td className="numeric">{b.systemBillNumber}</td>
+                <td>
+                  {b.workCode} {b.workName}
+                </td>
+                <td>{formatDate(b.billDate)}</td>
+                <td className="numeric">{b.grossBillAmount}</td>
+                <td className="numeric">{b.netBillAmount}</td>
+                <td>{b.paymentStatus}</td>
+                <td>
+                  {mutate && (
+                    <button
+                      type="button"
+                      className="works__btn"
+                      onClick={() => void deleteBill(b.id).then(reload)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

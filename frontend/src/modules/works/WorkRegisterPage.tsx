@@ -9,6 +9,7 @@ import {
 } from '../../shared/api/works'
 import { useAuth } from '../auth/AuthContext'
 import { canMutate } from '../../shared/api/auth'
+import { EmptyState } from '../../shared/ui/EmptyState'
 import './works.css'
 
 export function WorkRegisterPage() {
@@ -153,10 +154,14 @@ export function WorkRegisterPage() {
       {loading ? (
         <p>Loading…</p>
       ) : items.length === 0 ? (
-        <div className="works__empty">
-          <p>No works yet.</p>
-          {mutate && <Link to="/works/new">Create the first work</Link>}
-        </div>
+        <EmptyState
+          title="No works yet"
+          detail={
+            mutate
+              ? 'Create the first work to start the register.'
+              : 'No works match your filters.'
+          }
+        />
       ) : (
         <table className="works__table">
           <thead>

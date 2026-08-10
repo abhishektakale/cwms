@@ -221,8 +221,8 @@
   display: flex;
   align-items: center;
   gap: var(--cwms-space-sm);
-  text-decoration: none;
   color: inherit;
+  cursor: default;
 }
 
 .shell__user-name {
@@ -247,9 +247,10 @@
 
 .shell__status {
   border-top: 1px solid var(--cwms-border-hairline);
-  padding: 8px var(--cwms-space-lg);
-  font-size: var(--cwms-font-body-sm-size);
+  padding: 6px var(--cwms-space-lg);
+  font-size: 11px;
   color: var(--cwms-on-surface-variant);
+  opacity: 0.75;
   display: flex;
   gap: var(--cwms-space-sm);
 }

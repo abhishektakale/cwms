@@ -10,6 +10,8 @@ import {
 import { listMasters } from '../../shared/api/masters'
 import { listWorks } from '../../shared/api/works'
 import { canMutate } from '../../shared/api/auth'
+import { formatBytes, formatDateTime } from '../../shared/format/datetime'
+import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/AuthContext'
 
 export function DocumentsPage() {
@@ -111,9 +113,11 @@ export function DocumentsPage() {
             File (PDF/image ≤20MB) *
             <input name="file" type="file" accept=".pdf,image/*" required />
           </label>
-          <button type="submit" className="works__btn works__btn--primary">
-            Upload
-          </button>
+          <div className="form-actions">
+            <button type="submit" className="works__btn works__btn--primary">
+              Upload
+            </button>
+          </div>
         </form>
       )}
       <table className="works__table">
@@ -128,29 +132,41 @@ export function DocumentsPage() {
           </tr>
         </thead>
         <tbody>
-          {items.map((d) => (
-            <tr key={d.id}>
-              <td>{d.workCode}</td>
-              <td>{d.documentTypeName}</td>
-              <td>{d.fileName}</td>
-              <td className="numeric">{d.sizeBytes}</td>
-              <td>{new Date(d.uploadedAt).toLocaleString()}</td>
-              <td style={{ display: 'flex', gap: 6 }}>
-                <a className="works__btn" href={documentContentUrl(d.id)}>
-                  Download
-                </a>
-                {mutate && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() => void deleteDocument(d.id).then(reload)}
-                  >
-                    Delete
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+          {items.length === 0 ? (
+            <EmptyState
+              colSpan={6}
+              title="No documents yet"
+              detail={
+                mutate && uploadEnabled
+                  ? 'Upload a PDF or image above to attach it to a work.'
+                  : undefined
+              }
+            />
+          ) : (
+            items.map((d) => (
+              <tr key={d.id}>
+                <td>{d.workCode}</td>
+                <td>{d.documentTypeName}</td>
+                <td>{d.fileName}</td>
+                <td className="numeric">{formatBytes(d.sizeBytes)}</td>
+                <td>{formatDateTime(d.uploadedAt)}</td>
+                <td style={{ display: 'flex', gap: 6 }}>
+                  <a className="works__btn" href={documentContentUrl(d.id)}>
+                    Download
+                  </a>
+                  {mutate && (
+                    <button
+                      type="button"
+                      className="works__btn"
+                      onClick={() => void deleteDocument(d.id).then(reload)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

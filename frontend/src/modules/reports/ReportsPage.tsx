@@ -10,6 +10,7 @@ import {
   type SavedReportFilter,
 } from '../../shared/api/domain'
 import { canMutate } from '../../shared/api/auth'
+import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/AuthContext'
 
 export function ReportsPage() {
@@ -190,15 +191,29 @@ export function ReportsPage() {
             ))}
           </select>
         </label>
-        <button type="button" className="works__btn works__btn--primary" onClick={() => void run()}>
-          Run
-        </button>
-        <button type="button" className="works__btn" onClick={() => void onExport('excel')}>
-          Export Excel
-        </button>
-        <button type="button" className="works__btn" onClick={() => void onExport('pdf')}>
-          Export PDF
-        </button>
+        <div className="form-actions">
+          <button
+            type="button"
+            className="works__btn works__btn--primary"
+            onClick={() => void run()}
+          >
+            Run
+          </button>
+          <button
+            type="button"
+            className="works__btn"
+            onClick={() => void onExport('excel')}
+          >
+            Export Excel
+          </button>
+          <button
+            type="button"
+            className="works__btn"
+            onClick={() => void onExport('pdf')}
+          >
+            Export PDF
+          </button>
+        </div>
       </div>
       {mutate && (
         <div className="work-form__grid" style={{ marginBottom: 16 }}>
@@ -256,13 +271,27 @@ export function ReportsPage() {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => (
-            <tr key={i}>
-              {columns.map((c) => (
-                <td key={c}>{String(row[c] ?? '')}</td>
-              ))}
-            </tr>
-          ))}
+          {columns.length === 0 ? (
+            <EmptyState
+              colSpan={1}
+              title="No report run yet"
+              detail="Choose a report and click Run."
+            />
+          ) : rows.length === 0 ? (
+            <EmptyState
+              colSpan={Math.max(columns.length, 1)}
+              title="No rows for this report"
+              detail="Try another financial year or filter."
+            />
+          ) : (
+            rows.map((row, i) => (
+              <tr key={i}>
+                {columns.map((c) => (
+                  <td key={c}>{String(row[c] ?? '')}</td>
+                ))}
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

@@ -4,6 +4,8 @@ import {
   listBackups,
   restoreBackup,
 } from '../../shared/api/domain'
+import { formatDateTime } from '../../shared/format/datetime'
+import { EmptyState } from '../../shared/ui/EmptyState'
 
 export function BackupPage() {
   const [items, setItems] = useState<Array<Record<string, unknown>>>([])
@@ -32,19 +34,21 @@ export function BackupPage() {
         </div>
       )}
       {message && <p>{message}</p>}
-      <button
-        type="button"
-        className="works__btn works__btn--primary"
-        onClick={() =>
-          void createBackupStub()
-            .then(reload)
-            .then(() => setMessage('Weekly backup stub recorded'))
-            .catch((e: Error) => setError(e.message))
-        }
-      >
-        Run weekly backup stub
-      </button>
-      <table className="works__table" style={{ marginTop: 16 }}>
+      <div className="form-actions" style={{ marginBottom: 16 }}>
+        <button
+          type="button"
+          className="works__btn works__btn--primary"
+          onClick={() =>
+            void createBackupStub()
+              .then(reload)
+              .then(() => setMessage('Weekly backup stub recorded'))
+              .catch((e: Error) => setError(e.message))
+          }
+        >
+          Run weekly backup stub
+        </button>
+      </div>
+      <table className="works__table">
         <thead>
           <tr>
             <th>Identifier</th>
@@ -56,34 +60,42 @@ export function BackupPage() {
           </tr>
         </thead>
         <tbody>
-          {items.map((b) => (
-            <tr key={String(b.id)}>
-              <td>{String(b.identifier)}</td>
-              <td>{String(b.type)}</td>
-              <td>{String(b.status)}</td>
-              <td>{String(b.startedAt)}</td>
-              <td>{String(b.retainUntil ?? '—')}</td>
-              <td>
-                {b.status === 'Success' && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() =>
-                      void restoreBackup(String(b.id))
-                        .then(() =>
-                          setMessage(
-                            `Restore stub completed for ${String(b.identifier)}`,
-                          ),
-                        )
-                        .catch((e: Error) => setError(e.message))
-                    }
-                  >
-                    Restore
-                  </button>
-                )}
-              </td>
-            </tr>
-          ))}
+          {items.length === 0 ? (
+            <EmptyState
+              colSpan={6}
+              title="No backups recorded"
+              detail="Run the weekly backup stub to create the first entry."
+            />
+          ) : (
+            items.map((b) => (
+              <tr key={String(b.id)}>
+                <td>{String(b.identifier)}</td>
+                <td>{String(b.type)}</td>
+                <td>{String(b.status)}</td>
+                <td>{formatDateTime(b.startedAt)}</td>
+                <td>{formatDateTime(b.retainUntil)}</td>
+                <td>
+                  {b.status === 'Success' && (
+                    <button
+                      type="button"
+                      className="works__btn"
+                      onClick={() =>
+                        void restoreBackup(String(b.id))
+                          .then(() =>
+                            setMessage(
+                              `Restore stub completed for ${String(b.identifier)}`,
+                            ),
+                          )
+                          .catch((e: Error) => setError(e.message))
+                      }
+                    >
+                      Restore
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

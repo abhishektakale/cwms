@@ -7,6 +7,7 @@ import {
 } from '../../shared/api/domain'
 import { useAuth } from '../auth/AuthContext'
 import { ROLE_LABEL } from '../../shared/api/auth'
+import { formatDateTime } from '../../shared/format/datetime'
 
 export function DashboardPage() {
   const { user } = useAuth()
@@ -34,22 +35,20 @@ export function DashboardPage() {
       .catch((err: Error) => setError(err.message))
   }, [])
 
-  const kpi = (label: string, value: unknown) => (
+  const outstanding = Number(summary?.outstanding ?? 0)
+  const pl = Number(summary?.estimatedProfitLoss ?? 0)
+
+  const kpi = (
+    label: string,
+    value: unknown,
+    tone?: 'ok' | 'warn' | 'alert',
+  ) => (
     <div
       key={label}
-      style={{
-        padding: 16,
-        border: '1px solid var(--cwms-border-hairline)',
-        borderRadius: 'var(--cwms-radius)',
-        background: 'var(--cwms-surface-container-lowest)',
-      }}
+      className={`dashboard__kpi${tone ? ` dashboard__kpi--${tone}` : ''}`}
     >
-      <div style={{ fontSize: 13, color: 'var(--cwms-on-surface-variant)' }}>
-        {label}
-      </div>
-      <div className="numeric" style={{ fontSize: 22, fontWeight: 600 }}>
-        {String(value ?? '—')}
-      </div>
+      <div className="dashboard__kpi-label">{label}</div>
+      <div className="dashboard__kpi-value numeric">{String(value ?? '—')}</div>
     </div>
   )
 
@@ -67,21 +66,22 @@ export function DashboardPage() {
       )}
 
       {summary && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-            gap: 12,
-            marginTop: 16,
-          }}
-        >
+        <div className="dashboard__kpis">
           {kpi('Total works', summary.totalWorks)}
           {kpi('In progress', summary.inProgressWorks)}
-          {kpi('On hold', summary.holdWorks)}
+          {kpi('On hold', summary.holdWorks, Number(summary.holdWorks) > 0 ? 'warn' : undefined)}
           {kpi('Gross bills', summary.grossBillsRaised)}
-          {kpi('Outstanding', summary.outstanding)}
+          {kpi(
+            'Outstanding',
+            summary.outstanding,
+            outstanding > 0 ? 'alert' : 'ok',
+          )}
           {kpi('Expenditure', summary.totalExpenditure)}
-          {kpi('Est. P/L', summary.estimatedProfitLoss)}
+          {kpi(
+            'Est. P/L',
+            summary.estimatedProfitLoss,
+            pl < 0 ? 'alert' : pl > 0 ? 'ok' : undefined,
+          )}
           {kpi(
             'Traffic G/Y/R',
             summary.trafficLightCounts
@@ -91,47 +91,60 @@ export function DashboardPage() {
         </div>
       )}
 
-      <h2 style={{ marginTop: 28, fontSize: 16 }}>Alerts</h2>
-      <div style={{ display: 'grid', gap: 8 }}>
-        {alerts.map((a) => (
-          <div
-            key={a.code}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '10px 12px',
-              border: '1px solid var(--cwms-border-hairline)',
-              borderRadius: 'var(--cwms-radius)',
-            }}
-          >
-            <span>{a.label}</span>
-            <strong className="numeric">{a.count}</strong>
+      <div className="dashboard__layout" style={{ marginTop: 24 }}>
+        <div className="dashboard__panel">
+          <h2>Alerts</h2>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {alerts.map((a) => (
+              <div
+                key={a.code}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '8px 0',
+                  borderBottom: '1px solid var(--cwms-border-hairline)',
+                }}
+              >
+                <span>{a.label}</span>
+                <strong className="numeric">{a.count}</strong>
+              </div>
+            ))}
+            {alerts.length === 0 && (
+              <p className="dashboard__muted">No alerts right now.</p>
+            )}
           </div>
-        ))}
+
+          <h2 style={{ marginTop: 20 }}>Needs attention</h2>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {attention.map((w) => (
+              <li key={String(w.id)}>
+                {String(w.workCode)} — {String(w.workName)} (
+                {String(w.trafficLight)})
+              </li>
+            ))}
+            {attention.length === 0 && (
+              <li className="dashboard__muted">None</li>
+            )}
+          </ul>
+        </div>
+
+        <div className="dashboard__panel">
+          <h2>Recent activity</h2>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {recent.map((r, i) => (
+              <li key={i} style={{ marginBottom: 8 }}>
+                {String(r.summary)}{' '}
+                <span className="dashboard__muted">
+                  {formatDateTime(r.occurredAt)}
+                </span>
+              </li>
+            ))}
+            {recent.length === 0 && (
+              <li className="dashboard__muted">None yet</li>
+            )}
+          </ul>
+        </div>
       </div>
-
-      <h2 style={{ marginTop: 28, fontSize: 16 }}>Needs attention</h2>
-      <ul>
-        {attention.map((w) => (
-          <li key={String(w.id)}>
-            {String(w.workCode)} — {String(w.workName)} ({String(w.trafficLight)})
-          </li>
-        ))}
-        {attention.length === 0 && <li>None</li>}
-      </ul>
-
-      <h2 style={{ marginTop: 28, fontSize: 16 }}>Recent activity</h2>
-      <ul>
-        {recent.map((r, i) => (
-          <li key={i}>
-            {String(r.summary)}{' '}
-            <span style={{ color: 'var(--cwms-on-surface-variant)' }}>
-              {String(r.occurredAt)}
-            </span>
-          </li>
-        ))}
-        {recent.length === 0 && <li>None yet</li>}
-      </ul>
     </div>
   )
 }

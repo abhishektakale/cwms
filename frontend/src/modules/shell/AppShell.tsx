@@ -153,22 +153,18 @@ export function AppShell() {
             </div>
           </div>
           <div className="shell__header-right">
-            <NavLink to="/change-password" className="shell__user">
+            <div className="shell__user">
               <span className="shell__user-name">{user?.name}</span>
               <span className="shell__role-chip">
                 {user ? ROLE_LABEL[user.role] : ''}
               </span>
-            </NavLink>
+            </div>
           </div>
         </header>
         <main className="shell__main">
           <Outlet />
         </main>
         <footer className="shell__status" role="status">
-          <span>{user?.name}</span>
-          <span aria-hidden="true">·</span>
-          <span>{user ? ROLE_LABEL[user.role] : ''}</span>
-          <span aria-hidden="true">·</span>
           <span>Online</span>
         </footer>
       </div>

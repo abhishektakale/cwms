@@ -1,5 +1,4 @@
 import { type FormEvent, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import {
   createEstimate,
   createSchedule,
@@ -11,6 +10,8 @@ import {
   type ScheduleActivity,
 } from '../../shared/api/domain'
 import { canMutate } from '../../shared/api/auth'
+import { formatDate } from '../../shared/format/datetime'
+import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/AuthContext'
 
 export function WorkChildrenPanels({ workId }: { workId: string }) {
@@ -97,7 +98,11 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
       {tab === 'estimates' && (
         <div>
           {mutate && (
-            <form onSubmit={onEstimate} className="work-form__grid" style={{ marginBottom: 16 }}>
+            <form
+              onSubmit={onEstimate}
+              className="work-form__grid"
+              style={{ marginBottom: 16 }}
+            >
               <label>
                 Estimate No *
                 <input name="estimateNo" required />
@@ -114,9 +119,11 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
                 Approved by
                 <input name="approvedBy" />
               </label>
-              <button type="submit" className="works__btn works__btn--primary">
-                Add estimate
-              </button>
+              <div className="form-actions">
+                <button type="submit" className="works__btn works__btn--primary">
+                  Add estimate
+                </button>
+              </div>
             </form>
           )}
           <table className="works__table">
@@ -129,26 +136,36 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
               </tr>
             </thead>
             <tbody>
-              {estimates.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.estimateNo}</td>
-                  <td>{row.estimateDate}</td>
-                  <td className="numeric">{row.estimatedAmount}</td>
-                  <td>
-                    {mutate && (
-                      <button
-                        type="button"
-                        className="works__btn"
-                        onClick={() =>
-                          void deleteEstimate(row.id).then(reload)
-                        }
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {estimates.length === 0 ? (
+                <EmptyState
+                  colSpan={4}
+                  title="No estimates yet"
+                  detail={
+                    mutate ? 'Add an estimate above.' : undefined
+                  }
+                />
+              ) : (
+                estimates.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.estimateNo}</td>
+                    <td>{formatDate(row.estimateDate)}</td>
+                    <td className="numeric">{row.estimatedAmount}</td>
+                    <td>
+                      {mutate && (
+                        <button
+                          type="button"
+                          className="works__btn"
+                          onClick={() =>
+                            void deleteEstimate(row.id).then(reload)
+                          }
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -157,7 +174,11 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
       {tab === 'schedule' && (
         <div>
           {mutate && (
-            <form onSubmit={onSchedule} className="work-form__grid" style={{ marginBottom: 16 }}>
+            <form
+              onSubmit={onSchedule}
+              className="work-form__grid"
+              style={{ marginBottom: 16 }}
+            >
               <label>
                 Activity *
                 <input name="activity" required />
@@ -174,9 +195,11 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
                 Progress %
                 <input name="progressPercent" defaultValue="0" />
               </label>
-              <button type="submit" className="works__btn works__btn--primary">
-                Add activity
-              </button>
+              <div className="form-actions">
+                <button type="submit" className="works__btn works__btn--primary">
+                  Add activity
+                </button>
+              </div>
             </form>
           )}
           <table className="works__table">
@@ -189,31 +212,38 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
               </tr>
             </thead>
             <tbody>
-              {schedule.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.activity}</td>
-                  <td>{row.finishDate ?? '—'}</td>
-                  <td>{row.progressPercent ?? '0'}</td>
-                  <td>
-                    {mutate && (
-                      <button
-                        type="button"
-                        className="works__btn"
-                        onClick={() =>
-                          void deleteSchedule(row.id).then(reload)
-                        }
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {schedule.length === 0 ? (
+                <EmptyState
+                  colSpan={4}
+                  title="No schedule activities yet"
+                  detail={
+                    mutate ? 'Add an activity above.' : undefined
+                  }
+                />
+              ) : (
+                schedule.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.activity}</td>
+                    <td>{formatDate(row.finishDate)}</td>
+                    <td>{row.progressPercent ?? '0'}</td>
+                    <td>
+                      {mutate && (
+                        <button
+                          type="button"
+                          className="works__btn"
+                          onClick={() =>
+                            void deleteSchedule(row.id).then(reload)
+                          }
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-          <p style={{ marginTop: 12 }}>
-            <Link to={`/works/${workId}`}>Back to work</Link>
-          </p>
         </div>
       )}
     </section>
