@@ -72,16 +72,6 @@ export function WorkRegisterPage() {
               New Work
             </Link>
           )}
-          {mutate && (
-            <button
-              type="button"
-              className="works__btn"
-              disabled={!selected}
-              onClick={() => selected && navigate(`/works/${selected}/edit`)}
-            >
-              Edit
-            </button>
-          )}
           <button
             type="button"
             className="works__btn"

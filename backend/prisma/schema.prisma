@@ -285,6 +285,8 @@ model Work {
   gstPercent                Decimal      @default(0) @map("gst_percent") @db.Decimal(9, 4)
   gstAmount                 Decimal      @default(0) @map("gst_amount") @db.Decimal(18, 2)
   totalWorkValue            Decimal      @default(0) @map("total_work_value") @db.Decimal(18, 2)
+  miscellaneousLabel        String?      @map("miscellaneous_label") @db.VarChar(200)
+  miscellaneousValue        Decimal      @default(0) @map("miscellaneous_value") @db.Decimal(18, 2)
   balanceWorkValue          Decimal      @default(0) @map("balance_work_value") @db.Decimal(18, 2)
   financialProgressPercent  Decimal      @default(0) @map("financial_progress_percent") @db.Decimal(9, 4)
   grossBillsRaised          Decimal      @default(0) @map("gross_bills_raised") @db.Decimal(18, 2)

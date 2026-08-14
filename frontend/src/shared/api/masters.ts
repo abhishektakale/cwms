@@ -27,7 +27,7 @@ export const MASTER_TYPES: Array<{ id: MasterType; label: string }> = [
   { id: 'document-types', label: 'Document Types' },
   { id: 'deduction-heads', label: 'Deduction Heads' },
   { id: 'expense-categories', label: 'Expense Categories' },
-  { id: 'client-department-formats', label: 'Client/Department Formats' },
+  { id: 'client-department-formats', label: 'Client/Department' },
 ]
 
 export function listMasters(type: MasterType, q?: string) {

@@ -22,7 +22,10 @@ export type Work = {
   workPortionValue: string
   gstPercent: string
   gstAmount: string
+  civilWorkValue?: string
   totalWorkValue: string
+  miscellaneousLabel: string | null
+  miscellaneousValue: string
   balanceWorkValue: string
   financialProgressPercent: string
   state: string | null
@@ -57,6 +60,9 @@ export type WorkInput = {
   workPortionValue?: string | null
   gstPercent?: string | null
   totalWorkValue?: string | null
+  miscellaneousLabel?: string | null
+  miscellaneousValue?: string | null
+  financialProgressPercent?: string | null
   state?: string | null
   district?: string | null
   taluka?: string | null

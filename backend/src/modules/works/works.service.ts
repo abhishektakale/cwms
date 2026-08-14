@@ -32,6 +32,9 @@ export type WorkWriteDto = {
   workPortionValue?: string | null;
   gstPercent?: string | null;
   totalWorkValue?: string | null;
+  miscellaneousLabel?: string | null;
+  miscellaneousValue?: string | null;
+  financialProgressPercent?: string | null;
   state?: string | null;
   district?: string | null;
   taluka?: string | null;
@@ -50,6 +53,12 @@ export type WorkWriteDto = {
 };
 
 const LOCK_TTL_MS = 30 * 60 * 1000;
+const LINEAR_CATEGORIES = new Set([
+  'Drain',
+  'Service Road',
+  'PQC',
+  'Safety Work',
+]);
 
 @Injectable()
 export class WorksService {
@@ -184,13 +193,12 @@ export class WorksService {
       gstPercent: body.gstPercent,
       totalWorkValue: body.totalWorkValue,
     });
+    const totals = await this.composeWrite(body, money, user.id);
     const workCode = await this.nextWorkCode();
     const row = await this.prisma.work.create({
       data: {
         workCode,
-        ...this.mapWrite(body, money, user.id),
-        balanceWorkValue: money.totalWorkValue,
-        financialProgressPercent: new Prisma.Decimal(0),
+        ...totals,
         createdByUserId: user.id,
       },
       include: { workCategory: true, clientDepartmentFormat: true },
@@ -226,21 +234,14 @@ export class WorksService {
       gstPercent: body.gstPercent,
       totalWorkValue: body.totalWorkValue,
     });
-    const balance = money.totalWorkValue.sub(existing.grossBillsRaised);
-    const progress =
-      money.totalWorkValue.eq(0)
-        ? new Prisma.Decimal(0)
-        : existing.grossBillsRaised
-            .mul(100)
-            .div(money.totalWorkValue)
-            .toDecimalPlaces(4);
+    const totals = await this.composeWrite(body, money, user.id);
+    const balance = totals.totalWorkValue.sub(existing.grossBillsRaised);
 
     const row = await this.prisma.work.update({
       where: { id },
       data: {
-        ...this.mapWrite(body, money, user.id),
+        ...totals,
         balanceWorkValue: balance,
-        financialProgressPercent: progress,
       },
       include: { workCategory: true, clientDepartmentFormat: true },
     });
@@ -452,16 +453,44 @@ export class WorksService {
     }
   }
 
-  private mapWrite(
+  private async composeWrite(
     body: WorkWriteDto,
     money: ReturnType<GstCalculatorService['calculate']>,
     userId: string,
   ) {
+    const misc = new Prisma.Decimal(
+      body.miscellaneousValue === '' || body.miscellaneousValue == null
+        ? 0
+        : body.miscellaneousValue,
+    );
+    if (misc.lt(0)) {
+      throw new BadRequestException({
+        title: 'Bad Request',
+        status: 400,
+        code: 'NEGATIVE_VALUE',
+        detail: 'Miscellaneous value cannot be negative',
+      });
+    }
+    const total = money.totalWorkValue.add(misc).toDecimalPlaces(2);
+    let clientName: string | null = null;
+    if (body.clientDepartmentFormatId) {
+      const opt = await this.prisma.masterOption.findUnique({
+        where: { id: body.clientDepartmentFormatId },
+      });
+      clientName = opt?.name ?? null;
+    }
+    let categoryName: string | null = null;
+    if (body.workCategoryId) {
+      const cat = await this.prisma.masterOption.findUnique({
+        where: { id: body.workCategoryId },
+      });
+      categoryName = cat?.name ?? null;
+    }
+    const chainageOk = LINEAR_CATEGORIES.has(categoryName ?? '');
     return {
-      projectName: body.projectName?.trim() || null,
       workName: body.workName.trim(),
       workCategoryId: body.workCategoryId || null,
-      client: body.client?.trim() || null,
+      client: clientName,
       contractor: body.contractor?.trim() || null,
       clientDepartmentFormatId: body.clientDepartmentFormatId || null,
       workOrderNo: body.workOrderNo.trim(),
@@ -470,15 +499,25 @@ export class WorksService {
       workPortionValue: money.workPortionValue,
       gstPercent: money.gstPercent,
       gstAmount: money.gstAmount,
-      totalWorkValue: money.totalWorkValue,
+      totalWorkValue: total,
+      miscellaneousLabel: body.miscellaneousLabel?.trim() || null,
+      miscellaneousValue: misc.toDecimalPlaces(2),
+      balanceWorkValue: total,
+      financialProgressPercent: new Prisma.Decimal(
+        body.financialProgressPercent === '' ||
+        body.financialProgressPercent == null
+          ? 0
+          : body.financialProgressPercent,
+      ),
       state: body.state?.trim() || null,
       district: body.district?.trim() || null,
       taluka: body.taluka?.trim() || null,
       village: body.village?.trim() || null,
-      existingChainage: body.existingChainage?.trim() || null,
-      designChainage: body.designChainage?.trim() || null,
+      existingChainage: chainageOk
+        ? body.existingChainage?.trim() || null
+        : null,
+      designChainage: chainageOk ? body.designChainage?.trim() || null : null,
       sideCode: (body.side as SideCode) || null,
-      structureType: body.structureType?.trim() || null,
       startDate: body.startDate ? new Date(body.startDate) : null,
       scheduledCompletion: body.scheduledCompletion
         ? new Date(body.scheduledCompletion)
@@ -551,7 +590,10 @@ export class WorksService {
       workPortionValue: money(row.workPortionValue),
       gstPercent: pct(row.gstPercent),
       gstAmount: money(row.gstAmount),
+      civilWorkValue: money(row.totalWorkValue.sub(row.miscellaneousValue)),
       totalWorkValue: money(row.totalWorkValue),
+      miscellaneousLabel: row.miscellaneousLabel,
+      miscellaneousValue: money(row.miscellaneousValue),
       balanceWorkValue: money(row.balanceWorkValue),
       financialProgressPercent: pct(row.financialProgressPercent),
       grossBillsRaised: money(row.grossBillsRaised),

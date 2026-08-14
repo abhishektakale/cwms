@@ -91,6 +91,18 @@ class WorkBodyDto implements WorkWriteDto {
 
   @IsOptional()
   @IsString()
+  miscellaneousLabel?: string | null;
+
+  @IsOptional()
+  @IsString()
+  miscellaneousValue?: string | null;
+
+  @IsOptional()
+  @IsString()
+  financialProgressPercent?: string | null;
+
+  @IsOptional()
+  @IsString()
   state?: string | null;
 
   @IsOptional()

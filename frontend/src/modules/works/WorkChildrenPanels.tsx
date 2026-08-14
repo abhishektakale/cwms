@@ -14,10 +14,15 @@ import { formatDate } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/AuthContext'
 
-export function WorkChildrenPanels({ workId }: { workId: string }) {
+export function WorkChildrenPanels({
+  workId,
+  section,
+}: {
+  workId: string
+  section: 'estimates' | 'schedule'
+}) {
   const { user } = useAuth()
   const mutate = user ? canMutate(user.role) : false
-  const [tab, setTab] = useState<'estimates' | 'schedule'>('estimates')
   const [estimates, setEstimates] = useState<Estimate[]>([])
   const [schedule, setSchedule] = useState<ScheduleActivity[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -72,30 +77,14 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
   }
 
   return (
-    <section style={{ marginTop: 24 }}>
-      <div className="work-form__tabs">
-        <button
-          type="button"
-          className={tab === 'estimates' ? 'is-active' : undefined}
-          onClick={() => setTab('estimates')}
-        >
-          Estimates
-        </button>
-        <button
-          type="button"
-          className={tab === 'schedule' ? 'is-active' : undefined}
-          onClick={() => setTab('schedule')}
-        >
-          Schedule activities
-        </button>
-      </div>
+    <section>
       {error && (
         <div className="works__error" role="alert">
           {error}
         </div>
       )}
 
-      {tab === 'estimates' && (
+      {section === 'estimates' && (
         <div>
           {mutate && (
             <form
@@ -171,7 +160,7 @@ export function WorkChildrenPanels({ workId }: { workId: string }) {
         </div>
       )}
 
-      {tab === 'schedule' && (
+      {section === 'schedule' && (
         <div>
           {mutate && (
             <form

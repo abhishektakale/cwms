@@ -44,9 +44,6 @@ export class WorkRollupService {
     const expenditure = expAgg._sum.totalAmount ?? new Prisma.Decimal(0);
 
     const balance = work.totalWorkValue.sub(gross);
-    const progress = work.totalWorkValue.eq(0)
-      ? new Prisma.Decimal(0)
-      : gross.mul(100).div(work.totalWorkValue).toDecimalPlaces(4);
 
     const profitLoss = gross.sub(expenditure);
 
@@ -96,7 +93,6 @@ export class WorkRollupService {
         outstandingAmount: outstanding,
         totalExpenditure: expenditure,
         balanceWorkValue: balance,
-        financialProgressPercent: progress,
         estimatedProfitLoss: profitLoss,
         trafficLight,
       },

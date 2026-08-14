@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   dashboardAlerts,
   dashboardAttention,
   dashboardRecent,
   dashboardSummary,
 } from '../../shared/api/domain'
+import { listWorks, STATUS_LABEL, type Work } from '../../shared/api/works'
 import { useAuth } from '../auth/AuthContext'
 import { ROLE_LABEL } from '../../shared/api/auth'
 import { formatDateTime } from '../../shared/format/datetime'
@@ -17,6 +19,8 @@ export function DashboardPage() {
   >([])
   const [attention, setAttention] = useState<Array<Record<string, unknown>>>([])
   const [recent, setRecent] = useState<Array<Record<string, unknown>>>([])
+  const [works, setWorks] = useState<Work[]>([])
+  const [openWorkId, setOpenWorkId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -25,12 +29,14 @@ export function DashboardPage() {
       dashboardAlerts(),
       dashboardAttention(),
       dashboardRecent(),
+      listWorks({ pageSize: '50', sort: '-updatedAt' }),
     ])
-      .then(([s, a, att, r]) => {
+      .then(([s, a, att, r, w]) => {
         setSummary(s)
         setAlerts(a.items)
         setAttention(att.items)
         setRecent(r.items)
+        setWorks(w.items)
       })
       .catch((err: Error) => setError(err.message))
   }, [])
@@ -90,6 +96,67 @@ export function DashboardPage() {
           )}
         </div>
       )}
+
+      <div className="dashboard__panel" style={{ marginTop: 24 }}>
+        <h2>Work summary</h2>
+        {works.length === 0 ? (
+          <p className="dashboard__muted">No works yet.</p>
+        ) : (
+          <ul className="dashboard__work-list">
+            {works.map((w) => {
+              const open = openWorkId === w.id
+              return (
+                <li key={w.id} className="dashboard__work-item">
+                  <button
+                    type="button"
+                    className="dashboard__work-toggle"
+                    aria-expanded={open}
+                    onClick={() => setOpenWorkId(open ? null : w.id)}
+                  >
+                    <span>
+                      {w.workCode} — {w.workName}
+                    </span>
+                    <span className="dashboard__muted">
+                      {STATUS_LABEL[w.status]}
+                    </span>
+                  </button>
+                  {open && (
+                    <div className="dashboard__work-details">
+                      <div>
+                        <span className="dashboard__muted">Client</span>
+                        <strong>{w.client || '—'}</strong>
+                      </div>
+                      <div>
+                        <span className="dashboard__muted">Civil</span>
+                        <strong className="numeric">
+                          ₹ {w.civilWorkValue ?? w.totalWorkValue}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="dashboard__muted">Total</span>
+                        <strong className="numeric">₹ {w.totalWorkValue}</strong>
+                      </div>
+                      <div>
+                        <span className="dashboard__muted">Physical</span>
+                        <strong>{w.physicalProgressPercent}%</strong>
+                      </div>
+                      <div>
+                        <span className="dashboard__muted">Financial</span>
+                        <strong>{w.financialProgressPercent}</strong>
+                      </div>
+                      <div>
+                        <span className="dashboard__muted">Traffic</span>
+                        <strong>{w.trafficLight}</strong>
+                      </div>
+                      <Link to={`/works/${w.id}`}>Open work</Link>
+                    </div>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
 
       <div className="dashboard__layout" style={{ marginTop: 24 }}>
         <div className="dashboard__panel">
