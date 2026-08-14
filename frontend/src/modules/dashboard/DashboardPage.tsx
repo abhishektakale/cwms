@@ -325,7 +325,7 @@ export function DashboardPage() {
             )}
           </section>
 
-          <section className="dash__card">
+          <section className="dash__card dash__card--activity">
             <div className="dash__card-head">
               <h2>Recent activity</h2>
             </div>

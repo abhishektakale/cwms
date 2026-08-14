@@ -1,5 +1,5 @@
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { ROLE_LABEL, isAdmin } from '../../shared/api/auth'
 import { globalSearch } from '../../shared/api/domain'
@@ -21,11 +21,23 @@ const NAV_ITEMS = [
 export function AppShell() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const admin = user ? isAdmin(user.role) : false
   const [q, setQ] = useState('')
+  const [navOpen, setNavOpen] = useState(false)
   const [hits, setHits] = useState<
     Array<{ entityType: string; id: string; title: string; workId?: string }>
   >([])
+
+  useEffect(() => {
+    setNavOpen(false)
+    setHits([])
+  }, [location.pathname])
+
+  useEffect(() => {
+    document.body.classList.toggle('nav-open', navOpen)
+    return () => document.body.classList.remove('nav-open')
+  }, [navOpen])
 
   async function onLogout() {
     await logout()
@@ -49,8 +61,16 @@ export function AppShell() {
   const homeTo = user ? '/dashboard' : '/'
 
   return (
-    <div className="shell">
-      <nav className="shell__nav" aria-label="Primary">
+    <div className={`shell${navOpen ? ' shell--nav-open' : ''}`}>
+      {navOpen && (
+        <button
+          type="button"
+          className="shell__backdrop"
+          aria-label="Close menu"
+          onClick={() => setNavOpen(false)}
+        />
+      )}
+      <nav className="shell__nav" aria-label="Primary" id="app-nav">
         <Link to={homeTo} className="shell__brand" aria-label="CWMS home">
           <CwmsLogo
             className="shell__brand-mark"
@@ -93,6 +113,18 @@ export function AppShell() {
       <div className="shell__content">
         <header className="shell__header">
           <div className="shell__header-left">
+            <button
+              type="button"
+              className="shell__menu"
+              aria-expanded={navOpen}
+              aria-controls="app-nav"
+              onClick={() => setNavOpen((open) => !open)}
+            >
+              <span className="material-symbols-outlined">
+                {navOpen ? 'close' : 'menu'}
+              </span>
+              <span className="shell__menu-label">Menu</span>
+            </button>
             <Link to={homeTo} className="shell__header-home" aria-label="CWMS home">
               <CwmsLogo
                 className="shell__header-mark"
@@ -114,26 +146,12 @@ export function AppShell() {
                 onChange={(e) => void onSearch(e.target.value)}
               />
               {hits.length > 0 && (
-                <ul
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    zIndex: 20,
-                    margin: 0,
-                    padding: 8,
-                    listStyle: 'none',
-                    background: 'var(--cwms-surface-container-lowest)',
-                    border: '1px solid var(--cwms-border-hairline)',
-                  }}
-                >
+                <ul className="shell__hits">
                   {hits.map((h) => (
                     <li key={`${h.entityType}-${h.id}`}>
                       <button
                         type="button"
                         className="works__btn"
-                        style={{ width: '100%', textAlign: 'left' }}
                         onClick={() => {
                           setHits([])
                           setQ('')

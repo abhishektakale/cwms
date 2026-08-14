@@ -262,6 +262,7 @@ export function ReportsPage() {
           </button>
         </div>
       )}
+      <div className="table-scroll">
       <table className="works__table">
         <thead>
           <tr>
@@ -294,6 +295,7 @@ export function ReportsPage() {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

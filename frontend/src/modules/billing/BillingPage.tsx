@@ -152,6 +152,7 @@ export function BillingPage() {
           </div>
         </form>
       ) : (
+        <div className="table-scroll">
         <table className="works__table">
           <thead>
             <tr>
@@ -196,8 +197,9 @@ export function BillingPage() {
                 </tr>
               ))
             )}
-          </tbody>
-        </table>
+        </tbody>
+      </table>
+        </div>
       )}
     </div>
   )

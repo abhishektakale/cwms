@@ -153,6 +153,7 @@ export function WorkRegisterPage() {
           }
         />
       ) : (
+        <div className="table-scroll">
         <table className="works__table">
           <thead>
             <tr>
@@ -200,6 +201,7 @@ export function WorkRegisterPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

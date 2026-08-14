@@ -48,6 +48,7 @@ export function BackupPage() {
           Run weekly backup stub
         </button>
       </div>
+      <div className="table-scroll">
       <table className="works__table">
         <thead>
           <tr>
@@ -98,6 +99,7 @@ export function BackupPage() {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

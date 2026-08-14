@@ -146,6 +146,7 @@ export function DocumentsPage() {
           </div>
         </form>
       ) : (
+        <div className="table-scroll">
         <table className="works__table">
           <thead>
             <tr>
@@ -193,8 +194,9 @@ export function DocumentsPage() {
                 </tr>
               ))
             )}
-          </tbody>
-        </table>
+        </tbody>
+      </table>
+        </div>
       )}
     </div>
   )

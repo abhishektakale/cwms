@@ -239,6 +239,7 @@ export function ExpenditurePage() {
       )}
 
       {screen === 'list' && (
+        <div className="table-scroll">
         <table className="works__table">
           <thead>
             <tr>
@@ -356,8 +357,9 @@ export function ExpenditurePage() {
                 </tr>
               ))
             )}
-          </tbody>
-        </table>
+        </tbody>
+      </table>
+        </div>
       )}
     </div>
   )

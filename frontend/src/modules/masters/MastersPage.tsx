@@ -116,6 +116,7 @@ export function MastersPage() {
           detail="Add the first value above for this master list."
         />
       ) : (
+        <div className="table-scroll">
         <table className="masters__table">
           <thead>
             <tr>
@@ -160,6 +161,7 @@ export function MastersPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

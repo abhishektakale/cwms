@@ -115,6 +115,7 @@ export function WorkChildrenPanels({
               </div>
             </form>
           )}
+          <div className="table-scroll">
           <table className="works__table">
             <thead>
               <tr>
@@ -157,6 +158,7 @@ export function WorkChildrenPanels({
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -191,6 +193,7 @@ export function WorkChildrenPanels({
               </div>
             </form>
           )}
+          <div className="table-scroll">
           <table className="works__table">
             <thead>
               <tr>
@@ -233,6 +236,7 @@ export function WorkChildrenPanels({
               )}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </section>

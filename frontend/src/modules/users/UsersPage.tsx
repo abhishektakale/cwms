@@ -88,6 +88,7 @@ export function UsersPage() {
           </button>
         </div>
       </form>
+      <div className="table-scroll">
       <table className="works__table">
         <thead>
           <tr>
@@ -136,6 +137,7 @@ export function UsersPage() {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }
