@@ -12,11 +12,44 @@ import {
 import { canMutate } from '../../shared/api/auth'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/AuthContext'
+import './reports.css'
+
+function columnLabel(key: string) {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+function cellValue(column: string, value: unknown) {
+  if (value == null || value === '') return '—'
+  const raw = String(value)
+  if (
+    /amount|value|raised|balance|total|portion|gst|expenditure|profit/i.test(
+      column,
+    ) &&
+    Number.isFinite(Number(raw))
+  ) {
+    return new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(raw))
+  }
+  return raw
+}
+
+function isMoneyColumn(column: string) {
+  return /amount|value|raised|balance|total|portion|gst|expenditure|profit/i.test(
+    column,
+  )
+}
 
 export function ReportsPage() {
   const { user } = useAuth()
   const mutate = user ? canMutate(user.role) : false
-  const [types, setTypes] = useState<Array<{ reportType: string; name: string }>>([])
+  const [types, setTypes] = useState<Array<{ reportType: string; name: string }>>(
+    [],
+  )
   const [selected, setSelected] = useState('work-register')
   const [fy, setFy] = useState('2026-27')
   const [columns, setColumns] = useState<string[]>([])
@@ -26,6 +59,7 @@ export function ReportsPage() {
   const [saveName, setSaveName] = useState('')
   const [saveAsDefault, setSaveAsDefault] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [ran, setRan] = useState(false)
 
   function currentFilters() {
     return { financialYear: fy }
@@ -64,9 +98,11 @@ export function ReportsPage() {
 
   async function run() {
     try {
+      setError(null)
       const res = await runReport(selected, currentFilters())
       setColumns(res.columns)
       setRows(res.rows)
+      setRan(true)
     } catch (e) {
       setError((e as Error).message)
     }
@@ -74,6 +110,7 @@ export function ReportsPage() {
 
   async function onExport(format: 'pdf' | 'excel') {
     try {
+      setError(null)
       const blob = await exportReport(selected, format, currentFilters())
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -99,6 +136,7 @@ export function ReportsPage() {
       return
     }
     try {
+      setError(null)
       const created = await createSavedFilter(selected, {
         name,
         filters: currentFilters(),
@@ -153,45 +191,49 @@ export function ReportsPage() {
     }
   }
 
+  const reportName = types.find((t) => t.reportType === selected)?.name ?? 'Report'
+
   return (
-    <div>
-      <h1 style={{ marginTop: 0 }}>Reports</h1>
+    <div className="reports">
+      <div className="works__header">
+        <div>
+          <h1>Reports</h1>
+          <p className="works__lead">
+            Run a register, then export or save the current year filter.
+          </p>
+        </div>
+      </div>
+
       {error && (
         <div className="works__error" role="alert">
           {error}
         </div>
       )}
-      <div className="work-form__grid" style={{ marginBottom: 16 }}>
-        <label>
-          Report
-          <select value={selected} onChange={(e) => setSelected(e.target.value)}>
-            {types.map((t) => (
-              <option key={t.reportType} value={t.reportType}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Financial year (Apr–Mar)
-          <input value={fy} onChange={(e) => setFy(e.target.value)} />
-        </label>
-        <label>
-          Saved filters
-          <select
-            value={selectedFilterId}
-            onChange={(e) => onPickSaved(e.target.value)}
-          >
-            <option value="">— Current filters —</option>
-            {saved.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-                {f.isDefault ? ' (default)' : ''}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="form-actions">
+
+      <section className="reports__card">
+        <div className="reports__card-head">
+          <h2>Run</h2>
+        </div>
+        <div className="reports__fields">
+          <label>
+            Report
+            <select
+              value={selected}
+              onChange={(e) => setSelected(e.target.value)}
+            >
+              {types.map((t) => (
+                <option key={t.reportType} value={t.reportType}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Financial year (Apr–Mar)
+            <input value={fy} onChange={(e) => setFy(e.target.value)} />
+          </label>
+        </div>
+        <div className="reports__actions">
           <button
             type="button"
             className="works__btn works__btn--primary"
@@ -214,88 +256,139 @@ export function ReportsPage() {
             Export PDF
           </button>
         </div>
-      </div>
+      </section>
+
       {mutate && (
-        <div className="work-form__grid" style={{ marginBottom: 16 }}>
-          <label>
-            Save current as
-            <input
-              value={saveName}
-              onChange={(e) => setSaveName(e.target.value)}
-              placeholder="Filter name"
-            />
-          </label>
-          <label style={{ display: 'flex', alignItems: 'end', gap: 8 }}>
-            <input
-              type="checkbox"
-              checked={saveAsDefault}
-              onChange={(e) => setSaveAsDefault(e.target.checked)}
-            />
-            Set as default
-          </label>
-          <button type="button" className="works__btn works__btn--primary" onClick={() => void onSaveFilter()}>
-            Save filter
-          </button>
-          <button
-            type="button"
-            className="works__btn"
-            disabled={!selectedFilterId}
-            onClick={() => void onRenameFilter()}
-          >
-            Rename
-          </button>
-          <button
-            type="button"
-            className="works__btn"
-            disabled={!selectedFilterId}
-            onClick={() => void onSetDefault()}
-          >
-            Set default
-          </button>
-          <button
-            type="button"
-            className="works__btn"
-            disabled={!selectedFilterId}
-            onClick={() => void onDeleteFilter()}
-          >
-            Delete filter
-          </button>
-        </div>
-      )}
-      <div className="table-scroll">
-      <table className="works__table">
-        <thead>
-          <tr>
-            {columns.map((c) => (
-              <th key={c}>{c}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {columns.length === 0 ? (
-            <EmptyState
-              colSpan={1}
-              title="No report run yet"
-              detail="Choose a report and click Run."
-            />
-          ) : rows.length === 0 ? (
-            <EmptyState
-              colSpan={Math.max(columns.length, 1)}
-              title="No rows for this report"
-              detail="Try another financial year or filter."
-            />
-          ) : (
-            rows.map((row, i) => (
-              <tr key={i}>
-                {columns.map((c) => (
-                  <td key={c}>{String(row[c] ?? '')}</td>
+        <section className="reports__card">
+          <div className="reports__card-head">
+            <h2>Saved filters</h2>
+          </div>
+          <div className="reports__fields">
+            <label>
+              Load saved
+              <select
+                value={selectedFilterId}
+                onChange={(e) => onPickSaved(e.target.value)}
+              >
+                <option value="">— Current filters —</option>
+                {saved.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                    {f.isDefault ? ' (default)' : ''}
+                  </option>
                 ))}
-              </tr>
-            ))
+              </select>
+            </label>
+            {selectedFilterId ? (
+              <div className="reports__filter-tools">
+                <button
+                  type="button"
+                  className="works__btn"
+                  onClick={() => void onRenameFilter()}
+                >
+                  Rename
+                </button>
+                <button
+                  type="button"
+                  className="works__btn"
+                  onClick={() => void onSetDefault()}
+                >
+                  Set default
+                </button>
+                <button
+                  type="button"
+                  className="works__btn"
+                  onClick={() => void onDeleteFilter()}
+                >
+                  Delete
+                </button>
+              </div>
+            ) : (
+              <p className="reports__hint">
+                Pick a saved filter to rename, set default, or delete.
+              </p>
+            )}
+          </div>
+          <div className="reports__save">
+            <label>
+              Save current as
+              <input
+                value={saveName}
+                onChange={(e) => setSaveName(e.target.value)}
+                placeholder="Filter name"
+              />
+            </label>
+            <label className="reports__check">
+              <input
+                type="checkbox"
+                checked={saveAsDefault}
+                onChange={(e) => setSaveAsDefault(e.target.checked)}
+              />
+              Set as default
+            </label>
+            <button
+              type="button"
+              className="works__btn works__btn--primary"
+              onClick={() => void onSaveFilter()}
+            >
+              Save filter
+            </button>
+          </div>
+        </section>
+      )}
+
+      <section className="reports__card reports__card--results">
+        <div className="reports__card-head">
+          <h2>{reportName}</h2>
+          {ran && (
+            <span className="reports__count">
+              {rows.length} row{rows.length === 1 ? '' : 's'}
+            </span>
           )}
-        </tbody>
-      </table>
-      </div>
+        </div>
+        {!ran ? (
+          <EmptyState
+            title="No report run yet"
+            detail="Choose a report and financial year, then click Run."
+          />
+        ) : columns.length === 0 || rows.length === 0 ? (
+          <EmptyState
+            title="No rows for this report"
+            detail="Try another financial year or filter."
+          />
+        ) : (
+          <div className="table-scroll">
+            <table className="reports__table">
+              <thead>
+                <tr>
+                  {columns.map((c) => (
+                    <th
+                      key={c}
+                      className={isMoneyColumn(c) ? 'numeric' : undefined}
+                    >
+                      {columnLabel(c)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, i) => (
+                  <tr key={i}>
+                    {columns.map((c) => (
+                      <td
+                        key={c}
+                        className={isMoneyColumn(c) ? 'numeric' : undefined}
+                      >
+                        {cellValue(c, row[c])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   )
 }
