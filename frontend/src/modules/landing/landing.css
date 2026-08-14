@@ -25,6 +25,7 @@
   padding: clamp(1.5rem, 4vw, 3rem);
   color: var(--landing-white);
   isolation: isolate;
+  overflow: hidden;
 }
 
 .landing__hero-media {
