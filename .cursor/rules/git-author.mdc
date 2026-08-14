@@ -1,0 +1,14 @@
+---
+description: Git commits and PRs must be authored only by abhishektakale
+alwaysApply: true
+---
+
+# Git authorship
+
+Only `abhishektakale <abhishektakale@users.noreply.github.com>` may appear as author or committer.
+
+- Pass `--author="abhishektakale <abhishektakale@users.noreply.github.com>"` on every `git commit`.
+- Do not add `Co-authored-by`, `Made-with: Cursor`, Cursor, cursoragent, or any other person or bot to commit messages or PRs.
+- Do not use `git commit --trailer`.
+- Do not run `git config` to change user.name or user.email.
+- After committing, if a trailer was injected, amend (if not yet pushed) and strip it before pushing.
