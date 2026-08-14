@@ -29,8 +29,8 @@ export interface StoragePort {
 export function isObjectStorageConfigured(): boolean {
   return Boolean(
     process.env.S3_ENDPOINT &&
-      process.env.S3_ACCESS_KEY &&
-      process.env.S3_SECRET_KEY,
+    process.env.S3_ACCESS_KEY &&
+    process.env.S3_SECRET_KEY,
   );
 }
 
@@ -56,7 +56,7 @@ export class FakeStorageAdapter implements StoragePort {
     return Promise.resolve('up');
   }
 
-  async putObject(params: {
+  putObject(params: {
     bucket: string;
     key: string;
     body: Buffer;
@@ -67,16 +67,20 @@ export class FakeStorageAdapter implements StoragePort {
       body: params.body,
       contentType: params.contentType,
     });
+    return Promise.resolve();
   }
 
-  async getObject(params: {
+  getObject(params: {
     bucket: string;
     key: string;
   }): Promise<StoredObject | null> {
-    return this.store.get(this.k(params.bucket, params.key)) ?? null;
+    return Promise.resolve(
+      this.store.get(this.k(params.bucket, params.key)) ?? null,
+    );
   }
 
-  async deleteObject(params: { bucket: string; key: string }): Promise<void> {
+  deleteObject(params: { bucket: string; key: string }): Promise<void> {
     this.store.delete(this.k(params.bucket, params.key));
+    return Promise.resolve();
   }
 }

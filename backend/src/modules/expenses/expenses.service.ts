@@ -25,7 +25,13 @@ import {
 import { AuditService } from '../audit/audit.service';
 import { IdSequenceService } from '../../shared/kernel/id-sequence.service';
 import { WorkRollupService } from '../../shared/kernel/work-rollup.service';
-import { dateOnly, dec, money, pct, toDateStr } from '../../shared/kernel/money.util';
+import {
+  dateOnly,
+  dec,
+  money,
+  pct,
+  toDateStr,
+} from '../../shared/kernel/money.util';
 
 const MAX_BYTES = 20 * 1024 * 1024;
 const ALLOWED = new Set([
@@ -65,8 +71,7 @@ export type ExpenseWrite = {
 
 @Injectable()
 export class ExpensesService {
-  private readonly bucket =
-    process.env.S3_BUCKET_DOCUMENTS ?? 'cwms-documents';
+  private readonly bucket = process.env.S3_BUCKET_DOCUMENTS ?? 'cwms-documents';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -453,7 +458,7 @@ export class ExpensesService {
     userId: string,
   ) {
     return {
-      expenseType: body.expenseType as ExpenseType,
+      expenseType: body.expenseType,
       workId: body.workId || null,
       expenseDate: dateOnly(body.expenseDate),
       expenseHeadId: body.expenseHeadId,
@@ -468,7 +473,7 @@ export class ExpensesService {
       paymentMode: (body.paymentMode as PaymentMode) || null,
       paymentReference: body.paymentReference?.trim() || null,
       paymentDate: body.paymentDate ? dateOnly(body.paymentDate) : null,
-      status: body.status as ExpenseStatus,
+      status: body.status,
       updatedByUserId: userId,
     };
   }

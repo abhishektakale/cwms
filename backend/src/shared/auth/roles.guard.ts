@@ -38,7 +38,7 @@ export class RolesGuard implements CanActivate {
       });
     }
 
-    const role = user.roleCode as RoleCode;
+    const role = user.roleCode;
 
     if (requiresMutate && !canMutateOperational(role)) {
       throw new ForbiddenException({

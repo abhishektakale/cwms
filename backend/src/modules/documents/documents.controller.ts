@@ -126,8 +126,7 @@ export class DocumentsController {
     @Res() res: Response,
   ) {
     const file = await this.documents.getContent(documentId);
-    const disp =
-      disposition === 'attachment' ? 'attachment' : 'inline';
+    const disp = disposition === 'attachment' ? 'attachment' : 'inline';
     res.setHeader('Content-Type', file.contentType);
     res.setHeader(
       'Content-Disposition',

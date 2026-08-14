@@ -5,7 +5,10 @@ describe('PasswordPolicyService (BR-SEC-02)', () => {
 
   it('accepts Password@123', () => {
     expect(() =>
-      policy.validate('Password@123', { loginId: 'Engineer', name: 'Engineer' }),
+      policy.validate('Password@123', {
+        loginId: 'Engineer',
+        name: 'Engineer',
+      }),
     ).not.toThrow();
   });
 

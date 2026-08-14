@@ -30,8 +30,7 @@ const ALLOWED = new Set([
 
 @Injectable()
 export class DocumentsService {
-  private readonly bucket =
-    process.env.S3_BUCKET_DOCUMENTS ?? 'cwms-documents';
+  private readonly bucket = process.env.S3_BUCKET_DOCUMENTS ?? 'cwms-documents';
 
   constructor(
     private readonly prisma: PrismaService,
@@ -54,9 +53,7 @@ export class DocumentsService {
     const pageSize = Math.min(100, Math.max(1, query.pageSize ?? 20));
     const where: Prisma.DocumentWhereInput = {
       ...(query.workId ? { workId: query.workId } : {}),
-      ...(query.documentTypeId
-        ? { documentTypeId: query.documentTypeId }
-        : {}),
+      ...(query.documentTypeId ? { documentTypeId: query.documentTypeId } : {}),
       ...(query.uploadedFrom || query.uploadedTo
         ? {
             uploadedAt: {
@@ -212,15 +209,13 @@ export class DocumentsService {
     const failed: { fileName: string; code: string; message: string }[] = [];
     for (const file of files ?? []) {
       try {
-        const doc = await this.upload(
-          workId,
-          { documentTypeId },
-          file,
-          user,
-        );
+        const doc = await this.upload(workId, { documentTypeId }, file, user);
         uploaded.push(doc);
       } catch (e) {
-        const err = e as { response?: { code?: string; detail?: string }; message?: string };
+        const err = e as {
+          response?: { code?: string; detail?: string };
+          message?: string;
+        };
         failed.push({
           fileName: file.originalname,
           code: err.response?.code ?? 'UPLOAD_FAILED',

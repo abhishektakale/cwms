@@ -106,9 +106,7 @@ export class UsersController {
       q,
       role,
       active:
-        active === undefined
-          ? undefined
-          : active === 'true' || active === '1',
+        active === undefined ? undefined : active === 'true' || active === '1',
     });
   }
 

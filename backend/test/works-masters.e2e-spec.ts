@@ -4,8 +4,9 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
+import { jsonBody } from './json-body';
 
-async function loginAs(app: INestApplication, username: string) {
+async function loginAs(app: INestApplication<App>, username: string) {
   const res = await request(app.getHttpServer())
     .post('/api/v1/auth/login')
     .send({ username, password: 'Password@123' })
@@ -40,7 +41,7 @@ describe('Masters & Works (e2e)', () => {
       .set('Cookie', cookie)
       .send({ name: `TestCat-${Date.now()}` })
       .expect(201);
-    expect(res.body.name).toContain('TestCat-');
+    expect(jsonBody<{ name: string }>(res).name).toContain('TestCat-');
   });
 
   it('AT-MST-003 non-admin cannot create master', async () => {
@@ -67,9 +68,14 @@ describe('Masters & Works (e2e)', () => {
         status: 'Planned',
       })
       .expect(201);
-    expect(res.body.gstAmount).toBe('180000.00');
-    expect(res.body.totalWorkValue).toBe('1180000.00');
-    expect(res.body.workCode).toMatch(/^CWMS-\d{4}-\d{4}$/);
+    const created = jsonBody<{
+      gstAmount: string;
+      totalWorkValue: string;
+      workCode: string;
+    }>(res);
+    expect(created.gstAmount).toBe('180000.00');
+    expect(created.totalWorkValue).toBe('1180000.00');
+    expect(created.workCode).toMatch(/^CWMS-\d{4}-\d{4}$/);
   });
 
   it('AT-AUTH-008 viewer cannot create work', async () => {

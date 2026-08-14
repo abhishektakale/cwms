@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { MasterOption, MasterType, User } from '@prisma/client';
+import { MasterOption, User } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import {
@@ -20,12 +20,10 @@ export class MastersService {
   ) {}
 
   async list(apiType: MasterTypeApi, page = 1, pageSize = 50, q?: string) {
-    const masterType = masterTypeToEnum(apiType) as MasterType;
+    const masterType = masterTypeToEnum(apiType);
     const where = {
       masterType,
-      ...(q
-        ? { name: { contains: q, mode: 'insensitive' as const } }
-        : {}),
+      ...(q ? { name: { contains: q, mode: 'insensitive' as const } } : {}),
     };
     const [totalItems, rows] = await this.prisma.$transaction([
       this.prisma.masterOption.count({ where }),
@@ -48,7 +46,7 @@ export class MastersService {
   }
 
   async create(apiType: MasterTypeApi, name: string, user: User) {
-    const masterType = masterTypeToEnum(apiType) as MasterType;
+    const masterType = masterTypeToEnum(apiType);
     const trimmed = name.trim();
     const existing = await this.prisma.masterOption.findFirst({
       where: {
@@ -90,7 +88,7 @@ export class MastersService {
     data: { name?: string; active?: boolean },
     user: User,
   ) {
-    const masterType = masterTypeToEnum(apiType) as MasterType;
+    const masterType = masterTypeToEnum(apiType);
     const row = await this.prisma.masterOption.findFirst({
       where: { id, masterType },
     });
@@ -140,7 +138,7 @@ export class MastersService {
   }
 
   async remove(apiType: MasterTypeApi, id: string, user: User) {
-    const masterType = masterTypeToEnum(apiType) as MasterType;
+    const masterType = masterTypeToEnum(apiType);
     const row = await this.prisma.masterOption.findFirst({
       where: { id, masterType },
     });
@@ -156,10 +154,7 @@ export class MastersService {
     const inUse =
       (await this.prisma.work.count({
         where: {
-          OR: [
-            { workCategoryId: id },
-            { clientDepartmentFormatId: id },
-          ],
+          OR: [{ workCategoryId: id }, { clientDepartmentFormatId: id }],
         },
       })) > 0;
     if (inUse) {

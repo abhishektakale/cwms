@@ -6,7 +6,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  GstType,
   Prisma,
   SideCode,
   TrafficLight,
@@ -495,7 +494,7 @@ export class WorksService {
       clientDepartmentFormatId: body.clientDepartmentFormatId || null,
       workOrderNo: body.workOrderNo.trim(),
       workOrderDate: new Date(body.workOrderDate),
-      gstType: body.gstType as GstType,
+      gstType: body.gstType,
       workPortionValue: money.workPortionValue,
       gstPercent: money.gstPercent,
       gstAmount: money.gstAmount,
@@ -505,7 +504,7 @@ export class WorksService {
       balanceWorkValue: total,
       financialProgressPercent: new Prisma.Decimal(
         body.financialProgressPercent === '' ||
-        body.financialProgressPercent == null
+          body.financialProgressPercent == null
           ? 0
           : body.financialProgressPercent,
       ),
@@ -528,7 +527,7 @@ export class WorksService {
       physicalProgressPercent: new Prisma.Decimal(
         body.physicalProgressPercent ?? 0,
       ),
-      status: body.status as WorkStatus,
+      status: body.status,
       remarks: body.remarks?.trim() || null,
       updatedByUserId: userId,
     };
@@ -573,7 +572,8 @@ export class WorksService {
     },
   ) {
     const money = (d: Prisma.Decimal) => d.toFixed(2);
-    const pct = (d: Prisma.Decimal) => d.toFixed(4).replace(/\.?0+$/, '') || '0';
+    const pct = (d: Prisma.Decimal) =>
+      d.toFixed(4).replace(/\.?0+$/, '') || '0';
     return {
       id: row.id,
       workCode: row.workCode,
@@ -612,7 +612,8 @@ export class WorksService {
       startDate: row.startDate?.toISOString().slice(0, 10) ?? null,
       scheduledCompletion:
         row.scheduledCompletion?.toISOString().slice(0, 10) ?? null,
-      actualCompletion: row.actualCompletion?.toISOString().slice(0, 10) ?? null,
+      actualCompletion:
+        row.actualCompletion?.toISOString().slice(0, 10) ?? null,
       physicalProgressPercent: pct(row.physicalProgressPercent),
       status: row.status,
       trafficLight: row.trafficLight,

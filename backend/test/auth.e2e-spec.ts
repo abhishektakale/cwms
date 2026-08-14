@@ -4,6 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
+import { jsonBody } from './json-body';
 
 describe('Auth (e2e)', () => {
   let app: INestApplication<App>;
@@ -36,8 +37,12 @@ describe('Auth (e2e)', () => {
       })
       .expect(200);
 
-    expect(res.body.user.loginId).toBe('Administrator');
-    expect(res.body.user.role).toBe('Administrator');
+    expect(
+      jsonBody<{ user: { loginId: string; role: string } }>(res).user.loginId,
+    ).toBe('Administrator');
+    expect(
+      jsonBody<{ user: { loginId: string; role: string } }>(res).user.role,
+    ).toBe('Administrator');
     expect(res.headers['set-cookie']).toEqual(
       expect.arrayContaining([expect.stringContaining('CWMSSESSION=')]),
     );
@@ -48,7 +53,7 @@ describe('Auth (e2e)', () => {
       .post('/api/v1/auth/login')
       .send({ username: 'Administrator', password: 'wrong' })
       .expect(401);
-    expect(res.body.code).toBe('INVALID_CREDENTIALS');
+    expect(jsonBody<{ code: string }>(res).code).toBe('INVALID_CREDENTIALS');
   });
 
   it('session me + logout', async () => {
@@ -63,7 +68,7 @@ describe('Auth (e2e)', () => {
       .set('Cookie', cookie)
       .expect(200)
       .expect((res) => {
-        expect(res.body.role).toBe('Viewer');
+        expect(jsonBody<{ role: string }>(res).role).toBe('Viewer');
       });
 
     await request(app.getHttpServer())

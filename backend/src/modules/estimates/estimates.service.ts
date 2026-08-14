@@ -6,7 +6,12 @@ import {
 import { Prisma, User } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
-import { dateOnly, dec, money, toDateStr } from '../../shared/kernel/money.util';
+import {
+  dateOnly,
+  dec,
+  money,
+  toDateStr,
+} from '../../shared/kernel/money.util';
 
 export type EstimateWrite = {
   estimateNo: string;
@@ -195,9 +200,7 @@ export class EstimatesService {
       estimateNo: row.estimateNo,
       estimateDate: toDateStr(row.estimateDate)!,
       estimatedAmount: money(row.estimatedAmount),
-      revisedEstimate: row.revisedEstimate
-        ? money(row.revisedEstimate)
-        : null,
+      revisedEstimate: row.revisedEstimate ? money(row.revisedEstimate) : null,
       approvedBy: row.approvedBy,
       documentId: row.documentId,
       remarks: row.remarks,

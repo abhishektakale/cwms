@@ -49,7 +49,7 @@ export class AuthService {
       id: user.id,
       name: user.name,
       loginId: user.loginId,
-      role: user.roleCode as RoleCode,
+      role: user.roleCode,
       mobile: user.mobile,
       email: user.email,
       active: user.isActive,
@@ -194,7 +194,7 @@ export class AuthService {
     }
   }
 
-  async me(user: User): Promise<AuthUserDto> {
+  me(user: User): AuthUserDto {
     return this.toUserDto(user);
   }
 

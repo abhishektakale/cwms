@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  MasterType,
-  PaymentStatus,
-  Prisma,
-  WorkStatus,
-} from '@prisma/client';
+import { MasterType, PaymentStatus, Prisma, WorkStatus } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { money } from '../../shared/kernel/money.util';
 

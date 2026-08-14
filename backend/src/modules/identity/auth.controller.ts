@@ -53,7 +53,7 @@ export class AuthController {
   }
 
   @Get('me')
-  async me(@CurrentUser() user: Prisma.User) {
+  me(@CurrentUser() user: Prisma.User) {
     return this.authService.me(user);
   }
 

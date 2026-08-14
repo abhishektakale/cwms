@@ -9,8 +9,12 @@ export function pct(d: Prisma.Decimal | number | string): string {
   return s || '0';
 }
 
-export function dec(v: string | number | null | undefined, fallback = '0'): Prisma.Decimal {
-  if (v === null || v === undefined || v === '') return new Prisma.Decimal(fallback);
+export function dec(
+  v: string | number | null | undefined,
+  fallback = '0',
+): Prisma.Decimal {
+  if (v === null || v === undefined || v === '')
+    return new Prisma.Decimal(fallback);
   return new Prisma.Decimal(v);
 }
 

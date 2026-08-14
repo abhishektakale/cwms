@@ -9,16 +9,52 @@ import PDFDocument from 'pdfkit';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { money } from '../../shared/kernel/money.util';
 
-const REPORT_META: Array<{ reportType: string; name: string; prisma: ReportType }> = [
-  { reportType: 'work-register', name: 'Work Register', prisma: ReportType.work_register },
+const REPORT_META: Array<{
+  reportType: string;
+  name: string;
+  prisma: ReportType;
+}> = [
+  {
+    reportType: 'work-register',
+    name: 'Work Register',
+    prisma: ReportType.work_register,
+  },
   { reportType: 'billing', name: 'Billing', prisma: ReportType.billing },
-  { reportType: 'expenditure', name: 'Expenditure', prisma: ReportType.expenditure },
-  { reportType: 'financial-summary', name: 'Financial Summary', prisma: ReportType.financial_summary },
-  { reportType: 'work-wise-summary', name: 'Work-wise Summary', prisma: ReportType.work_wise_summary },
-  { reportType: 'pending-payment', name: 'Pending Payment', prisma: ReportType.pending_payment },
-  { reportType: 'document-register', name: 'Document Register', prisma: ReportType.document_register },
-  { reportType: 'general-expense', name: 'General Expense', prisma: ReportType.general_expense },
-  { reportType: 'dashboard-summary', name: 'Dashboard Summary', prisma: ReportType.dashboard_summary },
+  {
+    reportType: 'expenditure',
+    name: 'Expenditure',
+    prisma: ReportType.expenditure,
+  },
+  {
+    reportType: 'financial-summary',
+    name: 'Financial Summary',
+    prisma: ReportType.financial_summary,
+  },
+  {
+    reportType: 'work-wise-summary',
+    name: 'Work-wise Summary',
+    prisma: ReportType.work_wise_summary,
+  },
+  {
+    reportType: 'pending-payment',
+    name: 'Pending Payment',
+    prisma: ReportType.pending_payment,
+  },
+  {
+    reportType: 'document-register',
+    name: 'Document Register',
+    prisma: ReportType.document_register,
+  },
+  {
+    reportType: 'general-expense',
+    name: 'General Expense',
+    prisma: ReportType.general_expense,
+  },
+  {
+    reportType: 'dashboard-summary',
+    name: 'Dashboard Summary',
+    prisma: ReportType.dashboard_summary,
+  },
 ];
 
 function parseReportType(raw: string): { api: string; prisma: ReportType } {
@@ -34,8 +70,23 @@ function parseReportType(raw: string): { api: string; prisma: ReportType } {
   return { api: found.reportType, prisma: found.prisma };
 }
 
+function cellText(value: unknown): string {
+  if (value == null) return '';
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    typeof value === 'bigint'
+  ) {
+    return String(value);
+  }
+  if (value instanceof Date) return value.toISOString();
+  return JSON.stringify(value);
+}
+
 function fyRange(filters: Record<string, unknown>): { from?: Date; to?: Date } {
-  const fy = typeof filters.financialYear === 'string' ? filters.financialYear : null;
+  const fy =
+    typeof filters.financialYear === 'string' ? filters.financialYear : null;
   if (!fy) return {};
   const m = /^(\d{4})/.exec(fy);
   if (!m) return {};
@@ -75,7 +126,11 @@ export class ReportsService {
       const ws = wb.addWorksheet(result.reportType);
       ws.addRow(result.columns);
       for (const row of result.rows) {
-        ws.addRow(result.columns.map((c) => (row as Record<string, unknown>)[c] ?? ''));
+        ws.addRow(
+          result.columns.map((c) =>
+            cellText((row as Record<string, unknown>)[c]),
+          ),
+        );
       }
       const buffer = Buffer.from(await wb.xlsx.writeBuffer());
       return {
@@ -92,14 +147,16 @@ export class ReportsService {
     const done = new Promise<Buffer>((resolve) => {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
     });
-    doc.fontSize(14).text(`CWMS Report: ${result.reportType}`, { underline: true });
+    doc
+      .fontSize(14)
+      .text(`CWMS Report: ${result.reportType}`, { underline: true });
     doc.moveDown();
     doc.fontSize(9).text(result.columns.join(' | '));
     doc.moveDown(0.5);
     for (const row of result.rows.slice(0, 200)) {
       doc.text(
         result.columns
-          .map((c) => String((row as Record<string, unknown>)[c] ?? ''))
+          .map((c) => cellText((row as Record<string, unknown>)[c]))
           .join(' | '),
       );
     }
@@ -147,7 +204,7 @@ export class ReportsService {
         userId: user.id,
         reportType: prisma,
         name: body.name.trim(),
-        filtersJson: body.filters as Prisma.InputJsonValue,
+        filtersJson: body.filters,
         isDefault: !!body.isDefault,
       },
     });
@@ -189,9 +246,7 @@ export class ReportsService {
       where: { id: filterId },
       data: {
         ...(body.name ? { name: body.name.trim() } : {}),
-        ...(body.filters
-          ? { filtersJson: body.filters as Prisma.InputJsonValue }
-          : {}),
+        ...(body.filters ? { filtersJson: body.filters } : {}),
         ...(body.isDefault !== undefined ? { isDefault: body.isDefault } : {}),
       },
     });
@@ -359,7 +414,13 @@ export class ReportsService {
           orderBy: { uploadedAt: 'desc' },
         });
         return {
-          columns: ['documentCode', 'workCode', 'documentType', 'fileName', 'uploadedAt'],
+          columns: [
+            'documentCode',
+            'workCode',
+            'documentType',
+            'fileName',
+            'uploadedAt',
+          ],
           rows: rows.map((d) => ({
             documentCode: d.documentCode,
             workCode: d.work.workCode,
@@ -372,7 +433,9 @@ export class ReportsService {
       case 'financial-summary':
       case 'work-wise-summary':
       case 'dashboard-summary': {
-        const works = await this.prisma.work.findMany({ orderBy: { workCode: 'asc' } });
+        const works = await this.prisma.work.findMany({
+          orderBy: { workCode: 'asc' },
+        });
         return {
           columns: [
             'workCode',
@@ -392,10 +455,16 @@ export class ReportsService {
           })),
           totals: {
             totalWorkValue: money(
-              works.reduce((s, w) => s.add(w.totalWorkValue), new Prisma.Decimal(0)),
+              works.reduce(
+                (s, w) => s.add(w.totalWorkValue),
+                new Prisma.Decimal(0),
+              ),
             ),
             grossBillsRaised: money(
-              works.reduce((s, w) => s.add(w.grossBillsRaised), new Prisma.Decimal(0)),
+              works.reduce(
+                (s, w) => s.add(w.grossBillsRaised),
+                new Prisma.Decimal(0),
+              ),
             ),
           },
         };

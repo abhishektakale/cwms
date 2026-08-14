@@ -10,7 +10,13 @@ import {
   Res,
 } from '@nestjs/common';
 import * as Prisma from '@prisma/client';
-import { IsBoolean, IsObject, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsObject,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import type { Response } from 'express';
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { RequiresMutate } from '../../shared/auth/roles.decorator';

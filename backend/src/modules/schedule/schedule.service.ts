@@ -117,11 +117,7 @@ export class ScheduleService {
   }
 
   private validate(body: ScheduleWrite) {
-    if (
-      body.startDate &&
-      body.finishDate &&
-      body.startDate > body.finishDate
-    ) {
+    if (body.startDate && body.finishDate && body.startDate > body.finishDate) {
       throw new BadRequestException({
         title: 'Bad Request',
         status: 400,

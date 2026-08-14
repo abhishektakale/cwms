@@ -16,7 +16,12 @@ import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { IdSequenceService } from '../../shared/kernel/id-sequence.service';
 import { WorkRollupService } from '../../shared/kernel/work-rollup.service';
-import { dateOnly, dec, money, toDateStr } from '../../shared/kernel/money.util';
+import {
+  dateOnly,
+  dec,
+  money,
+  toDateStr,
+} from '../../shared/kernel/money.util';
 
 export type BillWrite = {
   workId: string;
@@ -94,8 +99,12 @@ export class BillsService {
             OR: [
               { systemBillNumber: { contains: query.q, mode: 'insensitive' } },
               { raBillNo: { contains: query.q, mode: 'insensitive' } },
-              { work: { workCode: { contains: query.q, mode: 'insensitive' } } },
-              { work: { workName: { contains: query.q, mode: 'insensitive' } } },
+              {
+                work: { workCode: { contains: query.q, mode: 'insensitive' } },
+              },
+              {
+                work: { workName: { contains: query.q, mode: 'insensitive' } },
+              },
             ],
           }
         : {}),
@@ -147,7 +156,7 @@ export class BillsService {
         data: {
           systemBillNumber,
           workId: body.workId,
-          billType: body.billType as BillType,
+          billType: body.billType,
           raBillNo: body.raBillNo?.trim() || null,
           billDate: dateOnly(body.billDate),
           periodFrom: body.periodFrom ? dateOnly(body.periodFrom) : null,
@@ -158,7 +167,7 @@ export class BillsService {
           grossBillAmount: computed.grossBillAmount,
           totalDeductions: computed.totalDeductions,
           netBillAmount: computed.netBillAmount,
-          paymentStatus: body.paymentStatus as PaymentStatus,
+          paymentStatus: body.paymentStatus,
           paymentDate: body.paymentDate ? dateOnly(body.paymentDate) : null,
           amountReceived: computed.amountReceived,
           outstandingAmount: computed.outstandingAmount,
@@ -202,7 +211,7 @@ export class BillsService {
         where: { id },
         data: {
           workId,
-          billType: body.billType as BillType,
+          billType: body.billType,
           raBillNo: body.raBillNo?.trim() || null,
           billDate: dateOnly(body.billDate),
           periodFrom: body.periodFrom ? dateOnly(body.periodFrom) : null,
@@ -213,7 +222,7 @@ export class BillsService {
           grossBillAmount: computed.grossBillAmount,
           totalDeductions: computed.totalDeductions,
           netBillAmount: computed.netBillAmount,
-          paymentStatus: body.paymentStatus as PaymentStatus,
+          paymentStatus: body.paymentStatus,
           paymentDate: body.paymentDate ? dateOnly(body.paymentDate) : null,
           amountReceived: computed.amountReceived,
           outstandingAmount: computed.outstandingAmount,
@@ -328,7 +337,10 @@ export class BillsService {
         detail: 'Amount received cannot exceed net bill amount',
       });
     }
-    const outstanding = Prisma.Decimal.max(net.sub(amountReceived), new Prisma.Decimal(0));
+    const outstanding = Prisma.Decimal.max(
+      net.sub(amountReceived),
+      new Prisma.Decimal(0),
+    );
 
     return {
       previousBillAmount: previous,

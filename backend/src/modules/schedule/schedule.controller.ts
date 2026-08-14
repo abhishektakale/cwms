@@ -10,12 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import * as Prisma from '@prisma/client';
-import {
-  IsDateString,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsDateString, IsOptional, IsString, MinLength } from 'class-validator';
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { RequiresMutate } from '../../shared/auth/roles.decorator';
 import { ScheduleService, ScheduleWrite } from './schedule.service';

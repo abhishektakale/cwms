@@ -1,9 +1,5 @@
 export type RoleCode =
-  | 'Administrator'
-  | 'DataEntryOperator'
-  | 'Engineer'
-  | 'Accounts'
-  | 'Viewer';
+  'Administrator' | 'DataEntryOperator' | 'Engineer' | 'Accounts' | 'Viewer';
 
 export const ROLE_DISPLAY: Record<RoleCode, string> = {
   Administrator: 'Administrator',

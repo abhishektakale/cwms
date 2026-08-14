@@ -5,7 +5,10 @@ import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 export class IdSequenceService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async nextCode(prefix: 'CWMS' | 'BILL' | 'DOC' | 'EXP', year = new Date().getFullYear()): Promise<string> {
+  async nextCode(
+    prefix: 'CWMS' | 'BILL' | 'DOC' | 'EXP',
+    year = new Date().getFullYear(),
+  ): Promise<string> {
     const key =
       prefix === 'CWMS'
         ? `work_code_${year}`

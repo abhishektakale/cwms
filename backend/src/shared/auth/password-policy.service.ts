@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 export type PasswordContext = {
   name?: string | null;
@@ -57,7 +54,10 @@ export class PasswordPolicyService {
     const personal = [ctx.name, ctx.loginId, ctx.mobile]
       .filter((v): v is string => !!v && v.trim().length >= 3)
       .flatMap((v) => {
-        const parts = v.toLowerCase().split(/[\s@._-]+/).filter((p) => p.length >= 3);
+        const parts = v
+          .toLowerCase()
+          .split(/[\s@._-]+/)
+          .filter((p) => p.length >= 3);
         return [v.toLowerCase().replace(/\s+/g, ''), ...parts];
       });
 
@@ -87,7 +87,10 @@ export class PasswordPolicyService {
     const personal = [ctx.name, ctx.loginId, ctx.mobile]
       .filter((v): v is string => !!v && v.trim().length >= 3)
       .flatMap((v) => {
-        const parts = v.toLowerCase().split(/[\s@._-]+/).filter((p) => p.length >= 3);
+        const parts = v
+          .toLowerCase()
+          .split(/[\s@._-]+/)
+          .filter((p) => p.length >= 3);
         return [v.toLowerCase().replace(/\s+/g, ''), ...parts];
       });
     const hasPersonal = personal.some((f) => f && lowered.includes(f));

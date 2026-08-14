@@ -92,7 +92,8 @@ export class BackupsService {
         title: 'Bad Request',
         status: 400,
         code: 'RESTORE_CONFIRM',
-        detail: 'confirmPhrase must be RESTORE and acknowledgedDestructive true',
+        detail:
+          'confirmPhrase must be RESTORE and acknowledgedDestructive true',
       });
     }
     const backup = await this.get(id);

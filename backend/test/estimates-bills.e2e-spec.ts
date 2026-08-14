@@ -4,8 +4,9 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
+import { jsonBody } from './json-body';
 
-async function loginAs(app: INestApplication, username: string) {
+async function loginAs(app: INestApplication<App>, username: string) {
   const res = await request(app.getHttpServer())
     .post('/api/v1/auth/login')
     .send({ username, password: 'Password@123' })
@@ -43,7 +44,7 @@ describe('Estimates & Bill rollups (e2e)', () => {
         status: 'InProgress',
       })
       .expect(201);
-    workId = work.body.id;
+    workId = jsonBody<{ id: string }>(work).id;
   });
 
   afterAll(async () => {
@@ -61,14 +62,21 @@ describe('Estimates & Bill rollups (e2e)', () => {
         approvedBy: 'SE',
       })
       .expect(201);
-    expect(res.body.estimatedAmount).toBe('950000.00');
-    expect(res.body.workId).toBe(workId);
+    expect(
+      jsonBody<{ estimatedAmount: string; workId: string }>(res)
+        .estimatedAmount,
+    ).toBe('950000.00');
+    expect(
+      jsonBody<{ estimatedAmount: string; workId: string }>(res).workId,
+    ).toBe(workId);
 
     const list = await request(app.getHttpServer())
       .get(`/api/v1/works/${workId}/estimates`)
       .set('Cookie', cookie)
       .expect(200);
-    expect(list.body.items.length).toBeGreaterThanOrEqual(1);
+    expect(
+      jsonBody<{ items: unknown[] }>(list).items.length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it('creates bill and recalculates work rollups', async () => {
@@ -89,19 +97,31 @@ describe('Estimates & Bill rollups (e2e)', () => {
       })
       .expect(201);
 
-    expect(bill.body.systemBillNumber).toMatch(/^BILL-\d{4}-\d{4}$/);
-    expect(bill.body.grossBillAmount).toBe('590000.00');
-    expect(bill.body.netBillAmount).toBe('580000.00');
-    expect(bill.body.outstandingAmount).toBe('380000.00');
+    const billBody = jsonBody<{
+      systemBillNumber: string;
+      grossBillAmount: string;
+      netBillAmount: string;
+      outstandingAmount: string;
+    }>(bill);
+    expect(billBody.systemBillNumber).toMatch(/^BILL-\d{4}-\d{4}$/);
+    expect(billBody.grossBillAmount).toBe('590000.00');
+    expect(billBody.netBillAmount).toBe('580000.00');
+    expect(billBody.outstandingAmount).toBe('380000.00');
 
     const work = await request(app.getHttpServer())
       .get(`/api/v1/works/${workId}`)
       .set('Cookie', cookie)
       .expect(200);
-    expect(work.body.grossBillsRaised).toBe('590000.00');
-    expect(work.body.paymentsReceived).toBe('200000.00');
-    expect(work.body.balanceWorkValue).toBe('590000.00');
-    expect(Number(work.body.financialProgressPercent)).toBe(0);
+    const workBody = jsonBody<{
+      grossBillsRaised: string;
+      paymentsReceived: string;
+      balanceWorkValue: string;
+      financialProgressPercent: string;
+    }>(work);
+    expect(workBody.grossBillsRaised).toBe('590000.00');
+    expect(workBody.paymentsReceived).toBe('200000.00');
+    expect(workBody.balanceWorkValue).toBe('590000.00');
+    expect(Number(workBody.financialProgressPercent)).toBe(0);
   });
 
   it('blocks work delete when children exist', async () => {

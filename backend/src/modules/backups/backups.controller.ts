@@ -29,10 +29,7 @@ export class BackupsController {
   constructor(private readonly backups: BackupsService) {}
 
   @Get()
-  list(
-    @Query('page') page?: string,
-    @Query('pageSize') pageSize?: string,
-  ) {
+  list(@Query('page') page?: string, @Query('pageSize') pageSize?: string) {
     return this.backups.list(
       page ? Number(page) : 1,
       pageSize ? Number(pageSize) : 20,
