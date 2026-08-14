@@ -1,10 +1,10 @@
 /* Landing page — scoped brand visuals (does not alter Stitch tokens) */
 .landing {
-  --landing-navy: #0f2d5c;
+  --landing-navy: var(--cwms-brand-navy, #102c4b);
   --landing-navy-deep: #0a1f42;
-  --landing-orange: #f4a100;
+  --landing-orange: var(--cwms-brand-orange, #ea8f0c);
   --landing-white: #ffffff;
-  --landing-ink: #0f2d5c;
+  --landing-ink: var(--cwms-brand-navy, #102c4b);
   --landing-muted: #4a5d78;
   --landing-surface: #f3f6fa;
   --landing-font-display: 'Raleway', 'Segoe UI', sans-serif;
@@ -77,7 +77,7 @@
 }
 
 .landing__logo {
-  width: min(420px, 88vw);
+  width: min(240px, 72vw);
   height: auto;
   display: block;
   filter: drop-shadow(0 18px 40px rgb(0 0 0 / 0.28));

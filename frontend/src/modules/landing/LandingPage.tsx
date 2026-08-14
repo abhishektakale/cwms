@@ -59,8 +59,9 @@ export function LandingPage() {
           <CwmsLogo
             className="landing__logo"
             variant="reverse"
-            width={420}
-            height={128}
+            layout="stacked"
+            width={240}
+            height={300}
           />
           <p className="landing__lede">
             Construction work management built for clarity from first estimate to
@@ -91,9 +92,9 @@ export function LandingPage() {
           <CwmsLogo
             className="landing__pillars-mark"
             variant="color"
-            showWordmark={false}
+            layout="mark"
             width={56}
-            height={56}
+            height={60}
             aria-hidden
           />
           <h2 id="landing-pillars-title" className="landing__pillars-title">
@@ -128,8 +129,9 @@ export function LandingPage() {
         <CwmsLogo
           className="landing__footer-logo"
           variant="reverse"
-          width={220}
-          height={67}
+          layout="horizontal"
+          width={280}
+          height={108}
         />
         <p className="landing__footer-tag">
           Plan <span aria-hidden="true">•</span> Manage{' '}

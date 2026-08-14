@@ -4,6 +4,8 @@
 
 :root {
   /* Colors — Stitch YAML tokens */
+  --cwms-brand-navy: #102c4b;
+  --cwms-brand-orange: #ea8f0c;
   --cwms-surface: #f8f9ff;
   --cwms-surface-dim: #cbdbf5;
   --cwms-surface-bright: #f8f9ff;

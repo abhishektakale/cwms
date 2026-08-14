@@ -49,7 +49,13 @@ export function LoginPage() {
       <main className="login-page__main">
         <header className="login-page__brand">
           <Link to="/" className="login-page__home" aria-label="Back to CWMS home">
-            <CwmsLogo className="login-page__logo" variant="color" width={280} height={86} />
+            <CwmsLogo
+              className="login-page__logo"
+              variant="color"
+              layout="stacked"
+              width={200}
+              height={250}
+            />
           </Link>
         </header>
 

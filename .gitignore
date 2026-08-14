@@ -35,6 +35,10 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
+# Python leftovers from local asset scripts
+__pycache__/
+*.pyc
+
 # Local runtime / temp
 scripts/cwms-cookies.txt
 scripts/login.json

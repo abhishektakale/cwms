@@ -1,5 +1,5 @@
 .dash {
-  --dash-navy: #0f2d5c;
+  --dash-navy: var(--cwms-brand-navy, #102c4b);
   --dash-navy-deep: #0a1f42;
   --dash-gold: #f4a100;
   --dash-ink: #0b1c30;

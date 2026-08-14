@@ -75,9 +75,9 @@ export function AppShell() {
           <CwmsLogo
             className="shell__brand-mark"
             variant="color"
-            showWordmark={false}
+            layout="mark"
             width={40}
-            height={40}
+            height={43}
             aria-hidden
           />
           <span className="shell__brand-text">
@@ -129,9 +129,9 @@ export function AppShell() {
               <CwmsLogo
                 className="shell__header-mark"
                 variant="color"
-                showWordmark={false}
+                layout="mark"
                 width={28}
-                height={28}
+                height={30}
                 aria-hidden
               />
               <span className="shell__header-brand">CWMS</span>

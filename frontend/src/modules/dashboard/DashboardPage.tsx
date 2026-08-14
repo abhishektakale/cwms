@@ -97,9 +97,9 @@ export function DashboardPage() {
           <CwmsLogo
             className="dash__mark"
             variant="reverse"
-            showWordmark={false}
+            layout="mark"
             width={52}
-            height={52}
+            height={56}
             aria-hidden
           />
         </div>
