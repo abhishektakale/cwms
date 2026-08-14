@@ -22,6 +22,7 @@ export function DocumentsPage() {
   const [works, setWorks] = useState<Array<{ id: string; workCode: string }>>([])
   const [error, setError] = useState<string | null>(null)
   const [uploadEnabled, setUploadEnabled] = useState(true)
+  const [screen, setScreen] = useState<'list' | 'new'>('list')
 
   async function reload() {
     const [d, t, w, health] = await Promise.all([
@@ -58,6 +59,7 @@ export function DocumentsPage() {
       await uploadDocument(workId, form)
       formEl.reset()
       await reload()
+      setScreen('list')
     } catch (err) {
       setError((err as Error).message)
     }
@@ -65,7 +67,27 @@ export function DocumentsPage() {
 
   return (
     <div>
-      <h1 style={{ marginTop: 0 }}>Documents</h1>
+      <div className="works__header">
+        <div>
+          <h1>{screen === 'new' ? 'Upload document' : 'Documents'}</h1>
+        </div>
+        <div className="works__toolbar">
+          {screen === 'list' && mutate && uploadEnabled && (
+            <button
+              type="button"
+              className="works__btn works__btn--primary"
+              onClick={() => setScreen('new')}
+            >
+              Upload
+            </button>
+          )}
+          {screen === 'new' && (
+            <button type="button" className="works__btn" onClick={() => setScreen('list')}>
+              Back to list
+            </button>
+          )}
+        </div>
+      </div>
       {error && (
         <div className="works__error" role="alert">
           {error}
@@ -77,8 +99,9 @@ export function DocumentsPage() {
           configured). Listing and other modules still work.
         </p>
       )}
-      {mutate && uploadEnabled && (
-        <form onSubmit={onUpload} className="work-form__grid" style={{ marginBottom: 20 }}>
+
+      {screen === 'new' && mutate && uploadEnabled ? (
+        <form onSubmit={onUpload} className="work-form__grid">
           <label>
             Work *
             <select name="workId" required>
@@ -117,58 +140,62 @@ export function DocumentsPage() {
             <button type="submit" className="works__btn works__btn--primary">
               Upload
             </button>
+            <button type="button" className="works__btn" onClick={() => setScreen('list')}>
+              Cancel
+            </button>
           </div>
         </form>
+      ) : (
+        <table className="works__table">
+          <thead>
+            <tr>
+              <th>Work</th>
+              <th>Type</th>
+              <th>File</th>
+              <th>Size</th>
+              <th>Uploaded</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {items.length === 0 ? (
+              <EmptyState
+                colSpan={6}
+                title="No documents yet"
+                detail={
+                  mutate && uploadEnabled
+                    ? 'Use Upload to attach a PDF or image to a work.'
+                    : undefined
+                }
+              />
+            ) : (
+              items.map((d) => (
+                <tr key={d.id}>
+                  <td>{d.workCode}</td>
+                  <td>{d.documentTypeName}</td>
+                  <td>{d.fileName}</td>
+                  <td className="numeric">{formatBytes(d.sizeBytes)}</td>
+                  <td>{formatDateTime(d.uploadedAt)}</td>
+                  <td style={{ display: 'flex', gap: 6 }}>
+                    <a className="works__btn" href={documentContentUrl(d.id)}>
+                      Download
+                    </a>
+                    {mutate && (
+                      <button
+                        type="button"
+                        className="works__btn"
+                        onClick={() => void deleteDocument(d.id).then(reload)}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       )}
-      <table className="works__table">
-        <thead>
-          <tr>
-            <th>Work</th>
-            <th>Type</th>
-            <th>File</th>
-            <th>Size</th>
-            <th>Uploaded</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {items.length === 0 ? (
-            <EmptyState
-              colSpan={6}
-              title="No documents yet"
-              detail={
-                mutate && uploadEnabled
-                  ? 'Upload a PDF or image above to attach it to a work.'
-                  : undefined
-              }
-            />
-          ) : (
-            items.map((d) => (
-              <tr key={d.id}>
-                <td>{d.workCode}</td>
-                <td>{d.documentTypeName}</td>
-                <td>{d.fileName}</td>
-                <td className="numeric">{formatBytes(d.sizeBytes)}</td>
-                <td>{formatDateTime(d.uploadedAt)}</td>
-                <td style={{ display: 'flex', gap: 6 }}>
-                  <a className="works__btn" href={documentContentUrl(d.id)}>
-                    Download
-                  </a>
-                  {mutate && (
-                    <button
-                      type="button"
-                      className="works__btn"
-                      onClick={() => void deleteDocument(d.id).then(reload)}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
     </div>
   )
 }

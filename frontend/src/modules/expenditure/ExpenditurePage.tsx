@@ -27,6 +27,7 @@ export function ExpenditurePage() {
   const [error, setError] = useState<string | null>(null)
   const [uploadEnabled, setUploadEnabled] = useState(true)
   const [attachFor, setAttachFor] = useState<string | null>(null)
+  const [screen, setScreen] = useState<'list' | 'new' | 'attach'>('list')
 
   async function reload() {
     const [e, h, w, health] = await Promise.all([
@@ -63,6 +64,7 @@ export function ExpenditurePage() {
       })
       form.reset()
       await reload()
+      setScreen('list')
     } catch (err) {
       setError((err as Error).message)
     }
@@ -83,20 +85,53 @@ export function ExpenditurePage() {
       form.reset()
       setAttachFor(null)
       await reload()
+      setScreen('list')
     } catch (err) {
       setError((err as Error).message)
     }
   }
 
+  function backToList() {
+    setAttachFor(null)
+    setScreen('list')
+  }
+
+  const title =
+    screen === 'new'
+      ? 'New expense'
+      : screen === 'attach'
+        ? 'Attach file'
+        : 'Expenditure'
+
   return (
     <div>
-      <h1 style={{ marginTop: 0 }}>Expenditure</h1>
+      <div className="works__header">
+        <div>
+          <h1>{title}</h1>
+        </div>
+        <div className="works__toolbar">
+          {screen === 'list' && mutate && (
+            <button
+              type="button"
+              className="works__btn works__btn--primary"
+              onClick={() => setScreen('new')}
+            >
+              New expense
+            </button>
+          )}
+          {screen !== 'list' && (
+            <button type="button" className="works__btn" onClick={backToList}>
+              Back to list
+            </button>
+          )}
+        </div>
+      </div>
       {error && (
         <div className="works__error" role="alert">
           {error}
         </div>
       )}
-      {!uploadEnabled && (
+      {!uploadEnabled && screen === 'list' && (
         <p
           role="status"
           style={{ marginBottom: 16, color: 'var(--color-text-muted, #5c6570)' }}
@@ -105,8 +140,9 @@ export function ExpenditurePage() {
           configured). Expenses still work without files.
         </p>
       )}
-      {mutate && (
-        <form onSubmit={onCreate} className="work-form__grid" style={{ marginBottom: 20 }}>
+
+      {screen === 'new' && mutate && (
+        <form onSubmit={onCreate} className="work-form__grid">
           <label>
             Type *
             <select name="expenseType" defaultValue="WorkSpecific">
@@ -175,17 +211,17 @@ export function ExpenditurePage() {
             <button type="submit" className="works__btn works__btn--primary">
               Add expense
             </button>
+            <button type="button" className="works__btn" onClick={backToList}>
+              Cancel
+            </button>
           </div>
         </form>
       )}
-      {mutate && uploadEnabled && attachFor && (
-        <form
-          onSubmit={onUploadAttachment}
-          className="work-form__grid"
-          style={{ marginBottom: 20 }}
-        >
+
+      {screen === 'attach' && mutate && uploadEnabled && attachFor && (
+        <form onSubmit={onUploadAttachment} className="work-form__grid">
           <p style={{ gridColumn: '1 / -1', margin: 0 }}>
-            Attach supporting file (PDF/image ≤20MB) to selected expense
+            Attach supporting file (PDF/image ≤20MB) to the selected expense
           </p>
           <label>
             File *
@@ -195,129 +231,134 @@ export function ExpenditurePage() {
             <button type="submit" className="works__btn works__btn--primary">
               Upload attachment
             </button>
-            <button
-              type="button"
-              className="works__btn"
-              onClick={() => setAttachFor(null)}
-            >
+            <button type="button" className="works__btn" onClick={backToList}>
               Cancel
             </button>
           </div>
         </form>
       )}
-      <table className="works__table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Work</th>
-            <th>Head</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Attachments</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {items.length === 0 ? (
-            <EmptyState
-              colSpan={8}
-              title="No expenses yet"
-              detail={
-                mutate
-                  ? 'Add an expense above to track spend against works.'
-                  : undefined
-              }
-            />
-          ) : (
-            items.map((row) => (
-            <tr key={row.id}>
-              <td>{formatDate(row.expenseDate)}</td>
-              <td>{row.expenseType}</td>
-              <td>{row.workCode ?? '—'}</td>
-              <td>{row.expenseHeadName}</td>
-              <td className="numeric">{row.totalAmount}</td>
-              <td>{row.status}</td>
-              <td>
-                {(row.attachments ?? []).length === 0 ? (
-                  '—'
-                ) : (
-                  <ul style={{ margin: 0, paddingLeft: 16 }}>
-                    {(row.attachments ?? []).map((a) => (
-                      <li key={a.id} style={{ marginBottom: 4 }}>
-                        <a
-                          href={expenseAttachmentContentUrl(row.id, a.id)}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {a.fileName}
-                        </a>
-                        {mutate && (
-                          <>
-                            {' '}
-                            <button
-                              type="button"
-                              className="works__btn"
-                              onClick={() =>
-                                void deleteExpenseAttachment(row.id, a.id)
-                                  .then(reload)
-                                  .catch((err: Error) => setError(err.message))
-                              }
-                            >
-                              Remove
-                            </button>
-                          </>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </td>
-              <td style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {mutate && uploadEnabled && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() => setAttachFor(row.id)}
-                  >
-                    Attach
-                  </button>
-                )}
-                {mutate && row.expenseType === 'General' && !row.workId && works[0] && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() =>
-                      void assignExpense(row.id, works[0].id).then(reload)
-                    }
-                  >
-                    Assign
-                  </button>
-                )}
-                {mutate && row.status !== 'Cancelled' && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() => void cancelExpense(row.id).then(reload)}
-                  >
-                    Cancel
-                  </button>
-                )}
-                {mutate && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() => void deleteExpense(row.id).then(reload)}
-                  >
-                    Delete
-                  </button>
-                )}
-              </td>
+
+      {screen === 'list' && (
+        <table className="works__table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Work</th>
+              <th>Head</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Attachments</th>
+              <th />
             </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.length === 0 ? (
+              <EmptyState
+                colSpan={8}
+                title="No expenses yet"
+                detail={
+                  mutate
+                    ? 'Use New expense to track spend against works.'
+                    : undefined
+                }
+              />
+            ) : (
+              items.map((row) => (
+                <tr key={row.id}>
+                  <td>{formatDate(row.expenseDate)}</td>
+                  <td>{row.expenseType}</td>
+                  <td>{row.workCode ?? '—'}</td>
+                  <td>{row.expenseHeadName}</td>
+                  <td className="numeric">{row.totalAmount}</td>
+                  <td>{row.status}</td>
+                  <td>
+                    {(row.attachments ?? []).length === 0 ? (
+                      '—'
+                    ) : (
+                      <ul style={{ margin: 0, paddingLeft: 16 }}>
+                        {(row.attachments ?? []).map((a) => (
+                          <li key={a.id} style={{ marginBottom: 4 }}>
+                            <a
+                              href={expenseAttachmentContentUrl(row.id, a.id)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {a.fileName}
+                            </a>
+                            {mutate && (
+                              <>
+                                {' '}
+                                <button
+                                  type="button"
+                                  className="works__btn"
+                                  onClick={() =>
+                                    void deleteExpenseAttachment(row.id, a.id)
+                                      .then(reload)
+                                      .catch((err: Error) => setError(err.message))
+                                  }
+                                >
+                                  Remove
+                                </button>
+                              </>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </td>
+                  <td style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {mutate && uploadEnabled && (
+                      <button
+                        type="button"
+                        className="works__btn"
+                        onClick={() => {
+                          setAttachFor(row.id)
+                          setScreen('attach')
+                        }}
+                      >
+                        Attach
+                      </button>
+                    )}
+                    {mutate &&
+                      row.expenseType === 'General' &&
+                      !row.workId &&
+                      works[0] && (
+                        <button
+                          type="button"
+                          className="works__btn"
+                          onClick={() =>
+                            void assignExpense(row.id, works[0].id).then(reload)
+                          }
+                        >
+                          Assign
+                        </button>
+                      )}
+                    {mutate && row.status !== 'Cancelled' && (
+                      <button
+                        type="button"
+                        className="works__btn"
+                        onClick={() => void cancelExpense(row.id).then(reload)}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    {mutate && (
+                      <button
+                        type="button"
+                        className="works__btn"
+                        onClick={() => void deleteExpense(row.id).then(reload)}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      )}
     </div>
   )
 }
