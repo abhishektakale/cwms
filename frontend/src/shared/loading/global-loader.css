@@ -1,15 +1,15 @@
 .global-loader {
   --loader-navy: var(--cwms-brand-navy, #102c4b);
   --loader-gold: var(--cwms-brand-orange, #ea8f0c);
-  --loader-cycle: 6.4s;
+  --loader-cycle: 5.8s;
   position: fixed;
   inset: 0;
   z-index: 9999;
   display: grid;
   place-items: center;
   background:
-    radial-gradient(ellipse at 50% 28%, rgb(244 161 0 / 0.18), transparent 46%),
-    linear-gradient(160deg, rgb(10 31 66 / 0.88), rgb(11 28 48 / 0.9));
+    radial-gradient(ellipse at 50% 28%, rgb(234 143 12 / 0.18), transparent 46%),
+    linear-gradient(160deg, rgb(16 44 75 / 0.9), rgb(11 28 48 / 0.92));
   cursor: wait;
 }
 
@@ -33,12 +33,47 @@
     0 22px 48px color-mix(in srgb, var(--loader-navy) 32%, transparent);
 }
 
-.loader-scene {
-  width: 132px;
-  height: 142px;
+.loader-scene-wrap {
   display: block;
-  object-fit: contain;
-  animation: loader-pulse var(--loader-cycle) ease-in-out infinite;
+  width: 132px;
+  height: 148px;
+}
+
+.loader-scene {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.loader-mark__base,
+.loader-mark__frame,
+.loader-mark__city,
+.loader-mark__crane {
+  transform-box: fill-box;
+  animation-duration: var(--loader-cycle);
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-iteration-count: infinite;
+}
+
+.loader-mark__base {
+  transform-origin: center bottom;
+  animation-name: loader-base;
+}
+
+.loader-mark__frame {
+  transform-origin: center center;
+  animation-name: loader-frame;
+}
+
+.loader-mark__city {
+  transform-origin: center bottom;
+  animation-name: loader-city;
+}
+
+.loader-mark__crane {
+  transform-origin: 12% 88%;
+  animation-name: loader-crane;
 }
 
 .global-loader__copy {
@@ -75,19 +110,78 @@
   animation: loader-status var(--loader-cycle) ease-in-out infinite;
 }
 
-@keyframes loader-pulse {
+@keyframes loader-base {
   0% {
-    transform: scale(0.92);
-    opacity: 0.55;
+    transform: scaleX(0.2) scaleY(0.35);
+    opacity: 0.35;
   }
-  18%,
-  78% {
-    transform: scale(1);
+  12%,
+  82% {
+    transform: none;
     opacity: 1;
   }
+  92%,
   100% {
-    transform: scale(0.92);
-    opacity: 0.55;
+    transform: scaleX(0.2) scaleY(0.35);
+    opacity: 0.35;
+  }
+}
+
+@keyframes loader-frame {
+  0%,
+  8% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+  22%,
+  82% {
+    transform: none;
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+}
+
+@keyframes loader-city {
+  0%,
+  14% {
+    transform: scaleY(0.08);
+    opacity: 0.15;
+  }
+  38%,
+  82% {
+    transform: none;
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: scaleY(0.08);
+    opacity: 0.15;
+  }
+}
+
+@keyframes loader-crane {
+  0%,
+  28% {
+    transform: rotate(-16deg) translateY(-8px);
+    opacity: 0;
+  }
+  46% {
+    transform: rotate(6deg);
+    opacity: 1;
+  }
+  62%,
+  82% {
+    transform: none;
+    opacity: 1;
+  }
+  94%,
+  100% {
+    transform: rotate(-16deg) translateY(-8px);
+    opacity: 0;
   }
 }
 
@@ -107,8 +201,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .loader-scene,
+  .loader-mark__base,
+  .loader-mark__frame,
+  .loader-mark__city,
+  .loader-mark__crane,
   .global-loader__status {
     animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 }
