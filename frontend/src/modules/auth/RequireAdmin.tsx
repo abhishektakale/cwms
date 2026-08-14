@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from './useAuth'
 import { isAdmin } from '../../shared/api/auth'
 
 export function RequireAdmin({ children }: { children: ReactNode }) {

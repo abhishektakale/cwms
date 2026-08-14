@@ -7,7 +7,7 @@ import {
   dashboardSummary,
 } from '../../shared/api/domain'
 import { listWorks, STATUS_LABEL, type Work } from '../../shared/api/works'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 import { ROLE_LABEL } from '../../shared/api/auth'
 import { formatDateTime } from '../../shared/format/datetime'
 import { CwmsLogo } from '../../shared/brand/CwmsLogo'

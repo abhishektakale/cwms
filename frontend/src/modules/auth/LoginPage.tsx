@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { useAuth } from './AuthContext'
+import { useAuth } from './useAuth'
 import type { ProblemDetails } from '../../shared/api/auth'
 import { CwmsLogo } from '../../shared/brand/CwmsLogo'
 import './login.css'

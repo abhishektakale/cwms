@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import {
   createEstimate,
   createSchedule,
@@ -12,7 +12,7 @@ import {
 import { canMutate } from '../../shared/api/auth'
 import { formatDate } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 
 export function WorkChildrenPanels({
   workId,
@@ -27,18 +27,18 @@ export function WorkChildrenPanels({
   const [schedule, setSchedule] = useState<ScheduleActivity[]>([])
   const [error, setError] = useState<string | null>(null)
 
-  async function reload() {
+  const reload = useCallback(async () => {
     const [e, s] = await Promise.all([
       listEstimates(workId),
       listSchedule(workId),
     ])
     setEstimates(e.items)
     setSchedule(s.items)
-  }
+  }, [workId])
 
   useEffect(() => {
     void reload().catch((err: Error) => setError(err.message))
-  }, [workId])
+  }, [reload])
 
   async function onEstimate(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()

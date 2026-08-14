@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   STATUS_LABEL,
@@ -7,7 +7,7 @@ import {
   type Work,
   type WorkStatus,
 } from '../../shared/api/works'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 import { canMutate } from '../../shared/api/auth'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import './works.css'
@@ -24,7 +24,7 @@ export function WorkRegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -41,10 +41,31 @@ export function WorkRegisterPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [q, status])
 
   useEffect(() => {
-    void load()
+    let cancelled = false
+    async function boot() {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await listWorks({
+          pageSize: '50',
+          sort: '-updatedAt',
+        })
+        if (cancelled) return
+        setItems(res.items)
+        setTotal(res.page.totalItems)
+      } catch (err) {
+        if (!cancelled) setError((err as Error).message)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    void boot()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function onDelete() {

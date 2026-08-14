@@ -11,7 +11,7 @@ import {
 } from '../../shared/api/domain'
 import { canMutate } from '../../shared/api/auth'
 import { EmptyState } from '../../shared/ui/EmptyState'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 import './reports.css'
 
 function columnLabel(key: string) {

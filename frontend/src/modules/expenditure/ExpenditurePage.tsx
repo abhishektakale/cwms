@@ -16,7 +16,7 @@ import { listWorks } from '../../shared/api/works'
 import { canMutate } from '../../shared/api/auth'
 import { formatDate } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 
 export function ExpenditurePage() {
   const { user } = useAuth()

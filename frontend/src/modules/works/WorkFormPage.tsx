@@ -12,7 +12,7 @@ import {
   type WorkStatus,
 } from '../../shared/api/works'
 import { listMasters, type MasterOption } from '../../shared/api/masters'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 import { canMutate } from '../../shared/api/auth'
 import { WorkChildrenPanels } from './WorkChildrenPanels'
 import './works.css'

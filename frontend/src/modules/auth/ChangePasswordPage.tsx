@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { type FormEvent, useMemo, useState } from 'react'
-import { useAuth } from './AuthContext'
+import { useAuth } from './useAuth'
 import type { ProblemDetails } from '../../shared/api/auth'
 import './change-password.css'
 

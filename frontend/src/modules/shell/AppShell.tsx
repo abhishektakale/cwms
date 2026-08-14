@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 import { ROLE_LABEL, isAdmin } from '../../shared/api/auth'
 import { globalSearch } from '../../shared/api/domain'
 import { CwmsLogo } from '../../shared/brand/CwmsLogo'

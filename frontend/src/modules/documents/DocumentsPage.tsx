@@ -12,7 +12,7 @@ import { listWorks } from '../../shared/api/works'
 import { canMutate } from '../../shared/api/auth'
 import { formatBytes, formatDateTime } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../auth/useAuth'
 
 export function DocumentsPage() {
   const { user } = useAuth()
