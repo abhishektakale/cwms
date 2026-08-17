@@ -8,6 +8,7 @@ import {
   releaseWorkLock,
   updateWork,
   type GstType,
+  type WorkBudgetBreakdown,
   type WorkInput,
   type WorkStatus,
 } from '../../shared/api/works'
@@ -15,6 +16,7 @@ import { listMasters, type MasterOption } from '../../shared/api/masters'
 import { useAuth } from '../auth/useAuth'
 import { canMutate } from '../../shared/api/auth'
 import { WorkChildrenPanels } from './WorkChildrenPanels'
+import { WorkBudgetBar } from './WorkBudgetBar'
 import './works.css'
 
 type Mode = 'new' | 'edit' | 'view'
@@ -104,6 +106,11 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [loaded, setLoaded] = useState(mode === 'new')
+  const [budgetSnapshot, setBudgetSnapshot] = useState<{
+    totalWorkValue: string
+    balanceWorkValue: string
+    breakdown: WorkBudgetBreakdown | null
+  } | null>(null)
 
   useEffect(() => {
     lockTokenRef.current = lockToken
@@ -137,6 +144,11 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
         const work = await getWork(workId)
         if (cancelled) return
         setWorkCode(work.workCode)
+        setBudgetSnapshot({
+          totalWorkValue: work.totalWorkValue,
+          balanceWorkValue: work.balanceWorkValue,
+          breakdown: work.budgetBreakdown ?? null,
+        })
         setForm({
           workName: work.workName,
           workCategoryId: work.workCategoryId,
@@ -582,7 +594,15 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
           )}
 
           {tab === 'summary' && (
-            <dl className="work-form__summary">
+            <>
+              <WorkBudgetBar
+                totalWorkValue={
+                  budgetSnapshot?.totalWorkValue ?? preview.grand
+                }
+                balanceWorkValue={budgetSnapshot?.balanceWorkValue}
+                breakdown={budgetSnapshot?.breakdown}
+              />
+              <dl className="work-form__summary">
               <div>
                 <dt>Work</dt>
                 <dd>{form.workName || '—'}</dd>
@@ -639,6 +659,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 <dd>{form.financialProgressPercent || '0'}</dd>
               </div>
             </dl>
+            </>
           )}
 
           <div className="work-form__footer">

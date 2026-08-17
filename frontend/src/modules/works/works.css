@@ -295,6 +295,134 @@
   color: var(--cwms-on-surface);
 }
 
+.work-budget {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--cwms-border-hairline);
+  border-radius: 8px;
+  background: var(--cwms-surface-container-low);
+}
+
+.work-budget__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.work-budget__head h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.work-budget__total {
+  margin: 0;
+  font-size: 13px;
+  color: var(--cwms-on-surface-variant);
+}
+
+.work-budget__total strong {
+  color: var(--cwms-on-surface);
+  font-weight: 700;
+}
+
+.work-budget__bar {
+  display: flex;
+  height: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--cwms-surface-container-highest);
+  border: 1px solid var(--cwms-border-hairline);
+}
+
+.work-budget__bar--over {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cwms-error) 35%, transparent);
+}
+
+.work-budget__seg {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  transition: width 0.25s ease;
+}
+
+.work-budget__seg--bill-work {
+  background: #102c4b;
+}
+
+.work-budget__seg--bill-gst {
+  background: #3d6a9e;
+}
+
+.work-budget__seg--expense {
+  background: #ea8f0c;
+}
+
+.work-budget__seg--expense-gst {
+  background: #f0b45a;
+}
+
+.work-budget__seg--remaining {
+  background: #94a3b8;
+}
+
+.work-budget__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 12px;
+  color: var(--cwms-on-surface-variant);
+}
+
+.work-budget__list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.work-budget__list li {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto;
+  gap: 8px 12px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.work-budget__list-total {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--cwms-border-hairline);
+  font-weight: 600;
+}
+
+.work-budget__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.work-budget__label {
+  color: var(--cwms-on-surface);
+}
+
+.work-budget__amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.work-budget__pct {
+  min-width: 3.5rem;
+  text-align: right;
+  color: var(--cwms-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 800px) {
   .work-form__grid {
     grid-template-columns: 1fr;

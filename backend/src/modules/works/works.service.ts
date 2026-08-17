@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  ExpenseStatus,
   Prisma,
   SideCode,
   TrafficLight,
@@ -58,6 +59,11 @@ const LINEAR_CATEGORIES = new Set([
   'PQC',
   'Safety Work',
 ]);
+
+const QUALIFYING_EXPENSES: ExpenseStatus[] = [
+  ExpenseStatus.Paid,
+  ExpenseStatus.AssignedToWork,
+];
 
 @Injectable()
 export class WorksService {
@@ -180,7 +186,8 @@ export class WorksService {
         detail: 'Work not found',
       });
     }
-    return this.toDto(row);
+    const breakdown = await this.budgetBreakdown(id);
+    return { ...this.toDto(row), budgetBreakdown: breakdown };
   }
 
   async create(body: WorkWriteDto, user: User) {
@@ -562,6 +569,38 @@ export class WorksService {
       lockToken: lock.lockToken,
       expiresAt: lock.expiresAt.toISOString(),
       lockedBy: { id: lock.lockedBy.id, name: lock.lockedBy.name },
+    };
+  }
+
+  private async budgetBreakdown(workId: string) {
+    const money = (d: Prisma.Decimal | null | undefined) =>
+      (d ?? new Prisma.Decimal(0)).toFixed(2);
+
+    const billAgg = await this.prisma.bill.aggregate({
+      where: { workId },
+      _sum: {
+        currentWorkPortionAmount: true,
+        gstAmount: true,
+        grossBillAmount: true,
+      },
+    });
+
+    const expAgg = await this.prisma.expense.aggregate({
+      where: { workId, status: { in: QUALIFYING_EXPENSES } },
+      _sum: {
+        expenseValue: true,
+        gstAmount: true,
+        totalAmount: true,
+      },
+    });
+
+    return {
+      billWorkPortion: money(billAgg._sum.currentWorkPortionAmount),
+      billGst: money(billAgg._sum.gstAmount),
+      grossBillsRaised: money(billAgg._sum.grossBillAmount),
+      expenseValue: money(expAgg._sum.expenseValue),
+      expenseGst: money(expAgg._sum.gstAmount),
+      totalExpenditure: money(expAgg._sum.totalAmount),
     };
   }
 

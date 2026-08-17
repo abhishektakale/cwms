@@ -6,6 +6,15 @@ export type GstType = 'GstExtra' | 'GstIncluded'
 export type TrafficLight = 'Green' | 'Yellow' | 'Red'
 export type Side = 'LHS' | 'RHS' | 'Both'
 
+export type WorkBudgetBreakdown = {
+  billWorkPortion: string
+  billGst: string
+  grossBillsRaised: string
+  expenseValue: string
+  expenseGst: string
+  totalExpenditure: string
+}
+
 export type Work = {
   id: string
   workCode: string
@@ -27,6 +36,12 @@ export type Work = {
   miscellaneousLabel: string | null
   miscellaneousValue: string
   balanceWorkValue: string
+  grossBillsRaised?: string
+  paymentsReceived?: string
+  outstandingAmount?: string
+  totalExpenditure?: string
+  estimatedProfitLoss?: string
+  budgetBreakdown?: WorkBudgetBreakdown
   financialProgressPercent: string
   state: string | null
   district: string | null
