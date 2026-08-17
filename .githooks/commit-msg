@@ -1,0 +1,2 @@
+#!/bin/sh
+node "$(dirname "$0")/strip-cursor-trailer.js" "$1"

@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { LoaderMark } from './LoaderMark'
+import { LOADER_CYCLE_MS } from './loader-cycle'
 import { subscribeRequests } from './requestTracker'
 import './global-loader.css'
 
 const SHOW_DELAY_MS = 120
-/** Keep in sync with `--loader-cycle` in global-loader.css */
-const CYCLE_MS = 5800
 
 export function GlobalLoader() {
   const [inflight, setInflight] = useState(0)
@@ -27,8 +26,8 @@ export function GlobalLoader() {
     if (!visible) return
 
     const started = cycleStartedAt.current ?? performance.now()
-    const elapsed = (performance.now() - started) % CYCLE_MS
-    const remaining = elapsed === 0 ? 0 : CYCLE_MS - elapsed
+    const elapsed = (performance.now() - started) % LOADER_CYCLE_MS
+    const remaining = elapsed === 0 ? 0 : LOADER_CYCLE_MS - elapsed
     const timer = window.setTimeout(() => {
       cycleStartedAt.current = null
       setVisible(false)
@@ -41,6 +40,7 @@ export function GlobalLoader() {
   return (
     <div
       className="global-loader"
+      style={{ ['--loader-cycle' as string]: `${LOADER_CYCLE_MS}ms` }}
       role="status"
       aria-live="polite"
       aria-busy="true"

@@ -1,0 +1,4 @@
+#!/bin/sh
+MSG_FILE="$1"
+# Cursor may inject trailers via prepare-commit-msg as well as commit-msg.
+node "$(dirname "$0")/strip-cursor-trailer.js" "$MSG_FILE"

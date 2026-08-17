@@ -1,7 +1,6 @@
 .global-loader {
   --loader-navy: var(--cwms-brand-navy, #102c4b);
   --loader-gold: var(--cwms-brand-orange, #ea8f0c);
-  --loader-cycle: 5.8s;
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -51,7 +50,7 @@
 .loader-mark__city,
 .loader-mark__crane {
   transform-box: fill-box;
-  animation-duration: var(--loader-cycle);
+  animation-duration: var(--loader-cycle, 5800ms);
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   animation-iteration-count: infinite;
 }
@@ -107,7 +106,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--loader-navy);
-  animation: loader-status var(--loader-cycle) ease-in-out infinite;
+  animation: loader-status var(--loader-cycle, 5800ms) ease-in-out infinite;
 }
 
 @keyframes loader-base {

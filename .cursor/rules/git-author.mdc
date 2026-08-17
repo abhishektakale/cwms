@@ -12,3 +12,4 @@ Only `Abhishek Takale <abhishek.takale1995@gmail.com>` may appear as author or c
 - Do not use `git commit --trailer`.
 - Do not run `git config` to change user.name or user.email.
 - After committing, if a trailer was injected, strip it (rewrite the commit object if not yet pushed) before pushing.
+- Repo `.githooks/commit-msg` strips Cursor/cursoragent trailers. `npm install` sets `core.hooksPath` to `.githooks`.
