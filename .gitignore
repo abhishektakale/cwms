@@ -34,6 +34,7 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+.cursor/
 
 # Python leftovers from local asset scripts
 __pycache__/
