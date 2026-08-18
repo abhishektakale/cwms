@@ -443,7 +443,7 @@ function BillForm({
 
   return (
     <form onSubmit={onSubmit} className="bill-sheet">
-      <div className="bill-sheet__grid">
+      <div className="bill-sheet__meta">
         <label>
           Type *
           <select
@@ -478,6 +478,7 @@ function BillForm({
         <label>
           Work portion *
           <input
+            className="numeric"
             value={workPortion}
             onChange={(e) => setWorkPortion(e.target.value)}
             required
@@ -485,102 +486,114 @@ function BillForm({
         </label>
         <label>
           GST *
-          <input value={gstAmount} onChange={(e) => setGstAmount(e.target.value)} required />
+          <input
+            className="numeric"
+            value={gstAmount}
+            onChange={(e) => setGstAmount(e.target.value)}
+            required
+          />
         </label>
+        <p className="bill-sheet__total">
+          Subtotal <strong>₹ {inr(preview.ab)}</strong>
+        </p>
       </div>
-      <p className="bill-sheet__total">
-        Subtotal <strong>₹ {inr(preview.ab)}</strong>
-      </p>
 
       <h2>Add any others</h2>
-      {additions.map((line, i) => (
-        <div className="bill-sheet__line" key={`c-${i}`}>
-          <input
-            placeholder="Description"
-            value={line.name}
-            onChange={(e) =>
-              setAdditions((rows) =>
-                rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
-              )
-            }
-          />
-          <input
-            value={line.amount}
-            onChange={(e) =>
-              setAdditions((rows) =>
-                rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
-              )
-            }
-          />
-        </div>
-      ))}
-      <button
-        type="button"
-        className="works__btn"
-        onClick={() => setAdditions((rows) => [...rows, { name: '', amount: '0' }])}
-      >
-        Add line
-      </button>
-      <p className="bill-sheet__total">
-        Subtotal <strong>₹ {inr(preview.c)}</strong>
-      </p>
-      <p className="bill-sheet__total bill-sheet__total--emphasis">
-        Bill amount <strong>₹ {inr(preview.billAmount)}</strong>
-      </p>
+      <div className="bill-sheet__grid">
+        {additions.map((line, i) => (
+          <div className="bill-sheet__line" key={`c-${i}`}>
+            <input
+              placeholder="Description"
+              value={line.name}
+              onChange={(e) =>
+                setAdditions((rows) =>
+                  rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
+                )
+              }
+            />
+            <input
+              className="numeric"
+              value={line.amount}
+              onChange={(e) =>
+                setAdditions((rows) =>
+                  rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
+                )
+              }
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          className="works__btn bill-sheet__add"
+          onClick={() => setAdditions((rows) => [...rows, { name: '', amount: '0' }])}
+        >
+          Add line
+        </button>
+        <p className="bill-sheet__total">
+          Subtotal <strong>₹ {inr(preview.c)}</strong>
+        </p>
+        <p className="bill-sheet__total bill-sheet__total--emphasis">
+          Bill amount <strong>₹ {inr(preview.billAmount)}</strong>
+        </p>
+      </div>
 
       <h2>Deductions</h2>
-      {STANDARD_DEDUCTIONS.map((head) => (
-        <label key={head.code} className="bill-sheet__field">
-          {head.name}
-          <input
-            value={standard[head.name] ?? '0'}
-            onChange={(e) =>
-              setStandard((prev) => ({ ...prev, [head.name]: e.target.value }))
-            }
-          />
-          {head.hint && <small className="bill-sheet__hint">{head.hint}</small>}
-        </label>
-      ))}
-      {num(standard['Part-V']) > 0 && (
-        <label>
-          Part-V remark
-          <input value={partVRemark} onChange={(e) => setPartVRemark(e.target.value)} />
-        </label>
-      )}
-      {others.map((line, i) => (
-        <div className="bill-sheet__line" key={`dn-${i}`}>
-          <input
-            placeholder="Other deduction"
-            value={line.name}
-            onChange={(e) =>
-              setOthers((rows) =>
-                rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
-              )
-            }
-          />
-          <input
-            value={line.amount}
-            onChange={(e) =>
-              setOthers((rows) =>
-                rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
-              )
-            }
-          />
-        </div>
-      ))}
-      <button
-        type="button"
-        className="works__btn"
-        onClick={() => setOthers((rows) => [...rows, { name: '', amount: '0' }])}
-      >
-        Add other deduction
-      </button>
-      <p className="bill-sheet__total">
-        Subtotal <strong>₹ {inr(preview.d)}</strong>
-      </p>
-      <p className="bill-sheet__total bill-sheet__total--emphasis">
-        Cheque amount <strong>₹ {inr(preview.cheque)}</strong>
-      </p>
+      <div className="bill-sheet__grid">
+        {STANDARD_DEDUCTIONS.map((head) => (
+          <label key={head.code}>
+            {head.name}
+            <input
+              className="numeric"
+              value={standard[head.name] ?? '0'}
+              onChange={(e) =>
+                setStandard((prev) => ({ ...prev, [head.name]: e.target.value }))
+              }
+            />
+            {head.hint && <small className="bill-sheet__hint">{head.hint}</small>}
+          </label>
+        ))}
+        {num(standard['Part-V']) > 0 && (
+          <label className="bill-sheet__full">
+            Part-V remark
+            <input value={partVRemark} onChange={(e) => setPartVRemark(e.target.value)} />
+          </label>
+        )}
+        {others.map((line, i) => (
+          <div className="bill-sheet__line" key={`dn-${i}`}>
+            <input
+              placeholder="Other deduction"
+              value={line.name}
+              onChange={(e) =>
+                setOthers((rows) =>
+                  rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
+                )
+              }
+            />
+            <input
+              className="numeric"
+              value={line.amount}
+              onChange={(e) =>
+                setOthers((rows) =>
+                  rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
+                )
+              }
+            />
+          </div>
+        ))}
+        <button
+          type="button"
+          className="works__btn bill-sheet__add"
+          onClick={() => setOthers((rows) => [...rows, { name: '', amount: '0' }])}
+        >
+          Add other deduction
+        </button>
+        <p className="bill-sheet__total">
+          Subtotal <strong>₹ {inr(preview.d)}</strong>
+        </p>
+        <p className="bill-sheet__total bill-sheet__total--emphasis">
+          Cheque amount <strong>₹ {inr(preview.cheque)}</strong>
+        </p>
+      </div>
 
       <div className="bill-sheet__grid">
         <label>
@@ -601,6 +614,7 @@ function BillForm({
         <label>
           Amount received
           <input
+            className="numeric"
             value={amountReceived}
             onChange={(e) => setAmountReceived(e.target.value)}
           />
