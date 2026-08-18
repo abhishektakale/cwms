@@ -488,7 +488,10 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 <p className="work-form__hint">
                   Add testing charges, royalty, electrical, water, or any other extra
                 </p>
-                {(form.miscellaneousItems ?? [emptyMiscLine()]).map((line, i) => (
+                {(form.miscellaneousItems ?? [emptyMiscLine()]).map((line, i) => {
+                  const lines = form.miscellaneousItems ?? [emptyMiscLine()]
+                  const last = i === lines.length - 1
+                  return (
                   <div className="work-misc__row" key={i}>
                     <input
                       disabled={readOnly}
@@ -518,41 +521,52 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                         }))
                       }
                     />
-                    {!readOnly && (form.miscellaneousItems?.length ?? 0) > 1 && (
-                      <button
-                        type="button"
-                        className="works__btn"
-                        onClick={() =>
-                          setForm((f) => ({
-                            ...f,
-                            miscellaneousItems: (f.miscellaneousItems ?? []).filter(
-                              (_, idx) => idx !== i,
-                            ),
-                          }))
-                        }
-                      >
-                        Remove
-                      </button>
+                    {!readOnly && (
+                      <div className="work-misc__actions">
+                        {last && (
+                          <button
+                            type="button"
+                            className="work-misc__icon work-misc__icon--add"
+                            aria-label="Add miscellaneous line"
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                miscellaneousItems: [
+                                  ...(f.miscellaneousItems ?? []),
+                                  emptyMiscLine(),
+                                ],
+                              }))
+                            }
+                          >
+                            <span className="material-symbols-outlined" aria-hidden>
+                              add
+                            </span>
+                          </button>
+                        )}
+                        {lines.length > 1 && (
+                          <button
+                            type="button"
+                            className="work-misc__icon work-misc__icon--remove"
+                            aria-label="Remove miscellaneous line"
+                            onClick={() =>
+                              setForm((f) => ({
+                                ...f,
+                                miscellaneousItems: (f.miscellaneousItems ?? []).filter(
+                                  (_, idx) => idx !== i,
+                                ),
+                              }))
+                            }
+                          >
+                            <span className="material-symbols-outlined" aria-hidden>
+                              remove
+                            </span>
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
-                ))}
-                {!readOnly && (
-                  <button
-                    type="button"
-                    className="works__btn"
-                    onClick={() =>
-                      setForm((f) => ({
-                        ...f,
-                        miscellaneousItems: [
-                          ...(f.miscellaneousItems ?? []),
-                          emptyMiscLine(),
-                        ],
-                      }))
-                    }
-                  >
-                    Add line
-                  </button>
-                )}
+                  )
+                })}
                 <p className="work-misc__total">
                   Miscellaneous total ₹ {miscTotal(form.miscellaneousItems).toFixed(2)}
                 </p>
