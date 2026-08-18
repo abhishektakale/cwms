@@ -43,6 +43,13 @@ export class SessionAuthGuard implements CanActivate {
 
     if (resolved?.user) {
       req.user = resolved.user;
+      if (resolved.sessionToken && resolved.expiresAt) {
+        this.authService.refreshSessionCookie(
+          res,
+          resolved.sessionToken,
+          resolved.expiresAt,
+        );
+      }
       return true;
     }
 

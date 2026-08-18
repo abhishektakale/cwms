@@ -12,6 +12,7 @@ import {
   me,
   refreshSession,
 } from '../../shared/api/auth'
+import { subscribeAuthFailure } from '../../shared/api/session'
 import { AuthContext, type AuthState } from './useAuth'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -38,6 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void bootstrap()
   }, [bootstrap])
+
+  useEffect(() => {
+    return subscribeAuthFailure(() => setUser(null))
+  }, [])
 
   const login = useCallback(
     async (username: string, password: string, rememberMe: boolean) => {

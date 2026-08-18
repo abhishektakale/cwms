@@ -209,7 +209,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
     return () => {
       cancelled = true
       if (mode === 'edit' && workId && lockTokenRef.current) {
-        void releaseWorkLock(workId, lockTokenRef.current)
+        void releaseWorkLock(workId, lockTokenRef.current).catch(() => undefined)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

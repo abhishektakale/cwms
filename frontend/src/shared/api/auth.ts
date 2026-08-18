@@ -1,4 +1,5 @@
 import { trackRequest } from '../loading/requestTracker'
+import { emitAuthFailure } from './session'
 
 export type RoleCode =
   | 'Administrator'
@@ -60,15 +61,16 @@ export async function apiFetch<T>(
   return trackRequest(
     (async () => {
       const res = await fetch(`${API_BASE}${path}`, {
+        ...init,
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...(init?.headers ?? {}),
         },
-        ...init,
       })
       if (!res.ok) {
         const problem = await parseError(res)
+        if (res.status === 401) emitAuthFailure(path)
         const err = new Error(
           problem.detail ?? problem.title ?? 'Request failed',
         ) as Error & {

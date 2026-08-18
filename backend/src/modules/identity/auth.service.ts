@@ -312,6 +312,8 @@ export class AuthService {
     user: User;
     sessionId: string;
     expired?: boolean;
+    expiresAt?: Date;
+    sessionToken?: string;
   } | null> {
     const sessionToken = req.cookies?.[SESSION_COOKIE] as string | undefined;
     if (!sessionToken) {
@@ -342,15 +344,21 @@ export class AuthService {
       return null;
     }
 
+    const expiresAt = new Date(Date.now() + idleLimit);
     await this.prisma.authSession.update({
       where: { id: session.id },
       data: {
         lastSeenAt: new Date(),
-        expiresAt: new Date(Date.now() + idleLimit),
+        expiresAt,
       },
     });
 
-    return { user: session.user, sessionId: session.id };
+    return {
+      user: session.user,
+      sessionId: session.id,
+      expiresAt,
+      sessionToken,
+    };
   }
 
   private async createSession(userId: string, meta: RequestMeta) {
@@ -380,6 +388,10 @@ export class AuthService {
       },
     });
     return { token, expiresAt };
+  }
+
+  refreshSessionCookie(res: Response, token: string, expiresAt: Date) {
+    this.setSessionCookie(res, token, expiresAt);
   }
 
   private setSessionCookie(res: Response, token: string, expiresAt: Date) {

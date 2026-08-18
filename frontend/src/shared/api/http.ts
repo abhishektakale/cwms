@@ -1,5 +1,6 @@
 import { API_BASE, type ProblemDetails } from './auth'
 import { trackRequest } from '../loading/requestTracker'
+import { emitAuthFailure } from './session'
 
 export async function apiFetch<T>(
   path: string,
@@ -8,12 +9,12 @@ export async function apiFetch<T>(
   return trackRequest(
     (async () => {
       const res = await fetch(`${API_BASE}${path}`, {
+        ...init,
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           ...(init?.headers ?? {}),
         },
-        ...init,
       })
       if (!res.ok) {
         let problem: ProblemDetails
@@ -26,6 +27,7 @@ export async function apiFetch<T>(
             detail: 'Request failed',
           }
         }
+        if (res.status === 401) emitAuthFailure(path)
         const err = new Error(
           problem.detail ?? problem.title ?? 'Request failed',
         ) as Error & { status: number; problem: ProblemDetails }
