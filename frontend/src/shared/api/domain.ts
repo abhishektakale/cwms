@@ -25,6 +25,14 @@ export type ScheduleActivity = {
   progressPercent?: string
 }
 
+export type BillLine = {
+  id?: string
+  name: string
+  amount: string
+  kind?: string
+  code?: string | null
+}
+
 export type Bill = {
   id: string
   workId: string
@@ -34,15 +42,18 @@ export type Bill = {
   billType: 'RaBill' | 'FinalBill'
   raBillNo?: string | null
   billDate: string
+  currentWorkPortionAmount?: string
+  gstAmount?: string
+  additions?: BillLine[]
+  totalAdditions?: string
   grossBillAmount: string
+  deductions?: BillLine[]
   totalDeductions: string
   netBillAmount: string
+  chequeAmount?: string
   paymentStatus: 'Pending' | 'PartiallyReceived' | 'FullyReceived'
   amountReceived?: string
   outstandingAmount?: string
-  gstAmount?: string
-  currentWorkPortionAmount?: string
-  deductions?: Array<{ id?: string; name: string; amount: string; kind: string }>
 }
 
 export type ExpenseAttachment = {

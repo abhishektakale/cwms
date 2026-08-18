@@ -85,6 +85,10 @@ export class WorkRollupService {
       outstandingPositive: outstanding.gt(0),
     });
 
+    const financialProgress = work.totalWorkValue.gt(0)
+      ? gross.div(work.totalWorkValue).mul(100).toDecimalPlaces(4)
+      : new Prisma.Decimal(0);
+
     await db.work.update({
       where: { id: workId },
       data: {
@@ -94,6 +98,7 @@ export class WorkRollupService {
         totalExpenditure: expenditure,
         balanceWorkValue: balance,
         estimatedProfitLoss: profitLoss,
+        financialProgressPercent: financialProgress,
         trafficLight,
       },
     });

@@ -38,6 +38,7 @@ export default function App() {
                 element={<WorkFormPage mode="edit" />}
               />
               <Route path="/billing" element={<BillingPage />} />
+              <Route path="/billing/:workId" element={<BillingPage />} />
               <Route path="/expenditure" element={<ExpenditurePage />} />
               <Route path="/documents" element={<DocumentsPage />} />
               <Route path="/reports" element={<ReportsPage />} />

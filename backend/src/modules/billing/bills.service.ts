@@ -33,6 +33,7 @@ export type BillWrite = {
   previousBillAmount?: string | null;
   currentWorkPortionAmount: string;
   gstAmount: string;
+  additions?: Array<{ name?: string; amount: string }>;
   standardDeductions?: Record<string, string>;
   otherDeductions?: Array<{ name: string; amount: string; kind?: string }>;
   paymentStatus: 'Pending' | 'PartiallyReceived' | 'FullyReceived';
@@ -42,6 +43,47 @@ export type BillWrite = {
   bankName?: string | null;
   remarks?: string | null;
 };
+
+const STANDARD_HEADS: Array<{
+  code: string;
+  name: string;
+  aliases: string[];
+}> = [
+  {
+    code: 'D1',
+    name: 'Income Tax',
+    aliases: ['d1', 'tds', 'income tax', 'incometax'],
+  },
+  {
+    code: 'D2',
+    name: 'Security Deposit',
+    aliases: ['d2', 'security deposit', 'securitydeposit', 'sd'],
+  },
+  { code: 'D3', name: 'SGST', aliases: ['d3', 'sgst'] },
+  { code: 'D4', name: 'CGST', aliases: ['d4', 'cgst'] },
+  {
+    code: 'D5',
+    name: 'Work Insurance',
+    aliases: ['d5', 'work insurance', 'workinsurance', 'insurance'],
+  },
+  {
+    code: 'D6',
+    name: 'Labour Cess',
+    aliases: ['d6', 'labour cess', 'labor cess', 'cess'],
+  },
+  { code: 'D7', name: 'Royalty', aliases: ['d7', 'royalty'] },
+  { code: 'D8', name: 'Part-V', aliases: ['d8', 'part-v', 'part v', 'partv'] },
+];
+
+function matchStandardHead(key: string) {
+  const k = key.trim().toLowerCase();
+  return STANDARD_HEADS.find(
+    (h) =>
+      h.aliases.includes(k) ||
+      h.name.toLowerCase() === k ||
+      h.code.toLowerCase() === k,
+  );
+}
 
 @Injectable()
 export class BillsService {
@@ -113,7 +155,11 @@ export class BillsService {
       this.prisma.bill.count({ where }),
       this.prisma.bill.findMany({
         where,
-        include: { work: true, deductions: { orderBy: { sortOrder: 'asc' } } },
+        include: {
+          work: true,
+          deductions: { orderBy: { sortOrder: 'asc' } },
+          additions: { orderBy: { sortOrder: 'asc' } },
+        },
         orderBy: { billDate: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -134,7 +180,11 @@ export class BillsService {
     await this.assertWork(workId);
     const rows = await this.prisma.bill.findMany({
       where: { workId },
-      include: { work: true, deductions: { orderBy: { sortOrder: 'asc' } } },
+      include: {
+        work: true,
+        deductions: { orderBy: { sortOrder: 'asc' } },
+        additions: { orderBy: { sortOrder: 'asc' } },
+      },
       orderBy: { billDate: 'desc' },
     });
     return { items: rows.map((r) => this.toDto(r)) };
@@ -179,8 +229,15 @@ export class BillsService {
           deductions: {
             create: computed.deductionRows,
           },
+          additions: {
+            create: computed.additionRows,
+          },
         },
-        include: { work: true, deductions: true },
+        include: {
+          work: true,
+          deductions: true,
+          additions: true,
+        },
       });
       await this.rollup.recalculate(body.workId, tx);
       return bill;
@@ -207,6 +264,7 @@ export class BillsService {
 
     const row = await this.prisma.$transaction(async (tx) => {
       await tx.billDeduction.deleteMany({ where: { billId: id } });
+      await tx.billAddition.deleteMany({ where: { billId: id } });
       const bill = await tx.bill.update({
         where: { id },
         data: {
@@ -231,8 +289,9 @@ export class BillsService {
           remarks: body.remarks?.trim() || null,
           updatedByUserId: user.id,
           deductions: { create: computed.deductionRows },
+          additions: { create: computed.additionRows },
         },
-        include: { work: true, deductions: true },
+        include: { work: true, deductions: true, additions: true },
       });
       if (existing.workId !== workId) {
         await this.rollup.recalculate(existing.workId, tx);
@@ -281,11 +340,39 @@ export class BillsService {
         detail: 'Bill amounts must be ≥ 0',
       });
     }
-    const gross = current.add(gst);
+
+    const additionRows: Array<{
+      name: string;
+      amount: Prisma.Decimal;
+      sortOrder: number;
+    }> = [];
+    let addOrder = 0;
+    let totalAdd = new Prisma.Decimal(0);
+    for (const line of body.additions ?? []) {
+      const amount = dec(line.amount);
+      if (amount.lt(0)) {
+        throw new BadRequestException({
+          title: 'Bad Request',
+          status: 400,
+          code: 'AMOUNT_NEGATIVE',
+          detail: 'Bill amounts must be ≥ 0',
+        });
+      }
+      if (amount.lte(0)) continue;
+      additionRows.push({
+        name: (line.name ?? 'Other').trim() || 'Other',
+        amount,
+        sortOrder: addOrder++,
+      });
+      totalAdd = totalAdd.add(amount);
+    }
+
+    const gross = current.add(gst).add(totalAdd);
     const deductionRows: Array<{
       name: string;
       amount: Prisma.Decimal;
       kind: DeductionKind;
+      code?: string | null;
       deductionHeadId?: string | null;
       sortOrder: number;
     }> = [];
@@ -296,16 +383,19 @@ export class BillsService {
       for (const [name, amountStr] of Object.entries(body.standardDeductions)) {
         const amount = dec(amountStr);
         if (amount.lte(0)) continue;
+        const standard = matchStandardHead(name);
+        const headName = standard?.name ?? name;
         const head = await this.prisma.masterOption.findFirst({
           where: {
             masterType: MasterType.deduction_heads,
-            name: { equals: name, mode: 'insensitive' },
+            name: { equals: headName, mode: 'insensitive' },
           },
         });
         deductionRows.push({
-          name: head?.name ?? name,
+          name: head?.name ?? headName,
           amount,
           kind: DeductionKind.Standard,
+          code: standard?.code ?? null,
           deductionHeadId: head?.id ?? null,
           sortOrder: order++,
         });
@@ -319,6 +409,7 @@ export class BillsService {
         name: line.name.trim(),
         amount,
         kind: DeductionKind.Other,
+        code: 'Dn',
         sortOrder: order++,
       });
       totalDed = totalDed.add(amount);
@@ -352,6 +443,7 @@ export class BillsService {
       amountReceived,
       outstandingAmount: outstanding,
       deductionRows,
+      additionRows,
     };
   }
 
@@ -404,7 +496,11 @@ export class BillsService {
   private async findFull(id: string) {
     const row = await this.prisma.bill.findUnique({
       where: { id },
-      include: { work: true, deductions: { orderBy: { sortOrder: 'asc' } } },
+      include: {
+        work: true,
+        deductions: { orderBy: { sortOrder: 'asc' } },
+        additions: { orderBy: { sortOrder: 'asc' } },
+      },
     });
     if (!row) {
       throw new NotFoundException({
@@ -440,13 +536,24 @@ export class BillsService {
     bankName: string | null;
     remarks: string | null;
     work: { workCode: string; workName: string };
+    additions?: Array<{
+      id: string;
+      name: string;
+      amount: Prisma.Decimal;
+    }>;
     deductions: Array<{
       id: string;
       name: string;
       amount: Prisma.Decimal;
       kind: DeductionKind;
+      code?: string | null;
     }>;
   }) {
+    const additions = row.additions ?? [];
+    const totalAdditions = additions.reduce(
+      (sum, a) => sum.add(a.amount),
+      new Prisma.Decimal(0),
+    );
     return {
       id: row.id,
       workId: row.workId,
@@ -461,15 +568,23 @@ export class BillsService {
       previousBillAmount: money(row.previousBillAmount),
       currentWorkPortionAmount: money(row.currentWorkPortionAmount),
       gstAmount: money(row.gstAmount),
+      additions: additions.map((a) => ({
+        id: a.id,
+        name: a.name,
+        amount: money(a.amount),
+      })),
+      totalAdditions: money(totalAdditions),
       grossBillAmount: money(row.grossBillAmount),
       deductions: row.deductions.map((d) => ({
         id: d.id,
         name: d.name,
         amount: money(d.amount),
         kind: d.kind,
+        code: d.code ?? null,
       })),
       totalDeductions: money(row.totalDeductions),
       netBillAmount: money(row.netBillAmount),
+      chequeAmount: money(row.netBillAmount),
       paymentStatus: row.paymentStatus,
       paymentDate: toDateStr(row.paymentDate),
       amountReceived: money(row.amountReceived),

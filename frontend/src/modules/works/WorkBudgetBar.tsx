@@ -42,12 +42,13 @@ export function WorkBudgetBar({
   const budget = parseAmount(totalWorkValue)
   const billWork = parseAmount(breakdown?.billWorkPortion)
   const billGst = parseAmount(breakdown?.billGst)
+  const billAdditions = parseAmount(breakdown?.billAdditions)
   const expenseValue = parseAmount(breakdown?.expenseValue)
   const expenseGst = parseAmount(breakdown?.expenseGst)
   const remaining =
     balanceWorkValue != null
-      ? parseAmount(balanceWorkValue)
-      : Math.max(0, budget - billWork - billGst)
+      ? Math.max(0, Number(balanceWorkValue) || 0)
+      : Math.max(0, budget - billWork - billGst - billAdditions)
 
   const segments: Segment[] = [
     {
@@ -61,6 +62,12 @@ export function WorkBudgetBar({
       label: 'Bills — GST',
       amount: billGst,
       tone: 'work-budget__seg--bill-gst',
+    },
+    {
+      id: 'bill-add',
+      label: 'Bills — other additions',
+      amount: billAdditions,
+      tone: 'work-budget__seg--bill-add',
     },
     {
       id: 'expense',
@@ -82,10 +89,21 @@ export function WorkBudgetBar({
     },
   ].filter((s) => s.amount > 0)
 
-  const billedTotal = billWork + billGst
+  const billedTotal = billWork + billGst + billAdditions
   const spentTotal = expenseValue + expenseGst
   const utilizedTotal = billedTotal + spentTotal
   const overBudget = budget > 0 && billedTotal > budget
+
+  const statutory = [
+    { id: 'it', label: 'Income tax (TDS) withheld', amount: parseAmount(breakdown?.incomeTax) },
+    { id: 'sgst', label: 'SGST withheld', amount: parseAmount(breakdown?.sgst) },
+    { id: 'cgst', label: 'CGST withheld', amount: parseAmount(breakdown?.cgst) },
+    {
+      id: 'sd',
+      label: 'Security deposit withheld',
+      amount: parseAmount(breakdown?.securityDeposit),
+    },
+  ].filter((s) => s.amount > 0)
 
   return (
     <section className="work-budget" aria-labelledby="work-budget-title">
@@ -132,6 +150,21 @@ export function WorkBudgetBar({
             <span className="work-budget__amount numeric">{formatMoney(utilizedTotal)}</span>
             <span className="work-budget__pct numeric">{pctOfBudget(utilizedTotal, budget)}%</span>
           </li>
+          {statutory.length > 0 && (
+            <>
+              <li className="work-budget__list-head">
+                <span className="work-budget__label">Withheld on bills (all RA / final)</span>
+              </li>
+              {statutory.map((row) => (
+                <li key={row.id} className="work-budget__statutory">
+                  <span className="work-budget__swatch work-budget__seg--statutory" aria-hidden />
+                  <span className="work-budget__label">{row.label}</span>
+                  <span className="work-budget__amount numeric">{formatMoney(row.amount)}</span>
+                  <span className="work-budget__pct numeric">{pctOfBudget(row.amount, budget)}%</span>
+                </li>
+              ))}
+            </>
+          )}
         </ul>
       )}
     </section>

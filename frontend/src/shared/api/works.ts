@@ -9,10 +9,15 @@ export type Side = 'LHS' | 'RHS' | 'Both'
 export type WorkBudgetBreakdown = {
   billWorkPortion: string
   billGst: string
+  billAdditions?: string
   grossBillsRaised: string
   expenseValue: string
   expenseGst: string
   totalExpenditure: string
+  incomeTax?: string
+  sgst?: string
+  cgst?: string
+  securityDeposit?: string
 }
 
 export type Work = {

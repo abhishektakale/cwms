@@ -249,6 +249,11 @@
   color: var(--cwms-on-surface-variant);
 }
 
+.work-form__hint {
+  font-size: 12px;
+  color: var(--cwms-on-surface-variant);
+}
+
 .work-form__full {
   grid-column: 1 / -1;
 }
@@ -357,6 +362,10 @@
   background: #3d6a9e;
 }
 
+.work-budget__seg--bill-add {
+  background: #6d8fb8;
+}
+
 .work-budget__seg--expense {
   background: #ea8f0c;
 }
@@ -399,6 +408,23 @@
   padding-top: 8px;
   border-top: 1px dashed var(--cwms-border-hairline);
   font-weight: 600;
+}
+
+.work-budget__list-head {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--cwms-border-hairline);
+  font-weight: 600;
+  color: var(--cwms-on-surface-variant);
+  grid-template-columns: 1fr;
+}
+
+.work-budget__statutory .work-budget__amount {
+  color: #b42318;
+}
+
+.work-budget__seg--statutory {
+  background: #b42318;
 }
 
 .work-budget__swatch {

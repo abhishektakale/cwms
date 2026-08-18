@@ -242,12 +242,19 @@ export class WorksService {
     });
     const totals = await this.composeWrite(body, money, user.id);
     const balance = totals.totalWorkValue.sub(existing.grossBillsRaised);
+    const financialProgress = totals.totalWorkValue.gt(0)
+      ? existing.grossBillsRaised
+          .div(totals.totalWorkValue)
+          .mul(100)
+          .toDecimalPlaces(4)
+      : new Prisma.Decimal(0);
 
     const row = await this.prisma.work.update({
       where: { id },
       data: {
         ...totals,
         balanceWorkValue: balance,
+        financialProgressPercent: financialProgress,
       },
       include: { workCategory: true, clientDepartmentFormat: true },
     });
@@ -509,12 +516,6 @@ export class WorksService {
       miscellaneousLabel: body.miscellaneousLabel?.trim() || null,
       miscellaneousValue: misc.toDecimalPlaces(2),
       balanceWorkValue: total,
-      financialProgressPercent: new Prisma.Decimal(
-        body.financialProgressPercent === '' ||
-          body.financialProgressPercent == null
-          ? 0
-          : body.financialProgressPercent,
-      ),
       state: body.state?.trim() || null,
       district: body.district?.trim() || null,
       taluka: body.taluka?.trim() || null,
@@ -594,13 +595,46 @@ export class WorksService {
       },
     });
 
+    const addAgg = await this.prisma.billAddition.aggregate({
+      where: { bill: { workId } },
+      _sum: { amount: true },
+    });
+
+    const deductionRows = await this.prisma.billDeduction.findMany({
+      where: { bill: { workId } },
+      select: { code: true, name: true, amount: true },
+    });
+    const statutory = {
+      incomeTax: new Prisma.Decimal(0),
+      sgst: new Prisma.Decimal(0),
+      cgst: new Prisma.Decimal(0),
+      securityDeposit: new Prisma.Decimal(0),
+    };
+    for (const row of deductionRows) {
+      const key = `${row.code ?? ''} ${row.name}`.toLowerCase();
+      if (row.code === 'D1' || /\btds\b|income tax/.test(key)) {
+        statutory.incomeTax = statutory.incomeTax.add(row.amount);
+      } else if (row.code === 'D3' || /\bsgst\b/.test(key)) {
+        statutory.sgst = statutory.sgst.add(row.amount);
+      } else if (row.code === 'D4' || /\bcgst\b/.test(key)) {
+        statutory.cgst = statutory.cgst.add(row.amount);
+      } else if (row.code === 'D2' || /security deposit/.test(key)) {
+        statutory.securityDeposit = statutory.securityDeposit.add(row.amount);
+      }
+    }
+
     return {
       billWorkPortion: money(billAgg._sum.currentWorkPortionAmount),
       billGst: money(billAgg._sum.gstAmount),
+      billAdditions: money(addAgg._sum.amount),
       grossBillsRaised: money(billAgg._sum.grossBillAmount),
       expenseValue: money(expAgg._sum.expenseValue),
       expenseGst: money(expAgg._sum.gstAmount),
       totalExpenditure: money(expAgg._sum.totalAmount),
+      incomeTax: money(statutory.incomeTax),
+      sgst: money(statutory.sgst),
+      cgst: money(statutory.cgst),
+      securityDeposit: money(statutory.securityDeposit),
     };
   }
 

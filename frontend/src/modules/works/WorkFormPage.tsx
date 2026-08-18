@@ -572,14 +572,15 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 />
               </label>
               <label>
-                Financial Progress
+                Financial progress
                 <input
-                  disabled={readOnly}
-                  value={form.financialProgressPercent ?? '0'}
-                  onChange={(e) =>
-                    set('financialProgressPercent', e.target.value)
-                  }
+                  disabled
+                  value={`${form.financialProgressPercent || '0'}%`}
+                  readOnly
                 />
+                <small className="work-form__hint">
+                  From billing: billed amount (A+B+C) ÷ total work value
+                </small>
               </label>
               <label className="work-form__full">
                 Remarks
@@ -656,7 +657,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
               </div>
               <div>
                 <dt>Financial progress</dt>
-                <dd>{form.financialProgressPercent || '0'}</dd>
+                <dd>{form.financialProgressPercent || '0'}% (from billing)</dd>
               </div>
             </dl>
             </>

@@ -464,6 +464,7 @@ model Bill {
 
   work       Work            @relation(fields: [workId], references: [id], onDelete: Restrict)
   deductions BillDeduction[]
+  additions  BillAddition[]
 
   @@index([workId], map: "ix_bills_work")
   @@index([billDate], map: "ix_bills_date")
@@ -472,10 +473,24 @@ model Bill {
   @@map("bills")
 }
 
+model BillAddition {
+  id        String  @id @default(uuid()) @db.Uuid
+  billId    String  @map("bill_id") @db.Uuid
+  name      String  @db.VarChar(200)
+  amount    Decimal @db.Decimal(18, 2)
+  sortOrder Int     @default(0) @map("sort_order")
+
+  bill Bill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId], map: "ix_bill_additions_bill")
+  @@map("bill_additions")
+}
+
 model BillDeduction {
   id              String        @id @default(uuid()) @db.Uuid
   billId          String        @map("bill_id") @db.Uuid
   deductionHeadId String?       @map("deduction_head_id") @db.Uuid
+  code            String?       @db.VarChar(20)
   name            String        @db.VarChar(200)
   amount          Decimal       @db.Decimal(18, 2)
   kind            DeductionKind

@@ -13,6 +13,7 @@ import {
 import * as Prisma from '@prisma/client';
 import { BillType, PaymentStatus } from '@prisma/client';
 import {
+  IsArray,
   IsDateString,
   IsEnum,
   IsObject,
@@ -34,6 +35,15 @@ enum PaymentStatusDto {
   Pending = 'Pending',
   PartiallyReceived = 'PartiallyReceived',
   FullyReceived = 'FullyReceived',
+}
+
+class BillAdditionDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsString()
+  amount!: string;
 }
 
 class OtherDeductionDto {
@@ -79,6 +89,12 @@ class BillBodyDto implements BillWrite {
 
   @IsString()
   gstAmount!: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => BillAdditionDto)
+  additions?: BillAdditionDto[];
 
   @IsOptional()
   @IsObject()

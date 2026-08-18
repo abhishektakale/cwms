@@ -121,7 +121,7 @@ describe('Estimates & Bill rollups (e2e)', () => {
     expect(workBody.grossBillsRaised).toBe('590000.00');
     expect(workBody.paymentsReceived).toBe('200000.00');
     expect(workBody.balanceWorkValue).toBe('590000.00');
-    expect(Number(workBody.financialProgressPercent)).toBe(0);
+    expect(Number(workBody.financialProgressPercent)).toBe(50);
   });
 
   it('blocks work delete when children exist', async () => {
