@@ -42,6 +42,19 @@
   align-items: start;
 }
 
+.bill-sheet__misc-row {
+  grid-column: 1 / -1;
+}
+
+.bill-sheet__misc-row input {
+  width: 100%;
+}
+
+.bill-sheet__misc-row--empty {
+  grid-template-columns: auto;
+  justify-content: start;
+}
+
 .bill-sheet__full,
 .bill-sheet__total,
 .bill-sheet__add,

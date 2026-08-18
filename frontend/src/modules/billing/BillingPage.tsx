@@ -500,35 +500,61 @@ function BillForm({
 
       <h2>Add any others</h2>
       <div className="bill-sheet__grid">
-        {additions.map((line, i) => (
-          <div className="bill-sheet__line" key={`c-${i}`}>
-            <input
-              placeholder="Description"
-              value={line.name}
-              onChange={(e) =>
-                setAdditions((rows) =>
-                  rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
-                )
-              }
-            />
-            <input
-              className="numeric"
-              value={line.amount}
-              onChange={(e) =>
-                setAdditions((rows) =>
-                  rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
-                )
-              }
-            />
-          </div>
-        ))}
-        <button
-          type="button"
-          className="works__btn bill-sheet__add"
-          onClick={() => setAdditions((rows) => [...rows, { name: '', amount: '0' }])}
-        >
-          Add line
-        </button>
+        {additions.map((line, i) => {
+          const last = i === additions.length - 1
+          return (
+            <div className="bill-sheet__misc-row work-misc__row" key={`c-${i}`}>
+              <input
+                placeholder="Description"
+                value={line.name}
+                onChange={(e) =>
+                  setAdditions((rows) =>
+                    rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
+                  )
+                }
+              />
+              <input
+                className="numeric"
+                value={line.amount}
+                onChange={(e) =>
+                  setAdditions((rows) =>
+                    rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
+                  )
+                }
+              />
+              <div className="work-misc__actions">
+                {last && (
+                  <button
+                    type="button"
+                    className="work-misc__icon work-misc__icon--add"
+                    aria-label="Add line"
+                    onClick={() =>
+                      setAdditions((rows) => [...rows, { name: '', amount: '0' }])
+                    }
+                  >
+                    <span className="material-symbols-outlined" aria-hidden>
+                      add
+                    </span>
+                  </button>
+                )}
+                {additions.length > 1 && (
+                  <button
+                    type="button"
+                    className="work-misc__icon work-misc__icon--remove"
+                    aria-label="Remove line"
+                    onClick={() =>
+                      setAdditions((rows) => rows.filter((_, idx) => idx !== i))
+                    }
+                  >
+                    <span className="material-symbols-outlined" aria-hidden>
+                      remove
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        })}
         <p className="bill-sheet__total">
           Subtotal <strong>₹ {inr(preview.c)}</strong>
         </p>
@@ -558,35 +584,76 @@ function BillForm({
             <input value={partVRemark} onChange={(e) => setPartVRemark(e.target.value)} />
           </label>
         )}
-        {others.map((line, i) => (
-          <div className="bill-sheet__line" key={`dn-${i}`}>
-            <input
-              placeholder="Other deduction"
-              value={line.name}
-              onChange={(e) =>
-                setOthers((rows) =>
-                  rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
-                )
-              }
-            />
-            <input
-              className="numeric"
-              value={line.amount}
-              onChange={(e) =>
-                setOthers((rows) =>
-                  rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
-                )
-              }
-            />
+        {others.length === 0 ? (
+          <div className="bill-sheet__misc-row work-misc__row bill-sheet__misc-row--empty">
+            <div className="work-misc__actions">
+              <button
+                type="button"
+                className="work-misc__icon work-misc__icon--add"
+                aria-label="Add other deduction"
+                onClick={() => setOthers([{ name: '', amount: '0' }])}
+              >
+                <span className="material-symbols-outlined" aria-hidden>
+                  add
+                </span>
+              </button>
+            </div>
           </div>
-        ))}
-        <button
-          type="button"
-          className="works__btn bill-sheet__add"
-          onClick={() => setOthers((rows) => [...rows, { name: '', amount: '0' }])}
-        >
-          Add other deduction
-        </button>
+        ) : (
+          others.map((line, i) => {
+            const last = i === others.length - 1
+            return (
+              <div className="bill-sheet__misc-row work-misc__row" key={`dn-${i}`}>
+                <input
+                  placeholder="Other deduction"
+                  value={line.name}
+                  onChange={(e) =>
+                    setOthers((rows) =>
+                      rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
+                    )
+                  }
+                />
+                <input
+                  className="numeric"
+                  value={line.amount}
+                  onChange={(e) =>
+                    setOthers((rows) =>
+                      rows.map((r, idx) => (idx === i ? { ...r, amount: e.target.value } : r)),
+                    )
+                  }
+                />
+                <div className="work-misc__actions">
+                  {last && (
+                    <button
+                      type="button"
+                      className="work-misc__icon work-misc__icon--add"
+                      aria-label="Add other deduction"
+                      onClick={() =>
+                        setOthers((rows) => [...rows, { name: '', amount: '0' }])
+                      }
+                    >
+                      <span className="material-symbols-outlined" aria-hidden>
+                        add
+                      </span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="work-misc__icon work-misc__icon--remove"
+                    aria-label="Remove other deduction"
+                    onClick={() =>
+                      setOthers((rows) => rows.filter((_, idx) => idx !== i))
+                    }
+                  >
+                    <span className="material-symbols-outlined" aria-hidden>
+                      remove
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )
+          })
+        )}
         <p className="bill-sheet__total">
           Subtotal <strong>₹ {inr(preview.d)}</strong>
         </p>
