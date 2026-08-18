@@ -678,7 +678,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                   readOnly
                 />
                 <small className="work-form__hint">
-                  From billing: billed amount (A+B+C) ÷ total work value
+                  From billing: billed amount ÷ total work value
                 </small>
               </label>
               <label className="work-form__full">

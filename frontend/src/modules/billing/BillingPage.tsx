@@ -283,16 +283,17 @@ function WorkBills({ workId }: { workId: string }) {
                   <th>Bill no.</th>
                   <th>Type</th>
                   <th>Date</th>
-                  <th>A Work</th>
-                  <th>B GST</th>
-                  <th>C Other</th>
-                  <th>A+B+C</th>
-                  <th>D1 IT</th>
-                  <th>D2 SD</th>
-                  <th>D3 SGST</th>
-                  <th>D4 CGST</th>
-                  <th>D Deductions</th>
-                  <th>Cheque</th>
+                  <th>Work portion</th>
+                  <th>GST</th>
+                  <th>Subtotal</th>
+                  <th>Other</th>
+                  <th>Bill amount</th>
+                  <th>Income Tax</th>
+                  <th>Security deposit</th>
+                  <th>SGST</th>
+                  <th>CGST</th>
+                  <th>Deductions</th>
+                  <th>Cheque amount</th>
                   <th>Status</th>
                   <th />
                 </tr>
@@ -300,7 +301,7 @@ function WorkBills({ workId }: { workId: string }) {
               <tbody>
                 {items.length === 0 ? (
                   <EmptyState
-                    colSpan={15}
+                    colSpan={16}
                     title="No bills yet"
                     detail={mutate ? 'Use Add bill to raise an RA or final bill.' : undefined}
                   />
@@ -312,6 +313,9 @@ function WorkBills({ workId }: { workId: string }) {
                       <td>{formatDate(b.billDate)}</td>
                       <td className="numeric">{inr(b.currentWorkPortionAmount)}</td>
                       <td className="numeric">{inr(b.gstAmount)}</td>
+                      <td className="numeric">
+                        {inr(num(b.currentWorkPortionAmount) + num(b.gstAmount))}
+                      </td>
                       <td className="numeric">{inr(b.totalAdditions)}</td>
                       <td className="numeric">{inr(b.grossBillAmount)}</td>
                       <td className="numeric">{inr(deductionAmount(b, 'D1', 'Income Tax', 'TDS'))}</td>
@@ -489,7 +493,7 @@ function BillForm({
         </label>
       </div>
       <p className="bill-sheet__total">
-        Subtotal A+B <strong>₹ {inr(preview.ab)}</strong>
+        Subtotal <strong>₹ {inr(preview.ab)}</strong>
       </p>
 
       <h2>Add any others</h2>
@@ -523,10 +527,10 @@ function BillForm({
         Add line
       </button>
       <p className="bill-sheet__total">
-        Subtotal C <strong>₹ {inr(preview.c)}</strong>
+        Subtotal <strong>₹ {inr(preview.c)}</strong>
       </p>
       <p className="bill-sheet__total bill-sheet__total--emphasis">
-        Bill amount A+B+C <strong>₹ {inr(preview.billAmount)}</strong>
+        Bill amount <strong>₹ {inr(preview.billAmount)}</strong>
       </p>
 
       <h2>Deductions</h2>
@@ -581,10 +585,10 @@ function BillForm({
         Add other deduction
       </button>
       <p className="bill-sheet__total">
-        Subtotal D <strong>₹ {inr(preview.d)}</strong>
+        Subtotal <strong>₹ {inr(preview.d)}</strong>
       </p>
       <p className="bill-sheet__total bill-sheet__total--emphasis">
-        Cheque amount A+B+C−D <strong>₹ {inr(preview.cheque)}</strong>
+        Cheque amount <strong>₹ {inr(preview.cheque)}</strong>
       </p>
 
       <div className="bill-sheet__grid">
