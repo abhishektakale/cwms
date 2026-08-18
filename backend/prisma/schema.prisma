@@ -396,7 +396,6 @@ model Estimate {
   workId           String   @map("work_id") @db.Uuid
   estimateNo       String   @map("estimate_no") @db.VarChar(100)
   estimateDate     DateTime @map("estimate_date") @db.Date
-  estimatedAmount  Decimal  @map("estimated_amount") @db.Decimal(18, 2)
   revisedEstimate  Decimal? @map("revised_estimate") @db.Decimal(18, 2)
   approvedBy       String?  @map("approved_by") @db.VarChar(200)
   documentId       String?  @map("document_id") @db.Uuid

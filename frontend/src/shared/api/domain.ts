@@ -7,7 +7,6 @@ export type Estimate = {
   workId: string
   estimateNo: string
   estimateDate: string
-  estimatedAmount: string
   revisedEstimate?: string | null
   approvedBy?: string | null
   documentId?: string | null

@@ -58,17 +58,15 @@ describe('Estimates & Bill rollups (e2e)', () => {
       .send({
         estimateNo: `EST-${Date.now()}`,
         estimateDate: '2026-04-15',
-        estimatedAmount: '950000.00',
         approvedBy: 'SE',
       })
       .expect(201);
+    expect(jsonBody<{ estimateNo: string; workId: string }>(res).workId).toBe(
+      workId,
+    );
     expect(
-      jsonBody<{ estimatedAmount: string; workId: string }>(res)
-        .estimatedAmount,
-    ).toBe('950000.00');
-    expect(
-      jsonBody<{ estimatedAmount: string; workId: string }>(res).workId,
-    ).toBe(workId);
+      jsonBody<{ estimateNo: string; workId: string }>(res).estimateNo,
+    ).toMatch(/^EST-/);
 
     const list = await request(app.getHttpServer())
       .get(`/api/v1/works/${workId}/estimates`)

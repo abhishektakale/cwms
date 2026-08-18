@@ -29,9 +29,6 @@ class EstimateBodyDto implements EstimateWrite {
   @IsDateString()
   estimateDate!: string;
 
-  @IsString()
-  estimatedAmount!: string;
-
   @IsOptional()
   @IsString()
   revisedEstimate?: string | null;

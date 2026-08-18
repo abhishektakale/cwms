@@ -16,7 +16,6 @@ import {
 export type EstimateWrite = {
   estimateNo: string;
   estimateDate: string;
-  estimatedAmount: string;
   revisedEstimate?: string | null;
   approvedBy?: string | null;
   documentId?: string | null;
@@ -61,7 +60,6 @@ export class EstimatesService {
         workId,
         estimateNo: body.estimateNo.trim(),
         estimateDate: dateOnly(body.estimateDate),
-        estimatedAmount: dec(body.estimatedAmount),
         revisedEstimate:
           body.revisedEstimate != null && body.revisedEstimate !== ''
             ? dec(body.revisedEstimate)
@@ -103,7 +101,6 @@ export class EstimatesService {
       data: {
         estimateNo: body.estimateNo.trim(),
         estimateDate: dateOnly(body.estimateDate),
-        estimatedAmount: dec(body.estimatedAmount),
         revisedEstimate:
           body.revisedEstimate != null && body.revisedEstimate !== ''
             ? dec(body.revisedEstimate)
@@ -147,12 +144,16 @@ export class EstimatesService {
   }
 
   private validate(body: EstimateWrite) {
-    if (dec(body.estimatedAmount).lt(0)) {
+    if (
+      body.revisedEstimate != null &&
+      body.revisedEstimate !== '' &&
+      dec(body.revisedEstimate).lt(0)
+    ) {
       throw new BadRequestException({
         title: 'Bad Request',
         status: 400,
         code: 'AMOUNT_NEGATIVE',
-        detail: 'Estimated amount must be ≥ 0',
+        detail: 'Revised estimate must be ≥ 0',
       });
     }
   }
@@ -188,7 +189,6 @@ export class EstimatesService {
     workId: string;
     estimateNo: string;
     estimateDate: Date;
-    estimatedAmount: Prisma.Decimal;
     revisedEstimate: Prisma.Decimal | null;
     approvedBy: string | null;
     documentId: string | null;
@@ -199,7 +199,6 @@ export class EstimatesService {
       workId: row.workId,
       estimateNo: row.estimateNo,
       estimateDate: toDateStr(row.estimateDate)!,
-      estimatedAmount: money(row.estimatedAmount),
       revisedEstimate: row.revisedEstimate ? money(row.revisedEstimate) : null,
       approvedBy: row.approvedBy,
       documentId: row.documentId,

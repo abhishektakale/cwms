@@ -48,7 +48,6 @@ export function WorkChildrenPanels({
       await createEstimate(workId, {
         estimateNo: String(fd.get('estimateNo')),
         estimateDate: String(fd.get('estimateDate')),
-        estimatedAmount: String(fd.get('estimatedAmount')),
         approvedBy: String(fd.get('approvedBy') || '') || null,
       })
       form.reset()
@@ -101,10 +100,6 @@ export function WorkChildrenPanels({
                 <input name="estimateDate" type="date" required />
               </label>
               <label>
-                Amount *
-                <input name="estimatedAmount" required defaultValue="0" />
-              </label>
-              <label>
                 Approved by
                 <input name="approvedBy" />
               </label>
@@ -121,7 +116,7 @@ export function WorkChildrenPanels({
               <tr>
                 <th>No</th>
                 <th>Date</th>
-                <th>Amount</th>
+                <th>Approved by</th>
                 <th />
               </tr>
             </thead>
@@ -139,7 +134,7 @@ export function WorkChildrenPanels({
                   <tr key={row.id}>
                     <td>{row.estimateNo}</td>
                     <td>{formatDate(row.estimateDate)}</td>
-                    <td className="numeric">{row.estimatedAmount}</td>
+                    <td>{row.approvedBy || '—'}</td>
                     <td>
                       {mutate && (
                         <button
