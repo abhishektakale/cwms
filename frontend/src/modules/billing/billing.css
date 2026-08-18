@@ -16,24 +16,16 @@
   gap: 12px 16px;
 }
 
-.bill-sheet__row {
+.bill-sheet__line {
   display: grid;
-  grid-template-columns: 48px 1fr 140px;
+  grid-template-columns: 1fr 140px;
   gap: 8px 12px;
   align-items: start;
 }
 
-.bill-sheet__row label {
-  grid-column: 2 / -1;
+.bill-sheet__field {
   display: grid;
   gap: 4px;
-}
-
-.bill-sheet__code {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--cwms-on-surface-variant);
-  padding-top: 10px;
 }
 
 .bill-sheet input,
@@ -77,11 +69,7 @@
 }
 
 @media (max-width: 800px) {
-  .bill-sheet__row {
-    grid-template-columns: 40px 1fr;
-  }
-
-  .bill-sheet__row input:nth-child(3) {
-    grid-column: 2;
+  .bill-sheet__line {
+    grid-template-columns: 1fr;
   }
 }

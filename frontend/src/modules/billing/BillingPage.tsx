@@ -474,8 +474,7 @@ function BillForm({
       </div>
 
       <h2>Bill amount</h2>
-      <div className="bill-sheet__row">
-        <span className="bill-sheet__code">A</span>
+      <div className="bill-sheet__grid">
         <label>
           Work portion *
           <input
@@ -484,9 +483,6 @@ function BillForm({
             required
           />
         </label>
-      </div>
-      <div className="bill-sheet__row">
-        <span className="bill-sheet__code">B</span>
         <label>
           GST *
           <input value={gstAmount} onChange={(e) => setGstAmount(e.target.value)} required />
@@ -498,8 +494,7 @@ function BillForm({
 
       <h2>Add any others</h2>
       {additions.map((line, i) => (
-        <div className="bill-sheet__row" key={`c-${i}`}>
-          <span className="bill-sheet__code">C{i + 1}</span>
+        <div className="bill-sheet__line" key={`c-${i}`}>
           <input
             placeholder="Description"
             value={line.name}
@@ -535,19 +530,16 @@ function BillForm({
 
       <h2>Deductions</h2>
       {STANDARD_DEDUCTIONS.map((head) => (
-        <div className="bill-sheet__row" key={head.code}>
-          <span className="bill-sheet__code">{head.code}</span>
-          <label>
-            {head.name}
-            <input
-              value={standard[head.name] ?? '0'}
-              onChange={(e) =>
-                setStandard((prev) => ({ ...prev, [head.name]: e.target.value }))
-              }
-            />
-            {head.hint && <small className="bill-sheet__hint">{head.hint}</small>}
-          </label>
-        </div>
+        <label key={head.code} className="bill-sheet__field">
+          {head.name}
+          <input
+            value={standard[head.name] ?? '0'}
+            onChange={(e) =>
+              setStandard((prev) => ({ ...prev, [head.name]: e.target.value }))
+            }
+          />
+          {head.hint && <small className="bill-sheet__hint">{head.hint}</small>}
+        </label>
       ))}
       {num(standard['Part-V']) > 0 && (
         <label>
@@ -556,8 +548,7 @@ function BillForm({
         </label>
       )}
       {others.map((line, i) => (
-        <div className="bill-sheet__row" key={`dn-${i}`}>
-          <span className="bill-sheet__code">Dn</span>
+        <div className="bill-sheet__line" key={`dn-${i}`}>
           <input
             placeholder="Other deduction"
             value={line.name}
