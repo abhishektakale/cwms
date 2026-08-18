@@ -294,6 +294,14 @@ export class ReportsService {
                 }
               : {}),
           },
+          select: {
+            workCode: true,
+            workName: true,
+            status: true,
+            totalWorkValue: true,
+            grossBillsRaised: true,
+            balanceWorkValue: true,
+          },
           orderBy: { workCode: 'asc' },
         });
         return {
@@ -317,7 +325,6 @@ export class ReportsService {
       }
       case 'billing': {
         const rows = await this.prisma.bill.findMany({
-          include: { work: true },
           where: {
             ...(fy.from || fy.to
               ? {
@@ -327,6 +334,14 @@ export class ReportsService {
                   },
                 }
               : {}),
+          },
+          select: {
+            systemBillNumber: true,
+            billDate: true,
+            grossBillAmount: true,
+            netBillAmount: true,
+            paymentStatus: true,
+            work: { select: { workCode: true } },
           },
           orderBy: { billDate: 'desc' },
         });
@@ -352,7 +367,6 @@ export class ReportsService {
       case 'expenditure':
       case 'general-expense': {
         const rows = await this.prisma.expense.findMany({
-          include: { work: true, expenseHead: true },
           where: {
             ...(api === 'general-expense' ? { expenseType: 'General' } : {}),
             ...(fy.from || fy.to
@@ -363,6 +377,14 @@ export class ReportsService {
                   },
                 }
               : {}),
+          },
+          select: {
+            expenseCode: true,
+            expenseType: true,
+            expenseDate: true,
+            totalAmount: true,
+            status: true,
+            work: { select: { workCode: true } },
           },
           orderBy: { expenseDate: 'desc' },
         });
@@ -390,7 +412,12 @@ export class ReportsService {
           where: {
             paymentStatus: { in: ['Pending', 'PartiallyReceived'] },
           },
-          include: { work: true },
+          select: {
+            systemBillNumber: true,
+            outstandingAmount: true,
+            paymentStatus: true,
+            work: { select: { workCode: true } },
+          },
           orderBy: { billDate: 'asc' },
         });
         return {
@@ -410,7 +437,13 @@ export class ReportsService {
       }
       case 'document-register': {
         const rows = await this.prisma.document.findMany({
-          include: { work: true, documentType: true, storedFile: true },
+          select: {
+            documentCode: true,
+            uploadedAt: true,
+            work: { select: { workCode: true } },
+            documentType: { select: { name: true } },
+            storedFile: { select: { originalFileName: true } },
+          },
           orderBy: { uploadedAt: 'desc' },
         });
         return {
@@ -434,6 +467,14 @@ export class ReportsService {
       case 'work-wise-summary':
       case 'dashboard-summary': {
         const works = await this.prisma.work.findMany({
+          select: {
+            workCode: true,
+            totalWorkValue: true,
+            grossBillsRaised: true,
+            paymentsReceived: true,
+            totalExpenditure: true,
+            estimatedProfitLoss: true,
+          },
           orderBy: { workCode: 'asc' },
         });
         return {

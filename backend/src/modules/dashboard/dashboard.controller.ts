@@ -30,4 +30,12 @@ export class DashboardController {
   recent() {
     return this.dashboard.recent();
   }
+
+  @Get()
+  combined(@Query('page') page?: string, @Query('pageSize') pageSize?: string) {
+    return this.dashboard.combined(
+      page ? Number(page) : 1,
+      pageSize ? Number(pageSize) : 20,
+    );
+  }
 }

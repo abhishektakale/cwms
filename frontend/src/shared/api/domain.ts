@@ -1,5 +1,7 @@
 import { apiFetch } from './http'
 import { API_BASE } from './auth'
+import type { PageMeta } from './masters'
+import type { Work } from './works'
 import { trackRequest } from '../loading/requestTracker'
 
 export type Estimate = {
@@ -260,19 +262,39 @@ export function documentContentUrl(id: string) {
   return `${API_BASE}/documents/${id}/content?disposition=attachment`
 }
 
+export type DashboardSummary = Record<string, unknown>
+export type DashboardAlertItem = { code: string; label: string; count: number }
+export type DashboardAlerts = { items: DashboardAlertItem[] }
+export type DashboardAttention = {
+  items: Array<Record<string, unknown>>
+  page?: PageMeta
+}
+export type DashboardRecent = { items: Array<Record<string, unknown>> }
+export type DashboardWorks = { items: Work[]; page: PageMeta }
+
+export type DashboardResponse = {
+  summary: DashboardSummary
+  alerts: DashboardAlerts
+  attention: DashboardAttention
+  recent: DashboardRecent
+  works: DashboardWorks
+}
+
 export async function dashboardSummary() {
-  return apiFetch<Record<string, unknown>>('/dashboard/summary')
+  return apiFetch<DashboardSummary>('/dashboard/summary')
 }
 export async function dashboardAlerts() {
-  return apiFetch<{ items: Array<{ code: string; label: string; count: number }> }>(
-    '/dashboard/alerts',
-  )
+  return apiFetch<DashboardAlerts>('/dashboard/alerts')
 }
 export async function dashboardAttention() {
-  return apiFetch<{ items: Array<Record<string, unknown>> }>('/dashboard/attention')
+  return apiFetch<DashboardAttention>('/dashboard/attention')
 }
 export async function dashboardRecent() {
-  return apiFetch<{ items: Array<Record<string, unknown>> }>('/dashboard/recent')
+  return apiFetch<DashboardRecent>('/dashboard/recent')
+}
+
+export async function getDashboard() {
+  return apiFetch<DashboardResponse>('/dashboard')
 }
 
 export async function listReportTypes() {

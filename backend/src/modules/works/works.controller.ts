@@ -221,8 +221,13 @@ export class WorksController {
   }
 
   @Get(':workId')
-  get(@Param('workId', ParseUUIDPipe) workId: string) {
-    return this.works.get(workId);
+  get(
+    @Param('workId', ParseUUIDPipe) workId: string,
+    @Query('includeBudget') includeBudget?: string,
+  ) {
+    const skipBudget =
+      includeBudget === '0' || includeBudget?.toLowerCase() === 'false';
+    return this.works.get(workId, { includeBudget: !skipBudget });
   }
 
   @Post()

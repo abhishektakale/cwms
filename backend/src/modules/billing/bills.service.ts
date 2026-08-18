@@ -85,6 +85,41 @@ function matchStandardHead(key: string) {
   );
 }
 
+const BILL_LIST_SELECT = {
+  id: true,
+  workId: true,
+  systemBillNumber: true,
+  billType: true,
+  raBillNo: true,
+  billDate: true,
+  periodFrom: true,
+  periodTo: true,
+  previousBillAmount: true,
+  currentWorkPortionAmount: true,
+  gstAmount: true,
+  grossBillAmount: true,
+  totalDeductions: true,
+  netBillAmount: true,
+  paymentStatus: true,
+  paymentDate: true,
+  amountReceived: true,
+  outstandingAmount: true,
+  utrChequeNo: true,
+  bankName: true,
+  remarks: true,
+  work: { select: { workCode: true, workName: true } },
+  deductions: {
+    orderBy: { sortOrder: 'asc' as const },
+    select: {
+      id: true,
+      name: true,
+      amount: true,
+      kind: true,
+      code: true,
+    },
+  },
+} satisfies Prisma.BillSelect;
+
 @Injectable()
 export class BillsService {
   constructor(
@@ -155,11 +190,7 @@ export class BillsService {
       this.prisma.bill.count({ where }),
       this.prisma.bill.findMany({
         where,
-        include: {
-          work: true,
-          deductions: { orderBy: { sortOrder: 'asc' } },
-          additions: { orderBy: { sortOrder: 'asc' } },
-        },
+        select: BILL_LIST_SELECT,
         orderBy: { billDate: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -180,11 +211,7 @@ export class BillsService {
     await this.assertWork(workId);
     const rows = await this.prisma.bill.findMany({
       where: { workId },
-      include: {
-        work: true,
-        deductions: { orderBy: { sortOrder: 'asc' } },
-        additions: { orderBy: { sortOrder: 'asc' } },
-      },
+      select: BILL_LIST_SELECT,
       orderBy: { billDate: 'desc' },
     });
     return { items: rows.map((r) => this.toDto(r)) };
@@ -497,7 +524,7 @@ export class BillsService {
     const row = await this.prisma.bill.findUnique({
       where: { id },
       include: {
-        work: true,
+        work: { select: { workCode: true, workName: true } },
         deductions: { orderBy: { sortOrder: 'asc' } },
         additions: { orderBy: { sortOrder: 'asc' } },
       },
@@ -549,11 +576,12 @@ export class BillsService {
       code?: string | null;
     }>;
   }) {
-    const additions = row.additions ?? [];
-    const totalAdditions = additions.reduce(
-      (sum, a) => sum.add(a.amount),
-      new Prisma.Decimal(0),
-    );
+    const additions = row.additions;
+    const totalAdditions = additions
+      ? additions.reduce((sum, a) => sum.add(a.amount), new Prisma.Decimal(0))
+      : row.grossBillAmount
+          .sub(row.currentWorkPortionAmount)
+          .sub(row.gstAmount);
     return {
       id: row.id,
       workId: row.workId,
@@ -568,7 +596,7 @@ export class BillsService {
       previousBillAmount: money(row.previousBillAmount),
       currentWorkPortionAmount: money(row.currentWorkPortionAmount),
       gstAmount: money(row.gstAmount),
-      additions: additions.map((a) => ({
+      additions: (additions ?? []).map((a) => ({
         id: a.id,
         name: a.name,
         amount: money(a.amount),

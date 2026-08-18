@@ -15,6 +15,7 @@ import {
   cookieBaseOptions,
   rememberMeMs,
   sessionIdleMs,
+  sessionNeedsTouch,
 } from '../../shared/auth/auth.constants';
 import { generateOpaqueToken, hashToken } from '../../shared/auth/token.util';
 import { RoleCode } from '../../shared/auth/roles';
@@ -342,6 +343,13 @@ export class AuthService {
 
     if (!session.user.isActive) {
       return null;
+    }
+
+    if (!sessionNeedsTouch(last, session.expiresAt, now, idleLimit)) {
+      return {
+        user: session.user,
+        sessionId: session.id,
+      };
     }
 
     const expiresAt = new Date(Date.now() + idleLimit);

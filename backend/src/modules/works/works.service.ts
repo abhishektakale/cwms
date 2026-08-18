@@ -174,7 +174,7 @@ export class WorksService {
     };
   }
 
-  async get(id: string) {
+  async get(id: string, opts?: { includeBudget?: boolean }) {
     const row = await this.prisma.work.findUnique({
       where: { id },
       include: {
@@ -191,8 +191,10 @@ export class WorksService {
         detail: 'Work not found',
       });
     }
+    const dto = this.toDto(row);
+    if (opts?.includeBudget === false) return dto;
     const breakdown = await this.budgetBreakdown(id);
-    return { ...this.toDto(row), budgetBreakdown: breakdown };
+    return { ...dto, budgetBreakdown: breakdown };
   }
 
   async create(body: WorkWriteDto, user: User) {
@@ -331,7 +333,7 @@ export class WorksService {
   }
 
   async acquireLock(workId: string, user: User) {
-    await this.get(workId);
+    await this.get(workId, { includeBudget: false });
     const now = new Date();
     const existing = await this.prisma.workEditLock.findUnique({
       where: { workId },
@@ -645,49 +647,51 @@ export class WorksService {
     const money = (d: Prisma.Decimal | null | undefined) =>
       (d ?? new Prisma.Decimal(0)).toFixed(2);
 
-    const billAgg = await this.prisma.bill.aggregate({
-      where: { workId },
-      _sum: {
-        currentWorkPortionAmount: true,
-        gstAmount: true,
-        grossBillAmount: true,
-      },
-    });
+    const [billAgg, expAgg, addAgg, deductionGroups] = await Promise.all([
+      this.prisma.bill.aggregate({
+        where: { workId },
+        _sum: {
+          currentWorkPortionAmount: true,
+          gstAmount: true,
+          grossBillAmount: true,
+        },
+      }),
+      this.prisma.expense.aggregate({
+        where: { workId, status: { in: QUALIFYING_EXPENSES } },
+        _sum: {
+          expenseValue: true,
+          gstAmount: true,
+          totalAmount: true,
+        },
+      }),
+      this.prisma.billAddition.aggregate({
+        where: { bill: { workId } },
+        _sum: { amount: true },
+      }),
+      this.prisma.billDeduction.groupBy({
+        by: ['code', 'name'],
+        where: { bill: { workId } },
+        _sum: { amount: true },
+      }),
+    ]);
 
-    const expAgg = await this.prisma.expense.aggregate({
-      where: { workId, status: { in: QUALIFYING_EXPENSES } },
-      _sum: {
-        expenseValue: true,
-        gstAmount: true,
-        totalAmount: true,
-      },
-    });
-
-    const addAgg = await this.prisma.billAddition.aggregate({
-      where: { bill: { workId } },
-      _sum: { amount: true },
-    });
-
-    const deductionRows = await this.prisma.billDeduction.findMany({
-      where: { bill: { workId } },
-      select: { code: true, name: true, amount: true },
-    });
     const statutory = {
       incomeTax: new Prisma.Decimal(0),
       sgst: new Prisma.Decimal(0),
       cgst: new Prisma.Decimal(0),
       securityDeposit: new Prisma.Decimal(0),
     };
-    for (const row of deductionRows) {
+    for (const row of deductionGroups) {
+      const amount = row._sum.amount ?? new Prisma.Decimal(0);
       const key = `${row.code ?? ''} ${row.name}`.toLowerCase();
       if (row.code === 'D1' || /\btds\b|income tax/.test(key)) {
-        statutory.incomeTax = statutory.incomeTax.add(row.amount);
+        statutory.incomeTax = statutory.incomeTax.add(amount);
       } else if (row.code === 'D3' || /\bsgst\b/.test(key)) {
-        statutory.sgst = statutory.sgst.add(row.amount);
+        statutory.sgst = statutory.sgst.add(amount);
       } else if (row.code === 'D4' || /\bcgst\b/.test(key)) {
-        statutory.cgst = statutory.cgst.add(row.amount);
+        statutory.cgst = statutory.cgst.add(amount);
       } else if (row.code === 'D2' || /security deposit/.test(key)) {
-        statutory.securityDeposit = statutory.securityDeposit.add(row.amount);
+        statutory.securityDeposit = statutory.securityDeposit.add(amount);
       }
     }
 

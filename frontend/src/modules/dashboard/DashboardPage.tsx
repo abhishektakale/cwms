@@ -1,19 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  dashboardAlerts,
-  dashboardAttention,
-  dashboardRecent,
-  dashboardSummary,
+  getDashboard,
+  type DashboardAlertItem,
 } from '../../shared/api/domain'
-import { listWorks, STATUS_LABEL, type Work } from '../../shared/api/works'
+import { STATUS_LABEL, type Work } from '../../shared/api/works'
 import { useAuth } from '../auth/useAuth'
 import { ROLE_LABEL } from '../../shared/api/auth'
 import { formatDateTime } from '../../shared/format/datetime'
 import { CwmsLogo } from '../../shared/brand/CwmsLogo'
 import './dashboard.css'
 
-type AlertItem = { code: string; label: string; count: number }
 type Traffic = { green: number; yellow: number; red: number }
 
 function money(value: unknown, compact = true) {
@@ -36,7 +33,7 @@ function barWidth(value: unknown) {
 export function DashboardPage() {
   const { user } = useAuth()
   const [summary, setSummary] = useState<Record<string, unknown> | null>(null)
-  const [alerts, setAlerts] = useState<AlertItem[]>([])
+  const [alerts, setAlerts] = useState<DashboardAlertItem[]>([])
   const [attention, setAttention] = useState<Array<Record<string, unknown>>>([])
   const [recent, setRecent] = useState<Array<Record<string, unknown>>>([])
   const [works, setWorks] = useState<Work[]>([])
@@ -45,19 +42,13 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    void Promise.all([
-      dashboardSummary(),
-      dashboardAlerts(),
-      dashboardAttention(),
-      dashboardRecent(),
-      listWorks({ pageSize: '50', sort: '-updatedAt' }),
-    ])
-      .then(([s, a, att, r, w]) => {
-        setSummary(s)
-        setAlerts(a.items)
-        setAttention(att.items)
-        setRecent(r.items)
-        setWorks(w.items)
+    void getDashboard()
+      .then((data) => {
+        setSummary(data.summary)
+        setAlerts(data.alerts.items)
+        setAttention(data.attention.items)
+        setRecent(data.recent.items)
+        setWorks(data.works.items)
       })
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false))

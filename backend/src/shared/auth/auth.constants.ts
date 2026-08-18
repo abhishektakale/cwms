@@ -1,11 +1,29 @@
 export const SESSION_COOKIE = 'CWMSSESSION';
 export const REMEMBER_COOKIE = 'CWMSREMEMBER';
 
+/** Skip lastSeenAt/expiresAt DB writes (and Set-Cookie) inside this window. */
+export const SESSION_TOUCH_THROTTLE_MS = 60_000;
+
 export type CookieSameSite = 'lax' | 'none' | 'strict';
 
 export function sessionIdleMs(): number {
   const minutes = Number(process.env.SESSION_IDLE_TIMEOUT_MINUTES ?? 30);
   return Math.max(1, minutes) * 60 * 1000;
+}
+
+export function sessionNeedsTouch(
+  lastSeenAt: Date,
+  expiresAt: Date,
+  now = Date.now(),
+  idleLimit = sessionIdleMs(),
+): boolean {
+  const age = now - lastSeenAt.getTime();
+  const remaining = expiresAt.getTime() - now;
+  const nearExpiryMs = Math.min(
+    SESSION_TOUCH_THROTTLE_MS,
+    Math.max(1, Math.floor(idleLimit / 2)),
+  );
+  return age >= SESSION_TOUCH_THROTTLE_MS || remaining <= nearExpiryMs;
 }
 
 export function rememberMeMs(): number {
