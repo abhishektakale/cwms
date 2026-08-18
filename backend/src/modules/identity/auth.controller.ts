@@ -52,9 +52,13 @@ export class AuthController {
     });
   }
 
+  @Public()
   @Get('me')
-  me(@CurrentUser() user: Prisma.User) {
-    return this.authService.me(user);
+  me(@Req() req: Request & { user?: Prisma.User }) {
+    if (!req.user) {
+      return null;
+    }
+    return this.authService.me(req.user);
   }
 
   @Post('change-password')

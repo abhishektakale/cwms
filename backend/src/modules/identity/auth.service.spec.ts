@@ -22,7 +22,7 @@ function user(overrides: Partial<User> = {}): User {
   } as User;
 }
 
-describe('AuthService session touch throttle', () => {
+describe('AuthService session touch', () => {
   const prisma = {
     authSession: {
       findUnique: jest.fn(),
@@ -56,25 +56,24 @@ describe('AuthService session touch throttle', () => {
     };
   }
 
-  it('skips lastSeenAt UPDATE when last seen within 60s', async () => {
+  it('always updates lastSeenAt and returns cookie fields', async () => {
     const row = sessionRow(10_000, sessionIdleMs() - 10_000);
     prisma.authSession.findUnique.mockResolvedValue(row);
+    prisma.authSession.update.mockResolvedValue({});
 
     const resolved = await service.resolveUserFromRequest({
       cookies: { CWMSSESSION: 'opaque-token' },
     } as never);
 
-    expect(prisma.authSession.findUnique).toHaveBeenCalledWith({
-      where: { tokenHash: hashToken('opaque-token') },
-      include: { user: true },
+    expect(prisma.authSession.update).toHaveBeenCalledWith({
+      where: { id: 'sess-1' },
+      data: { lastSeenAt: expect.any(Date) },
     });
-    expect(prisma.authSession.update).not.toHaveBeenCalled();
-    expect(resolved?.user.id).toBe('user-1');
-    expect(resolved?.sessionToken).toBeUndefined();
-    expect(resolved?.expiresAt).toBeUndefined();
+    expect(resolved?.sessionToken).toBe('opaque-token');
+    expect(resolved?.expiresAt).toBeInstanceOf(Date);
   });
 
-  it('updates lastSeenAt and returns cookie fields after 60s', async () => {
+  it('also updates expiresAt after 60s', async () => {
     const row = sessionRow(
       SESSION_TOUCH_THROTTLE_MS + 1_000,
       sessionIdleMs() - SESSION_TOUCH_THROTTLE_MS - 1_000,
@@ -82,7 +81,7 @@ describe('AuthService session touch throttle', () => {
     prisma.authSession.findUnique.mockResolvedValue(row);
     prisma.authSession.update.mockResolvedValue({});
 
-    const resolved = await service.resolveUserFromRequest({
+    await service.resolveUserFromRequest({
       cookies: { CWMSSESSION: 'opaque-token' },
     } as never);
 
@@ -93,20 +92,14 @@ describe('AuthService session touch throttle', () => {
         expiresAt: expect.any(Date),
       },
     });
-    expect(resolved?.sessionToken).toBe('opaque-token');
-    expect(resolved?.expiresAt).toBeInstanceOf(Date);
   });
 
-  it('still touches when last seen is fresh but expiry is close', async () => {
-    const row = sessionRow(5_000, SESSION_TOUCH_THROTTLE_MS - 1_000);
-    prisma.authSession.findUnique.mockResolvedValue(row);
-    prisma.authSession.update.mockResolvedValue({});
-
-    const resolved = await service.resolveUserFromRequest({
-      cookies: { CWMSSESSION: 'opaque-token' },
-    } as never);
-
-    expect(prisma.authSession.update).toHaveBeenCalled();
-    expect(resolved?.sessionToken).toBe('opaque-token');
+  it('returns null from refresh when remember cookie is missing', async () => {
+    const result = await service.refresh(
+      { cookies: {} } as never,
+      {} as never,
+      {},
+    );
+    expect(result).toBeNull();
   });
 });

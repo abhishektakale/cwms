@@ -43,7 +43,6 @@ export class SessionAuthGuard implements CanActivate {
 
     if (resolved?.user) {
       req.user = resolved.user;
-      // Cookie sliding follows DB touch: omit token/expiresAt to skip Set-Cookie.
       if (resolved.sessionToken && resolved.expiresAt) {
         this.authService.refreshSessionCookie(
           res,

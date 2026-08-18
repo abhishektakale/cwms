@@ -261,15 +261,10 @@ export class AuthService {
     req: Request,
     res: Response,
     meta: RequestMeta,
-  ): Promise<{ user: AuthUserDto; expiresAt: string }> {
+  ): Promise<{ user: AuthUserDto; expiresAt: string } | null> {
     const rememberToken = req.cookies?.[REMEMBER_COOKIE] as string | undefined;
     if (!rememberToken) {
-      throw new UnauthorizedException({
-        title: 'Unauthorized',
-        status: 401,
-        code: 'AUTH_REQUIRED',
-        detail: 'Remember Me token required',
-      });
+      return null;
     }
 
     const row = await this.prisma.rememberMeToken.findUnique({
@@ -333,7 +328,7 @@ export class AuthService {
     const now = Date.now();
     const idleLimit = sessionIdleMs();
     const last = session.lastSeenAt ?? session.createdAt;
-    if (now - last.getTime() > idleLimit || session.expiresAt.getTime() < now) {
+    if (now - last.getTime() > idleLimit) {
       await this.prisma.authSession.update({
         where: { id: session.id },
         data: { revokedAt: new Date() },
@@ -345,20 +340,20 @@ export class AuthService {
       return null;
     }
 
-    if (!sessionNeedsTouch(last, session.expiresAt, now, idleLimit)) {
-      return {
-        user: session.user,
-        sessionId: session.id,
-      };
-    }
+    const nowDate = new Date();
+    const expiresAt = new Date(nowDate.getTime() + idleLimit);
+    const touchExpiresAt = sessionNeedsTouch(
+      last,
+      session.expiresAt,
+      now,
+      idleLimit,
+    );
 
-    const expiresAt = new Date(Date.now() + idleLimit);
     await this.prisma.authSession.update({
       where: { id: session.id },
-      data: {
-        lastSeenAt: new Date(),
-        expiresAt,
-      },
+      data: touchExpiresAt
+        ? { lastSeenAt: nowDate, expiresAt }
+        : { lastSeenAt: nowDate },
     });
 
     return {

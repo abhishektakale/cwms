@@ -101,13 +101,16 @@ export function logout() {
 }
 
 export function me() {
-  return apiFetch<AuthUser>('/auth/me')
+  return apiFetch<AuthUser | null>('/auth/me')
 }
 
 export function refreshSession() {
-  return apiFetch<{ user: AuthUser; expiresAt: string }>('/auth/refresh', {
-    method: 'POST',
-  })
+  return apiFetch<{ user: AuthUser; expiresAt: string } | null>(
+    '/auth/refresh',
+    {
+      method: 'POST',
+    },
+  )
 }
 
 export function changePassword(

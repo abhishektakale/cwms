@@ -23,14 +23,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     try {
       const current = await me()
-      setUser(current)
-    } catch {
-      try {
-        const refreshed = await refreshSession()
-        setUser(refreshed.user)
-      } catch {
-        setUser(null)
+      if (current) {
+        setUser(current)
+        return
       }
+      const refreshed = await refreshSession()
+      setUser(refreshed?.user ?? null)
+    } catch {
+      setUser(null)
     } finally {
       setLoading(false)
     }
