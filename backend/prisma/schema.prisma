@@ -324,6 +324,7 @@ model Work {
   documents              Document[]
   bills                  Bill[]
   expenses               Expense[]
+  miscellaneousItems     WorkMiscellaneousItem[]
 
   @@unique([workOrderNo], map: "uq_works_work_order_no")
   @@index([status], map: "ix_works_status")
@@ -334,6 +335,19 @@ model Work {
   @@index([workCategoryId], map: "ix_works_category")
   @@index([trafficLight], map: "ix_works_traffic")
   @@map("works")
+}
+
+model WorkMiscellaneousItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  workId    String  @map("work_id") @db.Uuid
+  name      String  @db.VarChar(200)
+  amount    Decimal @db.Decimal(18, 2)
+  sortOrder Int     @default(0) @map("sort_order")
+
+  work Work @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@index([workId], map: "ix_work_misc_work")
+  @@map("work_miscellaneous_items")
 }
 
 model WorkEditLock {

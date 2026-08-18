@@ -258,6 +258,32 @@
   grid-column: 1 / -1;
 }
 
+.work-misc {
+  display: grid;
+  gap: 8px;
+}
+
+.work-misc__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cwms-on-surface);
+}
+
+.work-misc__row {
+  display: grid;
+  grid-template-columns: 1fr 140px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.work-misc__total {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cwms-on-surface);
+}
+
 .work-form__grid textarea {
   height: auto;
   padding: 8px 10px;

@@ -36,6 +36,17 @@ const LINEAR_CATEGORIES = new Set([
   'Safety Work',
 ])
 
+function emptyMiscLine(): { name: string; amount: string } {
+  return { name: '', amount: '0' }
+}
+
+function miscTotal(items: Array<{ amount: string }> | undefined) {
+  return (items ?? []).reduce((sum, line) => {
+    const n = Number(line.amount)
+    return sum + (Number.isFinite(n) ? n : 0)
+  }, 0)
+}
+
 function emptyForm(): WorkInput {
   return {
     workName: '',
@@ -45,8 +56,7 @@ function emptyForm(): WorkInput {
     workPortionValue: '0',
     gstPercent: '18',
     totalWorkValue: '0',
-    miscellaneousLabel: '',
-    miscellaneousValue: '0',
+    miscellaneousItems: [emptyMiscLine()],
     financialProgressPercent: '0',
     status: 'Planned',
     physicalProgressPercent: '0',
@@ -55,7 +65,7 @@ function emptyForm(): WorkInput {
 
 function calcPreview(form: WorkInput) {
   const pct = Number(form.gstPercent || 0)
-  const misc = Number(form.miscellaneousValue || 0)
+  const misc = miscTotal(form.miscellaneousItems)
   let civil: number
   let gstAmount: number
   let portion: number
@@ -160,8 +170,20 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
           workPortionValue: work.workPortionValue,
           gstPercent: work.gstPercent,
           totalWorkValue: work.civilWorkValue ?? work.totalWorkValue,
-          miscellaneousLabel: work.miscellaneousLabel ?? '',
-          miscellaneousValue: work.miscellaneousValue ?? '0',
+          miscellaneousItems:
+            work.miscellaneousItems && work.miscellaneousItems.length > 0
+              ? work.miscellaneousItems.map((i) => ({
+                  name: i.name,
+                  amount: i.amount,
+                }))
+              : work.miscellaneousValue && Number(work.miscellaneousValue) !== 0
+                ? [
+                    {
+                      name: work.miscellaneousLabel ?? '',
+                      amount: work.miscellaneousValue,
+                    },
+                  ]
+                : [emptyMiscLine()],
           financialProgressPercent: work.financialProgressPercent ?? '0',
           state: work.state,
           district: work.district,
@@ -219,8 +241,13 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
           form.gstType === 'GstExtra' ? form.workPortionValue : preview.portion,
         totalWorkValue:
           form.gstType === 'GstIncluded' ? form.totalWorkValue : preview.civil,
-        miscellaneousLabel: form.miscellaneousLabel || null,
-        miscellaneousValue: form.miscellaneousValue || '0',
+        miscellaneousItems: (form.miscellaneousItems ?? [])
+          .filter((line) => line.name.trim() || Number(line.amount) > 0)
+          .map((line) => ({
+            name: line.name.trim(),
+            amount: String(Number(line.amount) || 0),
+          })),
+        miscellaneousValue: String(miscTotal(form.miscellaneousItems)),
         financialProgressPercent: form.financialProgressPercent || '0',
         existingChainage: showChainage ? form.existingChainage : null,
         designChainage: showChainage ? form.designChainage : null,
@@ -456,22 +483,80 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                   <input readOnly className="numeric" value={preview.portion} />
                 </label>
               )}
-              <label>
-                Miscellaneous label
-                <input
-                  disabled={readOnly}
-                  value={form.miscellaneousLabel ?? ''}
-                  onChange={(e) => set('miscellaneousLabel', e.target.value)}
-                />
-              </label>
-              <label>
-                Miscellaneous value
-                <input
-                  disabled={readOnly}
-                  value={form.miscellaneousValue ?? '0'}
-                  onChange={(e) => set('miscellaneousValue', e.target.value)}
-                />
-              </label>
+              <div className="work-form__full work-misc">
+                <p className="work-misc__title">Miscellaneous add-ons</p>
+                <p className="work-form__hint">
+                  Add testing charges, royalty, electrical, water, or any other extra
+                </p>
+                {(form.miscellaneousItems ?? [emptyMiscLine()]).map((line, i) => (
+                  <div className="work-misc__row" key={i}>
+                    <input
+                      disabled={readOnly}
+                      placeholder="Description"
+                      value={line.name}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          miscellaneousItems: (f.miscellaneousItems ?? []).map(
+                            (row, idx) =>
+                              idx === i ? { ...row, name: e.target.value } : row,
+                          ),
+                        }))
+                      }
+                    />
+                    <input
+                      disabled={readOnly}
+                      className="numeric"
+                      value={line.amount}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          miscellaneousItems: (f.miscellaneousItems ?? []).map(
+                            (row, idx) =>
+                              idx === i ? { ...row, amount: e.target.value } : row,
+                          ),
+                        }))
+                      }
+                    />
+                    {!readOnly && (form.miscellaneousItems?.length ?? 0) > 1 && (
+                      <button
+                        type="button"
+                        className="works__btn"
+                        onClick={() =>
+                          setForm((f) => ({
+                            ...f,
+                            miscellaneousItems: (f.miscellaneousItems ?? []).filter(
+                              (_, idx) => idx !== i,
+                            ),
+                          }))
+                        }
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {!readOnly && (
+                  <button
+                    type="button"
+                    className="works__btn"
+                    onClick={() =>
+                      setForm((f) => ({
+                        ...f,
+                        miscellaneousItems: [
+                          ...(f.miscellaneousItems ?? []),
+                          emptyMiscLine(),
+                        ],
+                      }))
+                    }
+                  >
+                    Add line
+                  </button>
+                )}
+                <p className="work-misc__total">
+                  Miscellaneous total ₹ {miscTotal(form.miscellaneousItems).toFixed(2)}
+                </p>
+              </div>
               <label>
                 Total Work Value
                 <input readOnly className="numeric" value={preview.grand} />
@@ -643,10 +728,14 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 <dt>Civil Work Value</dt>
                 <dd className="numeric">₹ {preview.civil}</dd>
               </div>
-              <div>
-                <dt>{form.miscellaneousLabel || 'Miscellaneous'}</dt>
-                <dd className="numeric">₹ {form.miscellaneousValue || '0'}</dd>
-              </div>
+              {(form.miscellaneousItems ?? [])
+                .filter((line) => line.name.trim() || Number(line.amount) > 0)
+                .map((line, i) => (
+                  <div key={`misc-${i}`}>
+                    <dt>{line.name.trim() || 'Miscellaneous'}</dt>
+                    <dd className="numeric">₹ {line.amount || '0'}</dd>
+                  </div>
+                ))}
               <div>
                 <dt>Total Work Value</dt>
                 <dd className="numeric">₹ {preview.grand}</dd>

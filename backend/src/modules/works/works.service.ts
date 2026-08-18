@@ -34,6 +34,7 @@ export type WorkWriteDto = {
   totalWorkValue?: string | null;
   miscellaneousLabel?: string | null;
   miscellaneousValue?: string | null;
+  miscellaneousItems?: Array<{ name?: string; amount: string }>;
   financialProgressPercent?: string | null;
   state?: string | null;
   district?: string | null;
@@ -176,7 +177,11 @@ export class WorksService {
   async get(id: string) {
     const row = await this.prisma.work.findUnique({
       where: { id },
-      include: { workCategory: true, clientDepartmentFormat: true },
+      include: {
+        workCategory: true,
+        clientDepartmentFormat: true,
+        miscellaneousItems: { orderBy: { sortOrder: 'asc' } },
+      },
     });
     if (!row) {
       throw new NotFoundException({
@@ -199,15 +204,21 @@ export class WorksService {
       gstPercent: body.gstPercent,
       totalWorkValue: body.totalWorkValue,
     });
-    const totals = await this.composeWrite(body, money, user.id);
+    const misc = this.parseMiscItems(body);
+    const totals = await this.composeWrite(body, money, user.id, misc);
     const workCode = await this.nextWorkCode();
     const row = await this.prisma.work.create({
       data: {
         workCode,
         ...totals,
         createdByUserId: user.id,
+        miscellaneousItems: { create: misc.rows },
       },
-      include: { workCategory: true, clientDepartmentFormat: true },
+      include: {
+        workCategory: true,
+        clientDepartmentFormat: true,
+        miscellaneousItems: { orderBy: { sortOrder: 'asc' } },
+      },
     });
     await this.audit.append({
       userId: user.id,
@@ -240,7 +251,8 @@ export class WorksService {
       gstPercent: body.gstPercent,
       totalWorkValue: body.totalWorkValue,
     });
-    const totals = await this.composeWrite(body, money, user.id);
+    const misc = this.parseMiscItems(body);
+    const totals = await this.composeWrite(body, money, user.id, misc);
     const balance = totals.totalWorkValue.sub(existing.grossBillsRaised);
     const financialProgress = totals.totalWorkValue.gt(0)
       ? existing.grossBillsRaised
@@ -249,14 +261,22 @@ export class WorksService {
           .toDecimalPlaces(4)
       : new Prisma.Decimal(0);
 
-    const row = await this.prisma.work.update({
-      where: { id },
-      data: {
-        ...totals,
-        balanceWorkValue: balance,
-        financialProgressPercent: financialProgress,
-      },
-      include: { workCategory: true, clientDepartmentFormat: true },
+    const row = await this.prisma.$transaction(async (tx) => {
+      await tx.workMiscellaneousItem.deleteMany({ where: { workId: id } });
+      return tx.work.update({
+        where: { id },
+        data: {
+          ...totals,
+          balanceWorkValue: balance,
+          financialProgressPercent: financialProgress,
+          miscellaneousItems: { create: misc.rows },
+        },
+        include: {
+          workCategory: true,
+          clientDepartmentFormat: true,
+          miscellaneousItems: { orderBy: { sortOrder: 'asc' } },
+        },
+      });
     });
 
     await this.releaseLock(id, user.id, body.lockToken, true);
@@ -466,11 +486,42 @@ export class WorksService {
     }
   }
 
-  private async composeWrite(
-    body: WorkWriteDto,
-    money: ReturnType<GstCalculatorService['calculate']>,
-    userId: string,
-  ) {
+  private parseMiscItems(body: WorkWriteDto) {
+    const rows: Array<{
+      name: string;
+      amount: Prisma.Decimal;
+      sortOrder: number;
+    }> = [];
+    if (body.miscellaneousItems != null) {
+      let order = 0;
+      let total = new Prisma.Decimal(0);
+      for (const line of body.miscellaneousItems) {
+        const amount = new Prisma.Decimal(
+          line.amount === '' || line.amount == null ? 0 : line.amount,
+        );
+        if (amount.lt(0)) {
+          throw new BadRequestException({
+            title: 'Bad Request',
+            status: 400,
+            code: 'NEGATIVE_VALUE',
+            detail: 'Miscellaneous value cannot be negative',
+          });
+        }
+        const name = line.name?.trim() || '';
+        if (!name && amount.lte(0)) continue;
+        rows.push({
+          name: name || 'Miscellaneous',
+          amount: amount.toDecimalPlaces(2),
+          sortOrder: order++,
+        });
+        total = total.add(amount);
+      }
+      return {
+        rows,
+        total: total.toDecimalPlaces(2),
+        label: rows[0]?.name ?? null,
+      };
+    }
     const misc = new Prisma.Decimal(
       body.miscellaneousValue === '' || body.miscellaneousValue == null
         ? 0
@@ -484,7 +535,24 @@ export class WorksService {
         detail: 'Miscellaneous value cannot be negative',
       });
     }
-    const total = money.totalWorkValue.add(misc).toDecimalPlaces(2);
+    const label = body.miscellaneousLabel?.trim() || null;
+    if (misc.gt(0) || label) {
+      rows.push({
+        name: label || 'Miscellaneous',
+        amount: misc.toDecimalPlaces(2),
+        sortOrder: 0,
+      });
+    }
+    return { rows, total: misc.toDecimalPlaces(2), label };
+  }
+
+  private async composeWrite(
+    body: WorkWriteDto,
+    money: ReturnType<GstCalculatorService['calculate']>,
+    userId: string,
+    misc: { total: Prisma.Decimal; label: string | null },
+  ) {
+    const total = money.totalWorkValue.add(misc.total).toDecimalPlaces(2);
     let clientName: string | null = null;
     if (body.clientDepartmentFormatId) {
       const opt = await this.prisma.masterOption.findUnique({
@@ -513,8 +581,8 @@ export class WorksService {
       gstPercent: money.gstPercent,
       gstAmount: money.gstAmount,
       totalWorkValue: total,
-      miscellaneousLabel: body.miscellaneousLabel?.trim() || null,
-      miscellaneousValue: misc.toDecimalPlaces(2),
+      miscellaneousLabel: misc.label,
+      miscellaneousValue: misc.total,
       balanceWorkValue: total,
       state: body.state?.trim() || null,
       district: body.district?.trim() || null,
@@ -642,11 +710,18 @@ export class WorksService {
     row: Work & {
       workCategory?: { name: string } | null;
       clientDepartmentFormat?: { name: string } | null;
+      miscellaneousItems?: Array<{
+        id: string;
+        name: string;
+        amount: Prisma.Decimal;
+        sortOrder: number;
+      }>;
     },
   ) {
     const money = (d: Prisma.Decimal) => d.toFixed(2);
     const pct = (d: Prisma.Decimal) =>
       d.toFixed(4).replace(/\.?0+$/, '') || '0';
+    const items = row.miscellaneousItems ?? [];
     return {
       id: row.id,
       workCode: row.workCode,
@@ -667,6 +742,11 @@ export class WorksService {
       totalWorkValue: money(row.totalWorkValue),
       miscellaneousLabel: row.miscellaneousLabel,
       miscellaneousValue: money(row.miscellaneousValue),
+      miscellaneousItems: items.map((i) => ({
+        id: i.id,
+        name: i.name,
+        amount: money(i.amount),
+      })),
       balanceWorkValue: money(row.balanceWorkValue),
       financialProgressPercent: pct(row.financialProgressPercent),
       grossBillsRaised: money(row.grossBillsRaised),

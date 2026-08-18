@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import * as Prisma from '@prisma/client';
 import {
+  IsArray,
   IsDateString,
   IsEnum,
   IsOptional,
@@ -19,7 +20,9 @@ import {
   IsUUID,
   MinLength,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { RequiresMutate } from '../../shared/auth/roles.decorator';
 import { WorksService, WorkWriteDto } from './works.service';
@@ -40,6 +43,15 @@ enum SideDto {
   LHS = 'LHS',
   RHS = 'RHS',
   Both = 'Both',
+}
+
+class MiscellaneousItemDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsString()
+  amount!: string;
 }
 
 class WorkBodyDto implements WorkWriteDto {
@@ -96,6 +108,12 @@ class WorkBodyDto implements WorkWriteDto {
   @IsOptional()
   @IsString()
   miscellaneousValue?: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MiscellaneousItemDto)
+  miscellaneousItems?: MiscellaneousItemDto[];
 
   @IsOptional()
   @IsString()
