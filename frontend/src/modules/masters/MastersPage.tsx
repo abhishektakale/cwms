@@ -11,9 +11,11 @@ import {
 import type { ProblemDetails } from '../../shared/api/auth'
 import { formatDateTime } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
+import { useTranslation } from 'react-i18next'
 import './masters.css'
 
 export function MastersPage() {
+  const { t } = useTranslation()
   const [type, setType] = useState<MasterType>('work-categories')
   const [items, setItems] = useState<MasterOption[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,7 +65,7 @@ export function MastersPage() {
   }
 
   async function onDelete(item: MasterOption) {
-    if (!window.confirm(`Delete “${item.name}”?`)) return
+    if (!window.confirm(t('masters.deleteConfirm', { name: item.name }))) return
     try {
       await deleteMaster(type, item.id)
       await load()
@@ -75,22 +77,19 @@ export function MastersPage() {
 
   return (
     <div className="masters">
-      <h1>Masters</h1>
-      <p className="masters__lead">
-        Administrator option lists used across Work, Billing, and Expenditure
-        forms.
-      </p>
+      <h1>{t('masters.title')}</h1>
+      <p className="masters__lead">{t('masters.lead')}</p>
       <div className="masters__tabs" role="tablist">
-        {MASTER_TYPES.map((t) => (
+        {MASTER_TYPES.map((tab) => (
           <button
-            key={t.id}
+            key={tab.id}
             type="button"
             role="tab"
-            aria-selected={type === t.id}
-            className={type === t.id ? 'is-active' : undefined}
-            onClick={() => setType(t.id)}
+            aria-selected={type === tab.id}
+            className={type === tab.id ? 'is-active' : undefined}
+            onClick={() => setType(tab.id)}
           >
-            {t.label}
+            {t(`masters.types.${tab.id}`)}
           </button>
         ))}
       </div>
@@ -103,17 +102,17 @@ export function MastersPage() {
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="New value name"
+          placeholder={t('masters.placeholder')}
           required
         />
-        <button type="submit">Add</button>
+        <button type="submit">{t('common.add')}</button>
       </form>
       {loading ? (
-        <p>Loading…</p>
+        <p>{t('common.loading')}</p>
       ) : items.length === 0 ? (
         <EmptyState
-          title="No values yet"
-          detail="Add the first value above for this master list."
+          title={t('masters.emptyTitle')}
+          detail={t('masters.emptyDetail')}
         />
       ) : (
         <div className="table-scroll">
@@ -138,23 +137,23 @@ export function MastersPage() {
                           setEditing({ ...editing, name: e.target.value })
                         }
                       />
-                      <button type="submit">Save</button>
+                      <button type="submit">{t('common.save')}</button>
                       <button type="button" onClick={() => setEditing(null)}>
-                        Cancel
+                        {t('common.cancel')}
                       </button>
                     </form>
                   ) : (
                     item.name
                   )}
                 </td>
-                <td>{item.active ? 'Yes' : 'No'}</td>
+                <td>{item.active ? t('common.yes') : t('common.no')}</td>
                 <td className="numeric">{formatDateTime(item.updatedAt)}</td>
                 <td className="masters__actions">
                   <button type="button" onClick={() => setEditing(item)}>
-                    Edit
+                    {t('common.edit')}
                   </button>
                   <button type="button" onClick={() => void onDelete(item)}>
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </td>
               </tr>

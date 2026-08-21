@@ -10,9 +10,11 @@ import {
 import { useAuth } from '../auth/useAuth'
 import { canMutate } from '../../shared/api/auth'
 import { EmptyState } from '../../shared/ui/EmptyState'
+import { useTranslation } from 'react-i18next'
 import './works.css'
 
 export function WorkRegisterPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const navigate = useNavigate()
   const mutate = user ? canMutate(user.role) : false
@@ -70,7 +72,7 @@ export function WorkRegisterPage() {
 
   async function onDelete() {
     if (!selected) return
-    if (!window.confirm('Delete this work?')) return
+    if (!window.confirm(t('works.deleteConfirm'))) return
     try {
       await deleteWork(selected)
       setSelected(null)
@@ -84,13 +86,15 @@ export function WorkRegisterPage() {
     <div className="works">
       <div className="works__header">
         <div>
-          <h1>Work Register</h1>
-          <p className="works__lead">Showing {items.length} of {total} works</p>
+          <h1>{t('works.title')}</h1>
+          <p className="works__lead">
+            {t('works.showing', { shown: items.length, total })}
+          </p>
         </div>
         <div className="works__toolbar">
           {mutate && (
             <Link className="works__btn works__btn--primary" to="/works/new">
-              New Work
+              {t('works.newWork')}
             </Link>
           )}
           <button
@@ -99,7 +103,7 @@ export function WorkRegisterPage() {
             disabled={!selected}
             onClick={() => selected && navigate(`/works/${selected}`)}
           >
-            View
+            {t('common.view')}
           </button>
           {mutate && (
             <button
@@ -108,7 +112,7 @@ export function WorkRegisterPage() {
               disabled={!selected}
               onClick={() => void onDelete()}
             >
-              Delete
+              {t('common.delete')}
             </button>
           )}
         </div>
@@ -124,21 +128,21 @@ export function WorkRegisterPage() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search code, name, WO, client…"
+          placeholder={t('works.searchPlaceholder')}
         />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as WorkStatus | '')}
         >
-          <option value="">All statuses</option>
+          <option value="">{t('status.all')}</option>
           {(Object.keys(STATUS_LABEL) as WorkStatus[]).map((s) => (
             <option key={s} value={s}>
-              {STATUS_LABEL[s]}
+              {t(`status.${s}`)}
             </option>
           ))}
         </select>
         <button type="submit" className="works__btn works__btn--primary">
-          Apply
+          {t('common.apply')}
         </button>
         <button
           type="button"
@@ -152,7 +156,7 @@ export function WorkRegisterPage() {
             })
           }}
         >
-          Clear
+          {t('common.clear')}
         </button>
       </form>
 
@@ -163,14 +167,12 @@ export function WorkRegisterPage() {
       )}
 
       {loading ? (
-        <p>Loading…</p>
+        <p>{t('common.loading')}</p>
       ) : items.length === 0 ? (
         <EmptyState
-          title="No works yet"
+          title={t('works.emptyTitle')}
           detail={
-            mutate
-              ? 'Create the first work to start the register.'
-              : 'No works match your filters.'
+            mutate ? t('works.emptyCreate') : t('works.emptyFiltered')
           }
         />
       ) : (
@@ -216,7 +218,7 @@ export function WorkRegisterPage() {
                 <td>{w.workName}</td>
                 <td>{w.client ?? '—'}</td>
                 <td>{w.projectName ?? '—'}</td>
-                <td>{STATUS_LABEL[w.status]}</td>
+                <td>{t(`status.${w.status}`)}</td>
                 <td className="numeric">₹ {w.balanceWorkValue}</td>
               </tr>
             ))}

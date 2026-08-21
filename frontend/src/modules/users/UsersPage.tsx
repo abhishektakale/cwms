@@ -6,6 +6,7 @@ import {
   listUsers,
 } from '../../shared/api/domain'
 import { EmptyState } from '../../shared/ui/EmptyState'
+import { useTranslation } from 'react-i18next'
 
 type UserRow = {
   id: string
@@ -16,6 +17,7 @@ type UserRow = {
 }
 
 export function UsersPage() {
+  const { t } = useTranslation()
   const [items, setItems] = useState<UserRow[]>([])
   const [error, setError] = useState<string | null>(null)
 
@@ -49,7 +51,7 @@ export function UsersPage() {
 
   return (
     <div>
-      <h1 style={{ marginTop: 0 }}>Users</h1>
+      <h1 style={{ marginTop: 0 }}>{t('users.title')}</h1>
       {error && (
         <div className="works__error" role="alert">
           {error}
@@ -84,7 +86,7 @@ export function UsersPage() {
         </label>
         <div className="form-actions">
           <button type="submit" className="works__btn works__btn--primary">
-            Create user
+            {t('users.create')}
           </button>
         </div>
       </form>
@@ -103,8 +105,8 @@ export function UsersPage() {
           {items.length === 0 ? (
             <EmptyState
               colSpan={5}
-              title="No users yet"
-              detail="Create the first user above."
+              title={t('users.emptyTitle')}
+              detail={t('users.emptyDetail')}
             />
           ) : (
             items.map((u) => (
@@ -112,7 +114,7 @@ export function UsersPage() {
                 <td>{u.name}</td>
                 <td>{u.loginId}</td>
                 <td>{u.role}</td>
-                <td>{u.active ? 'Yes' : 'No'}</td>
+                <td>{u.active ? t('common.yes') : t('common.no')}</td>
                 <td>
                   {u.active ? (
                     <button
@@ -120,7 +122,7 @@ export function UsersPage() {
                       className="works__btn"
                       onClick={() => void deactivateUser(u.id).then(reload)}
                     >
-                      Deactivate
+                      {t('users.deactivate')}
                     </button>
                   ) : (
                     <button
@@ -128,7 +130,7 @@ export function UsersPage() {
                       className="works__btn"
                       onClick={() => void activateUser(u.id).then(reload)}
                     >
-                      Activate
+                      {t('users.activate')}
                     </button>
                   )}
                 </td>

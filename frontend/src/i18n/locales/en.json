@@ -1,0 +1,256 @@
+{
+  "lang": {
+    "label": "Language"
+  },
+  "common": {
+    "apply": "Apply",
+    "clear": "Clear",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "backToList": "Back to list",
+    "backToRegister": "Back to register",
+    "loading": "Loading…",
+    "loadingSession": "Loading session…",
+    "yes": "Yes",
+    "no": "No",
+    "download": "Download",
+    "upload": "Upload",
+    "remove": "Remove",
+    "add": "Add",
+    "online": "Online",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "home": "CWMS home"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "works": "Work Register",
+    "billing": "Billing",
+    "expenditure": "Expenditure",
+    "documents": "Documents",
+    "reports": "Reports",
+    "masters": "Masters",
+    "users": "Users",
+    "backup": "Backup & Restore",
+    "logout": "Logout",
+    "primary": "Primary"
+  },
+  "roles": {
+    "Administrator": "Administrator",
+    "DataEntryOperator": "Data Entry Operator",
+    "Engineer": "Engineer",
+    "Accounts": "Accounts",
+    "Viewer": "Viewer"
+  },
+  "status": {
+    "all": "All statuses",
+    "Planned": "Planned",
+    "InProgress": "In Progress",
+    "Hold": "Hold",
+    "Completed": "Completed"
+  },
+  "search": {
+    "placeholder": "Search works, bills, docs…",
+    "aria": "Global search",
+    "entity": {
+      "Work": "Work",
+      "Bill": "Bill",
+      "Document": "Document",
+      "Expense": "Expense"
+    }
+  },
+  "brand": {
+    "tagline": "Plan · Manage · Build · Succeed"
+  },
+  "loader": {
+    "aria": "CWMS is working",
+    "status": "Building…"
+  },
+  "landing": {
+    "lede": "Construction work management built for clarity from first estimate to final close-out.",
+    "logIn": "Log in",
+    "seeHow": "See how it works",
+    "scrollAria": "Scroll to capabilities",
+    "taglineSub": "One operating rhythm for construction teams who need control without clutter.",
+    "enter": "Enter CWMS",
+    "pillars": {
+      "plan": {
+        "title": "Plan",
+        "text": "Register works, track scopes, and keep every site decision in one system of record."
+      },
+      "manage": {
+        "title": "Manage",
+        "text": "Run billing, expenditure, and documents with clear ownership across your team."
+      },
+      "build": {
+        "title": "Build",
+        "text": "Move from estimate to execution with progress you can trust on every project."
+      },
+      "succeed": {
+        "title": "Succeed",
+        "text": "Close works cleanly with audit-ready history and reporting that stands up to scrutiny."
+      }
+    }
+  },
+  "login": {
+    "title": "Log in to your account",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your CWMS ID",
+    "password": "Password",
+    "togglePassword": "Toggle password visibility",
+    "rememberMe": "Remember me",
+    "forgot": "Forgot password?",
+    "resetAlert": "Password reset is administrator-managed in Version 1.0. Contact your Administrator.",
+    "submit": "Log In",
+    "signingIn": "Signing in…",
+    "demo": "Demo:",
+    "backHome": "Back to home",
+    "help": "Help Center",
+    "privacy": "Privacy Policy",
+    "accountInactive": "Account inactive",
+    "authFailed": "Authentication Failed",
+    "badCredentials": "The username or password provided is incorrect."
+  },
+  "dashboard": {
+    "greeting": "Good to see you, {{name}}",
+    "fallbackName": "there",
+    "sub": "A live picture of works, money, and what needs a decision.",
+    "works": "Works",
+    "inProgress": "{{count}} in progress",
+    "onHold": "{{count}} on hold",
+    "outstanding": "Outstanding",
+    "grossBilled": "Gross billed {{amount}}",
+    "expenditure": "Expenditure",
+    "spendMeta": "Qualifying spend to date",
+    "pl": "Est. P/L",
+    "lossVsBilled": "Loss vs billed",
+    "aheadOfSpend": "Ahead of spend",
+    "breakEven": "Break even",
+    "trafficLight": "Traffic light",
+    "trafficCounts": "{{green}} green · {{yellow}} yellow · {{red}} red",
+    "trafficAria": "Traffic light mix",
+    "trafficSr": "Mix of {{pct}}% green",
+    "workSummary": "Work summary",
+    "register": "Register",
+    "noWorks": "No works yet. Create the first one from the register.",
+    "openWork": "Open work",
+    "alerts": "Alerts",
+    "noAlerts": "Nothing flagged right now.",
+    "attention": "Needs attention",
+    "allClear": "All clear.",
+    "activity": "Recent activity",
+    "noActivity": "No activity logged yet."
+  },
+  "password": {
+    "title": "Change password",
+    "updated": "Password updated. Your current session remains active.",
+    "update": "Update Password",
+    "failed": "Could not change password"
+  },
+  "works": {
+    "title": "Work Register",
+    "showing": "Showing {{shown}} of {{total}} works",
+    "newWork": "New Work",
+    "editWork": "Edit Work",
+    "viewWork": "View Work",
+    "searchPlaceholder": "Search code, name, WO, client…",
+    "deleteConfirm": "Delete this work?",
+    "emptyTitle": "No works yet",
+    "emptyCreate": "Create the first work to start the register.",
+    "emptyFiltered": "No works match your filters.",
+    "addEstimate": "Add estimate",
+    "addActivity": "Add activity",
+    "emptyEstimates": "No estimates yet",
+    "emptyEstimatesDetail": "Add an estimate above.",
+    "emptySchedule": "No schedule activities yet",
+    "emptyScheduleDetail": "Add an activity above."
+  },
+  "billing": {
+    "title": "Billing",
+    "lead": "Choose a work to add RA / final bills and deductions.",
+    "emptyCreate": "Create a work in the register before raising bills.",
+    "allWorks": "All works",
+    "addBill": "Add bill",
+    "createBill": "Create bill",
+    "emptyTitle": "No bills yet",
+    "emptyDetail": "Use Add bill to raise an RA or final bill."
+  },
+  "expenditure": {
+    "title": "Expenditure",
+    "newExpense": "New expense",
+    "attachFile": "Attach file",
+    "addExpense": "Add expense",
+    "uploadAttachment": "Upload attachment",
+    "attach": "Attach",
+    "assign": "Assign",
+    "emptyTitle": "No expenses yet",
+    "emptyDetail": "Use New expense to track spend against works.",
+    "chooseFile": "Choose a PDF or image file to attach",
+    "uploadDisabled": "Attachment upload is disabled for this deployment (object storage not configured). Expenses still work without files."
+  },
+  "documents": {
+    "title": "Documents",
+    "uploadTitle": "Upload document",
+    "emptyTitle": "No documents yet",
+    "emptyDetail": "Use Upload to attach a PDF or image to a work.",
+    "uploadDisabled": "File upload is disabled for this deployment (object storage not configured). Listing and other modules still work."
+  },
+  "reports": {
+    "title": "Reports",
+    "lead": "Run a register, then export or save the current year filter.",
+    "run": "Run",
+    "exportExcel": "Export Excel",
+    "exportPdf": "Export PDF",
+    "savedFilters": "Saved filters",
+    "rename": "Rename",
+    "setDefault": "Set default",
+    "saveFilter": "Save filter",
+    "renamePrompt": "Rename saved filter",
+    "deleteConfirm": "Delete this saved filter?",
+    "nameRequired": "Filter name is required",
+    "emptyRunTitle": "No report run yet",
+    "emptyRunDetail": "Choose a report and financial year, then click Run.",
+    "emptyRowsTitle": "No rows for this report",
+    "emptyRowsDetail": "Try another financial year or filter.",
+    "rowCount": "{{count}} rows",
+    "defaultSuffix": " (default)"
+  },
+  "masters": {
+    "title": "Masters",
+    "lead": "Administrator option lists used across Work, Billing, and Expenditure forms.",
+    "placeholder": "New value name",
+    "deleteConfirm": "Delete “{{name}}”?",
+    "emptyTitle": "No values yet",
+    "emptyDetail": "Add the first value above for this master list.",
+    "types": {
+      "work-categories": "Work Categories",
+      "document-types": "Document Types",
+      "deduction-heads": "Deduction Heads",
+      "expense-categories": "Expense Categories",
+      "client-department-formats": "Client/Department"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "create": "Create user",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "emptyTitle": "No users yet",
+    "emptyDetail": "Create the first user above."
+  },
+  "backup": {
+    "title": "Backup & Restore",
+    "lead": "Weekly backup job stub with 30-day retention. Restore toggles maintenance mode briefly (admin only).",
+    "runStub": "Run weekly backup stub",
+    "restore": "Restore",
+    "stubRecorded": "Weekly backup stub recorded",
+    "restoreDone": "Restore stub completed for {{id}}",
+    "emptyTitle": "No backups recorded",
+    "emptyDetail": "Run the weekly backup stub to create the first entry."
+  }
+}

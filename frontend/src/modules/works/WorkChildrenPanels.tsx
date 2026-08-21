@@ -13,6 +13,7 @@ import { canMutate } from '../../shared/api/auth'
 import { formatDate } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/useAuth'
+import { useTranslation } from 'react-i18next'
 
 export function WorkChildrenPanels({
   workId,
@@ -21,6 +22,7 @@ export function WorkChildrenPanels({
   workId: string
   section: 'estimates' | 'schedule'
 }) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const mutate = user ? canMutate(user.role) : false
   const [estimates, setEstimates] = useState<Estimate[]>([])
@@ -105,7 +107,7 @@ export function WorkChildrenPanels({
               </label>
               <div className="form-actions">
                 <button type="submit" className="works__btn works__btn--primary">
-                  Add estimate
+                  {t('works.addEstimate')}
                 </button>
               </div>
             </form>
@@ -124,9 +126,9 @@ export function WorkChildrenPanels({
               {estimates.length === 0 ? (
                 <EmptyState
                   colSpan={4}
-                  title="No estimates yet"
+                  title={t('works.emptyEstimates')}
                   detail={
-                    mutate ? 'Add an estimate above.' : undefined
+                    mutate ? t('works.emptyEstimatesDetail') : undefined
                   }
                 />
               ) : (
@@ -144,7 +146,7 @@ export function WorkChildrenPanels({
                             void deleteEstimate(row.id).then(reload)
                           }
                         >
-                          Delete
+                          {t('common.delete')}
                         </button>
                       )}
                     </td>
@@ -183,7 +185,7 @@ export function WorkChildrenPanels({
               </label>
               <div className="form-actions">
                 <button type="submit" className="works__btn works__btn--primary">
-                  Add activity
+                  {t('works.addActivity')}
                 </button>
               </div>
             </form>
@@ -202,9 +204,9 @@ export function WorkChildrenPanels({
               {schedule.length === 0 ? (
                 <EmptyState
                   colSpan={4}
-                  title="No schedule activities yet"
+                  title={t('works.emptySchedule')}
                   detail={
-                    mutate ? 'Add an activity above.' : undefined
+                    mutate ? t('works.emptyScheduleDetail') : undefined
                   }
                 />
               ) : (
@@ -222,7 +224,7 @@ export function WorkChildrenPanels({
                             void deleteSchedule(row.id).then(reload)
                           }
                         >
-                          Delete
+                          {t('common.delete')}
                         </button>
                       )}
                     </td>

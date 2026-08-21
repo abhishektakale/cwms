@@ -17,8 +17,10 @@ import { canMutate } from '../../shared/api/auth'
 import { formatDate } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/useAuth'
+import { useTranslation } from 'react-i18next'
 
 export function ExpenditurePage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const mutate = user ? canMutate(user.role) : false
   const [items, setItems] = useState<Expense[]>([])
@@ -77,7 +79,7 @@ export function ExpenditurePage() {
     const fd = new FormData(form)
     const file = fd.get('file')
     if (!(file instanceof File) || !file.size) {
-      setError('Choose a PDF or image file to attach')
+      setError(t('expenditure.chooseFile'))
       return
     }
     try {
@@ -98,10 +100,10 @@ export function ExpenditurePage() {
 
   const title =
     screen === 'new'
-      ? 'New expense'
+      ? t('expenditure.newExpense')
       : screen === 'attach'
-        ? 'Attach file'
-        : 'Expenditure'
+        ? t('expenditure.attachFile')
+        : t('expenditure.title')
 
   return (
     <div>
@@ -116,12 +118,12 @@ export function ExpenditurePage() {
               className="works__btn works__btn--primary"
               onClick={() => setScreen('new')}
             >
-              New expense
+              {t('expenditure.newExpense')}
             </button>
           )}
           {screen !== 'list' && (
             <button type="button" className="works__btn" onClick={backToList}>
-              Back to list
+              {t('common.backToList')}
             </button>
           )}
         </div>
@@ -136,8 +138,7 @@ export function ExpenditurePage() {
           role="status"
           style={{ marginBottom: 16, color: 'var(--color-text-muted, #5c6570)' }}
         >
-          Attachment upload is disabled for this deployment (object storage not
-          configured). Expenses still work without files.
+          {t('expenditure.uploadDisabled')}
         </p>
       )}
 
@@ -209,10 +210,10 @@ export function ExpenditurePage() {
           </label>
           <div className="form-actions">
             <button type="submit" className="works__btn works__btn--primary">
-              Add expense
+              {t('expenditure.addExpense')}
             </button>
             <button type="button" className="works__btn" onClick={backToList}>
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -229,10 +230,10 @@ export function ExpenditurePage() {
           </label>
           <div className="form-actions">
             <button type="submit" className="works__btn works__btn--primary">
-              Upload attachment
+              {t('expenditure.uploadAttachment')}
             </button>
             <button type="button" className="works__btn" onClick={backToList}>
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -257,11 +258,9 @@ export function ExpenditurePage() {
             {items.length === 0 ? (
               <EmptyState
                 colSpan={8}
-                title="No expenses yet"
+                title={t('expenditure.emptyTitle')}
                 detail={
-                  mutate
-                    ? 'Use New expense to track spend against works.'
-                    : undefined
+                  mutate ? t('expenditure.emptyDetail') : undefined
                 }
               />
             ) : (
@@ -299,7 +298,7 @@ export function ExpenditurePage() {
                                       .catch((err: Error) => setError(err.message))
                                   }
                                 >
-                                  Remove
+                                  {t('common.remove')}
                                 </button>
                               </>
                             )}
@@ -318,7 +317,7 @@ export function ExpenditurePage() {
                           setScreen('attach')
                         }}
                       >
-                        Attach
+                        {t('expenditure.attach')}
                       </button>
                     )}
                     {mutate &&
@@ -332,7 +331,7 @@ export function ExpenditurePage() {
                             void assignExpense(row.id, works[0].id).then(reload)
                           }
                         >
-                          Assign
+                          {t('expenditure.assign')}
                         </button>
                       )}
                     {mutate && row.status !== 'Cancelled' && (
@@ -341,7 +340,7 @@ export function ExpenditurePage() {
                         className="works__btn"
                         onClick={() => void cancelExpense(row.id).then(reload)}
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </button>
                     )}
                     {mutate && (
@@ -350,7 +349,7 @@ export function ExpenditurePage() {
                         className="works__btn"
                         onClick={() => void deleteExpense(row.id).then(reload)}
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     )}
                   </td>

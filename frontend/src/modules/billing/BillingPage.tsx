@@ -6,11 +6,12 @@ import {
   listBills,
   type Bill,
 } from '../../shared/api/domain'
-import { getWork, listWorks, STATUS_LABEL, type Work } from '../../shared/api/works'
+import { getWork, listWorks, type Work } from '../../shared/api/works'
 import { canMutate } from '../../shared/api/auth'
 import { formatDate } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/useAuth'
+import { useTranslation } from 'react-i18next'
 import '../works/works.css'
 import './billing.css'
 
@@ -76,6 +77,7 @@ export function BillingPage() {
 }
 
 function BillingWorkList() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const navigate = useNavigate()
   const mutate = user ? canMutate(user.role) : false
@@ -109,10 +111,8 @@ function BillingWorkList() {
     <div className="works">
       <div className="works__header">
         <div>
-          <h1>Billing</h1>
-          <p className="works__lead">
-            Choose a work to add RA / final bills and deductions.
-          </p>
+          <h1>{t('billing.title')}</h1>
+          <p className="works__lead">{t('billing.lead')}</p>
         </div>
       </div>
 
@@ -126,10 +126,10 @@ function BillingWorkList() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search code, name, WO, client…"
+          placeholder={t('works.searchPlaceholder')}
         />
         <button type="submit" className="works__btn works__btn--primary">
-          Apply
+          {t('common.apply')}
         </button>
       </form>
 
@@ -140,14 +140,12 @@ function BillingWorkList() {
       )}
 
       {loading ? (
-        <p>Loading…</p>
+        <p>{t('common.loading')}</p>
       ) : items.length === 0 ? (
         <EmptyState
-          title="No works yet"
+          title={t('works.emptyTitle')}
           detail={
-            mutate
-              ? 'Create a work in the register before raising bills.'
-              : 'No works match your filters.'
+            mutate ? t('billing.emptyCreate') : t('works.emptyFiltered')
           }
         />
       ) : (
@@ -176,7 +174,7 @@ function BillingWorkList() {
                   <td>{w.workOrderNo}</td>
                   <td>{w.workName}</td>
                   <td>{w.client ?? '—'}</td>
-                  <td>{STATUS_LABEL[w.status]}</td>
+                  <td>{t(`status.${w.status}`)}</td>
                   <td className="numeric">₹ {inr(w.totalWorkValue)}</td>
                   <td className="numeric">₹ {inr(w.grossBillsRaised)}</td>
                   <td className="numeric">₹ {inr(w.balanceWorkValue)}</td>
@@ -191,6 +189,7 @@ function BillingWorkList() {
 }
 
 function WorkBills({ workId }: { workId: string }) {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const mutate = user ? canMutate(user.role) : false
   const [work, setWork] = useState<Work | null>(null)
@@ -231,7 +230,7 @@ function WorkBills({ workId }: { workId: string }) {
     <div className="works">
       <div className="works__header">
         <div>
-          <h1>Billing</h1>
+          <h1>{t('billing.title')}</h1>
           {work && (
             <p className="works__lead">
               {work.workCode} · {work.workName}
@@ -240,7 +239,7 @@ function WorkBills({ workId }: { workId: string }) {
         </div>
         <div className="works__toolbar">
           <Link className="works__btn" to="/billing">
-            All works
+            {t('billing.allWorks')}
           </Link>
           {screen === 'list' && mutate && (
             <button
@@ -248,12 +247,12 @@ function WorkBills({ workId }: { workId: string }) {
               className="works__btn works__btn--primary"
               onClick={() => setScreen('new')}
             >
-              Add bill
+              {t('billing.addBill')}
             </button>
           )}
           {screen === 'new' && (
             <button type="button" className="works__btn" onClick={() => setScreen('list')}>
-              Back to register
+              {t('common.backToRegister')}
             </button>
           )}
         </div>
@@ -302,8 +301,8 @@ function WorkBills({ workId }: { workId: string }) {
                 {items.length === 0 ? (
                   <EmptyState
                     colSpan={16}
-                    title="No bills yet"
-                    detail={mutate ? 'Use Add bill to raise an RA or final bill.' : undefined}
+                    title={t('billing.emptyTitle')}
+                    detail={mutate ? t('billing.emptyDetail') : undefined}
                   />
                 ) : (
                   items.map((b) => (
@@ -336,7 +335,7 @@ function WorkBills({ workId }: { workId: string }) {
                                 .catch((err: Error) => setError(err.message))
                             }
                           >
-                            Delete
+                            {t('common.delete')}
                           </button>
                         )}
                       </td>
@@ -371,6 +370,7 @@ function BillForm({
   onSaved: () => Promise<void>
   onError: (message: string | null) => void
 }) {
+  const { t } = useTranslation()
   const [billType, setBillType] = useState<'RaBill' | 'FinalBill'>('RaBill')
   const [raBillNo, setRaBillNo] = useState('')
   const [billDate, setBillDate] = useState(new Date().toISOString().slice(0, 10))
@@ -690,10 +690,10 @@ function BillForm({
 
       <div className="form-actions">
         <button type="submit" className="works__btn works__btn--primary" disabled={saving}>
-          {saving ? 'Saving…' : 'Create bill'}
+          {saving ? t('common.saving') : t('billing.createBill')}
         </button>
         <button type="button" className="works__btn" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </button>
       </div>
     </form>

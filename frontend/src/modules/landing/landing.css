@@ -7,8 +7,8 @@
   --landing-ink: var(--cwms-brand-navy, #102c4b);
   --landing-muted: #4a5d78;
   --landing-surface: #f3f6fa;
-  --landing-font-display: 'Raleway', 'Segoe UI', sans-serif;
-  --landing-font-body: 'Inter', 'Segoe UI', sans-serif;
+  --landing-font-display: 'Raleway', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
+  --landing-font-body: 'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
 
   min-height: 100vh;
   color: var(--landing-ink);
@@ -26,6 +26,14 @@
   color: var(--landing-white);
   isolation: isolate;
   overflow: hidden;
+}
+
+.landing__lang {
+  position: absolute;
+  top: max(1rem, env(safe-area-inset-top, 0px));
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  z-index: 5;
+  pointer-events: auto;
 }
 
 .landing__hero-media {

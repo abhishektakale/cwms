@@ -17,6 +17,7 @@ import { useAuth } from '../auth/useAuth'
 import { canMutate } from '../../shared/api/auth'
 import { WorkChildrenPanels } from './WorkChildrenPanels'
 import { WorkBudgetBar } from './WorkBudgetBar'
+import { useTranslation } from 'react-i18next'
 import './works.css'
 
 type Mode = 'new' | 'edit' | 'view'
@@ -100,6 +101,7 @@ function chainageEnabled(
 }
 
 export function WorkFormPage({ mode }: { mode: Mode }) {
+  const { t } = useTranslation()
   const { workId } = useParams()
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -276,10 +278,14 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
     navigate('/works')
   }
 
-  if (!loaded) return <p>Loading…</p>
+  if (!loaded) return <p>{t('common.loading')}</p>
 
   const title =
-    mode === 'new' ? 'New Work' : mode === 'edit' ? 'Edit Work' : 'View Work'
+    mode === 'new'
+      ? t('works.newWork')
+      : mode === 'edit'
+        ? t('works.editWork')
+        : t('works.viewWork')
 
   const tabs: Array<[TabId, string]> = [
     ['summary', 'Summary'],
@@ -307,7 +313,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
           {workCode && <p className="works__lead numeric">{workCode}</p>}
         </div>
         <Link to="/works" className="works__btn">
-          Back to register
+          {t('common.backToRegister')}
         </Link>
       </div>
 
@@ -411,7 +417,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 >
                   {(Object.keys(STATUS_LABEL) as WorkStatus[]).map((s) => (
                     <option key={s} value={s}>
-                      {STATUS_LABEL[s]}
+                      {t(`status.${s}`)}
                     </option>
                   ))}
                 </select>
@@ -719,7 +725,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
               </div>
               <div>
                 <dt>Status</dt>
-                <dd>{STATUS_LABEL[form.status]}</dd>
+                <dd>{t(`status.${form.status}`)}</dd>
               </div>
               <div>
                 <dt>Location</dt>
@@ -768,7 +774,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
 
           <div className="work-form__footer">
             <button type="button" className="works__btn" onClick={() => void onCancel()}>
-              {readOnly ? 'Close' : 'Cancel'}
+              {readOnly ? t('common.close') : t('common.cancel')}
             </button>
             {!readOnly && (
               <button
@@ -776,7 +782,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 className="works__btn works__btn--primary"
                 disabled={saving}
               >
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? t('common.saving') : t('common.save')}
               </button>
             )}
             {mode === 'view' && mutate && workId && (
@@ -784,7 +790,7 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 className="works__btn works__btn--primary"
                 to={`/works/${workId}/edit`}
               >
-                Edit
+                {t('common.edit')}
               </Link>
             )}
           </div>

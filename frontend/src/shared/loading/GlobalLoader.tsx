@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { LoaderMark } from './LoaderMark'
 import { LOADER_CYCLE_MS, LOADER_HIDE_TAIL_MS } from './loader-cycle'
 import { subscribeRequests } from './requestTracker'
@@ -8,6 +9,7 @@ const SHOW_DELAY_MS = 120
 
 /** Branded overlay markup — used by request tracking and route Suspense. */
 export function GlobalLoaderFallback() {
+  const { t } = useTranslation()
   return (
     <div
       className="global-loader"
@@ -15,7 +17,7 @@ export function GlobalLoaderFallback() {
       role="status"
       aria-live="polite"
       aria-busy="true"
-      aria-label="CWMS is working"
+      aria-label={t('loader.aria')}
     >
       <div className="global-loader__panel">
         <LoaderMark />
@@ -23,10 +25,8 @@ export function GlobalLoaderFallback() {
           <div className="global-loader__brand">
             CW<span>M</span>S
           </div>
-          <div className="global-loader__tagline">
-            Plan · Manage · Build · Succeed
-          </div>
-          <div className="global-loader__status">Building…</div>
+          <div className="global-loader__tagline">{t('brand.tagline')}</div>
+          <div className="global-loader__status">{t('loader.status')}</div>
         </div>
       </div>
     </div>

@@ -1,24 +1,27 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/useAuth'
-import { ROLE_LABEL, isAdmin } from '../../shared/api/auth'
+import { isAdmin } from '../../shared/api/auth'
 import { globalSearch } from '../../shared/api/domain'
 import { CwmsLogo } from '../../shared/brand/CwmsLogo'
+import { LanguageSwitcher } from '../../i18n/LanguageSwitcher'
 import './shell.css'
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard', icon: 'dashboard', adminOnly: false },
-  { to: '/works', label: 'Work Register', icon: 'assignment', adminOnly: false },
-  { to: '/billing', label: 'Billing', icon: 'receipt_long', adminOnly: false },
-  { to: '/expenditure', label: 'Expenditure', icon: 'payments', adminOnly: false },
-  { to: '/documents', label: 'Documents', icon: 'description', adminOnly: false },
-  { to: '/reports', label: 'Reports', icon: 'assessment', adminOnly: false },
-  { to: '/masters', label: 'Masters', icon: 'database', adminOnly: true },
-  { to: '/users', label: 'Users', icon: 'group', adminOnly: true },
-  { to: '/backup', label: 'Backup & Restore', icon: 'cloud_sync', adminOnly: true },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: 'dashboard', adminOnly: false },
+  { to: '/works', labelKey: 'nav.works', icon: 'assignment', adminOnly: false },
+  { to: '/billing', labelKey: 'nav.billing', icon: 'receipt_long', adminOnly: false },
+  { to: '/expenditure', labelKey: 'nav.expenditure', icon: 'payments', adminOnly: false },
+  { to: '/documents', labelKey: 'nav.documents', icon: 'description', adminOnly: false },
+  { to: '/reports', labelKey: 'nav.reports', icon: 'assessment', adminOnly: false },
+  { to: '/masters', labelKey: 'nav.masters', icon: 'database', adminOnly: true },
+  { to: '/users', labelKey: 'nav.users', icon: 'group', adminOnly: true },
+  { to: '/backup', labelKey: 'nav.backup', icon: 'cloud_sync', adminOnly: true },
 ] as const
 
 export function AppShell() {
+  const { t } = useTranslation()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -59,6 +62,7 @@ export function AppShell() {
   }
 
   const homeTo = user ? '/dashboard' : '/'
+  const roleLabel = user ? t(`roles.${user.role}`) : ''
 
   return (
     <div className={`shell${navOpen ? ' shell--nav-open' : ''}`}>
@@ -66,12 +70,12 @@ export function AppShell() {
         <button
           type="button"
           className="shell__backdrop"
-          aria-label="Close menu"
+          aria-label={t('common.closeMenu')}
           onClick={() => setNavOpen(false)}
         />
       )}
-      <nav className="shell__nav" aria-label="Primary" id="app-nav">
-        <Link to={homeTo} className="shell__brand" aria-label="CWMS home">
+      <nav className="shell__nav" aria-label={t('nav.primary')} id="app-nav">
+        <Link to={homeTo} className="shell__brand" aria-label={t('common.home')}>
           <CwmsLogo
             className="shell__brand-mark"
             variant="color"
@@ -82,9 +86,7 @@ export function AppShell() {
           />
           <span className="shell__brand-text">
             <span className="shell__brand-title">CWMS</span>
-            <span className="shell__brand-sub">
-              Plan · Manage · Build · Succeed
-            </span>
+            <span className="shell__brand-sub">{t('brand.tagline')}</span>
           </span>
         </Link>
         <ul className="shell__nav-list">
@@ -97,7 +99,7 @@ export function AppShell() {
                 }
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </NavLink>
             </li>
           ))}
@@ -105,7 +107,7 @@ export function AppShell() {
         <div className="shell__nav-footer">
           <button type="button" className="shell__nav-link" onClick={() => void onLogout()}>
             <span className="material-symbols-outlined">logout</span>
-            <span>Logout</span>
+            <span>{t('nav.logout')}</span>
           </button>
         </div>
       </nav>
@@ -123,9 +125,9 @@ export function AppShell() {
               <span className="material-symbols-outlined">
                 {navOpen ? 'close' : 'menu'}
               </span>
-              <span className="shell__menu-label">Menu</span>
+              <span className="shell__menu-label">{t('common.menu')}</span>
             </button>
-            <Link to={homeTo} className="shell__header-home" aria-label="CWMS home">
+            <Link to={homeTo} className="shell__header-home" aria-label={t('common.home')}>
               <CwmsLogo
                 className="shell__header-mark"
                 variant="color"
@@ -140,8 +142,8 @@ export function AppShell() {
               <span className="material-symbols-outlined">search</span>
               <input
                 type="search"
-                placeholder="Search works, bills, docs…"
-                aria-label="Global search"
+                placeholder={t('search.placeholder')}
+                aria-label={t('search.aria')}
                 value={q}
                 onChange={(e) => void onSearch(e.target.value)}
               />
@@ -162,7 +164,7 @@ export function AppShell() {
                           else if (h.entityType === 'Expense') navigate('/expenditure')
                         }}
                       >
-                        {h.entityType}: {h.title}
+                        {t(`search.entity.${h.entityType}`)}: {h.title}
                       </button>
                     </li>
                   ))}
@@ -171,11 +173,10 @@ export function AppShell() {
             </div>
           </div>
           <div className="shell__header-right">
+            <LanguageSwitcher />
             <div className="shell__user">
               <span className="shell__user-name">{user?.name}</span>
-              <span className="shell__role-chip">
-                {user ? ROLE_LABEL[user.role] : ''}
-              </span>
+              <span className="shell__role-chip">{roleLabel}</span>
             </div>
           </div>
         </header>
@@ -183,7 +184,7 @@ export function AppShell() {
           <Outlet />
         </main>
         <footer className="shell__status" role="status">
-          <span>Online</span>
+          <span>{t('common.online')}</span>
         </footer>
       </div>
     </div>
