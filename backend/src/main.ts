@@ -2,6 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
+import {
+  ProblemDetailsFilter,
+  validationExceptionFactory,
+} from './shared/http/problem-details.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,11 +19,13 @@ async function bootstrap() {
   const apiPrefix = process.env.API_PREFIX ?? 'api/v1';
   app.setGlobalPrefix(apiPrefix);
   app.use(cookieParser());
+  app.useGlobalFilters(new ProblemDetailsFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
+      exceptionFactory: validationExceptionFactory,
     }),
   );
 

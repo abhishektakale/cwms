@@ -24,7 +24,16 @@ export type ProblemDetails = {
   status?: number
   detail?: string
   code?: string
+  message?: string | string[]
   errors?: Array<{ field: string; message: string; code?: string }>
+}
+
+export function problemMessage(problem: ProblemDetails, fallback = 'Request failed') {
+  if (problem.detail) return problem.detail
+  if (problem.title) return problem.title
+  if (Array.isArray(problem.message)) return problem.message.join('; ')
+  if (typeof problem.message === 'string') return problem.message
+  return fallback
 }
 
 export const API_BASE =
@@ -71,9 +80,7 @@ export async function apiFetch<T>(
       if (!res.ok) {
         const problem = await parseError(res)
         if (res.status === 401) emitAuthFailure(path)
-        const err = new Error(
-          problem.detail ?? problem.title ?? 'Request failed',
-        ) as Error & {
+        const err = new Error(problemMessage(problem)) as Error & {
           status: number
           problem: ProblemDetails
         }

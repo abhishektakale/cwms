@@ -1,4 +1,4 @@
-import { API_BASE, type ProblemDetails } from './auth'
+import { API_BASE, problemMessage, type ProblemDetails } from './auth'
 import { trackRequest } from '../loading/requestTracker'
 import { emitAuthFailure } from './session'
 
@@ -28,9 +28,10 @@ export async function apiFetch<T>(
           }
         }
         if (res.status === 401) emitAuthFailure(path)
-        const err = new Error(
-          problem.detail ?? problem.title ?? 'Request failed',
-        ) as Error & { status: number; problem: ProblemDetails }
+        const err = new Error(problemMessage(problem)) as Error & {
+          status: number
+          problem: ProblemDetails
+        }
         err.status = res.status
         err.problem = problem
         throw err

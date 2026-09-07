@@ -376,6 +376,8 @@ function BillForm({
   const [billDate, setBillDate] = useState(new Date().toISOString().slice(0, 10))
   const [workPortion, setWorkPortion] = useState('0')
   const [gstAmount, setGstAmount] = useState('0')
+  const [gstPercent, setGstPercent] = useState(0)
+  const [gstTouched, setGstTouched] = useState(false)
   const [additions, setAdditions] = useState<Line[]>([{ name: '', amount: '0' }])
   const [standard, setStandard] = useState<Record<string, string>>(() =>
     Object.fromEntries(STANDARD_DEDUCTIONS.map((d) => [d.name, '0'])),
@@ -387,6 +389,30 @@ function BillForm({
   >('Pending')
   const [amountReceived, setAmountReceived] = useState('0')
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    void getWork(workId)
+      .then((w) => {
+        if (cancelled) return
+        setGstPercent(num(w.gstPercent))
+      })
+      .catch(() => {
+        /* keep default 0% */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [workId])
+
+  useEffect(() => {
+    if (gstTouched) return
+    const portion = num(workPortion)
+    const pct = gstPercent
+    const gst =
+      Math.round(((portion * pct) / 100 + Number.EPSILON) * 100) / 100
+    setGstAmount(gst.toFixed(2))
+  }, [workPortion, gstPercent, gstTouched])
 
   const a = num(workPortion)
   const b = num(gstAmount)
@@ -489,9 +515,16 @@ function BillForm({
           <input
             className="numeric"
             value={gstAmount}
-            onChange={(e) => setGstAmount(e.target.value)}
+            onChange={(e) => {
+              setGstTouched(true)
+              setGstAmount(e.target.value)
+            }}
             required
           />
+          <small className="bill-sheet__hint">
+            Auto from work portion × {gstPercent}% GST
+            {gstTouched ? ' (edited)' : ''}
+          </small>
         </label>
         <p className="bill-sheet__total">
           Subtotal <strong>₹ {inr(preview.ab)}</strong>

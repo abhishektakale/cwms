@@ -17,6 +17,7 @@ import {
   User,
 } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { SHORT_TX } from '../../shared/prisma/tx-options';
 import {
   STORAGE_PORT,
   isDocumentUploadEnabled,
@@ -162,18 +163,20 @@ export class ExpensesService {
     const amounts = this.calc(body);
     const expenseCode = await this.sequences.nextCode('EXP');
 
-    const row = await this.prisma.$transaction(async (tx) => {
-      const expense = await tx.expense.create({
-        data: {
-          expenseCode,
-          ...this.map(body, amounts, user.id),
-          createdByUserId: user.id,
-        },
-        include: expenseInclude,
-      });
-      if (expense.workId) await this.rollup.recalculate(expense.workId, tx);
-      return expense;
-    });
+    const row = await this.prisma.$transaction(
+      async (tx) => {
+        return tx.expense.create({
+          data: {
+            expenseCode,
+            ...this.map(body, amounts, user.id),
+            createdByUserId: user.id,
+          },
+          include: expenseInclude,
+        });
+      },
+      { ...SHORT_TX },
+    );
+    if (row.workId) await this.rollup.recalculate(row.workId);
 
     await this.audit.append({
       userId: user.id,
@@ -195,18 +198,20 @@ export class ExpensesService {
     const amounts = this.calc(body);
     const prevWorkId = existing.workId;
 
-    const row = await this.prisma.$transaction(async (tx) => {
-      const expense = await tx.expense.update({
-        where: { id },
-        data: this.map(body, amounts, user.id),
-        include: expenseInclude,
-      });
-      if (prevWorkId) await this.rollup.recalculate(prevWorkId, tx);
-      if (expense.workId && expense.workId !== prevWorkId) {
-        await this.rollup.recalculate(expense.workId, tx);
-      }
-      return expense;
-    });
+    const row = await this.prisma.$transaction(
+      async (tx) => {
+        return tx.expense.update({
+          where: { id },
+          data: this.map(body, amounts, user.id),
+          include: expenseInclude,
+        });
+      },
+      { ...SHORT_TX },
+    );
+    if (prevWorkId) await this.rollup.recalculate(prevWorkId);
+    if (row.workId && row.workId !== prevWorkId) {
+      await this.rollup.recalculate(row.workId);
+    }
 
     await this.audit.append({
       userId: user.id,
@@ -231,20 +236,22 @@ export class ExpensesService {
       });
     }
     const prev = existing.workId;
-    const row = await this.prisma.$transaction(async (tx) => {
-      const expense = await tx.expense.update({
-        where: { id },
-        data: {
-          workId,
-          status: ExpenseStatus.AssignedToWork,
-          updatedByUserId: user.id,
-        },
-        include: expenseInclude,
-      });
-      if (prev) await this.rollup.recalculate(prev, tx);
-      await this.rollup.recalculate(workId, tx);
-      return expense;
-    });
+    const row = await this.prisma.$transaction(
+      async (tx) => {
+        return tx.expense.update({
+          where: { id },
+          data: {
+            workId,
+            status: ExpenseStatus.AssignedToWork,
+            updatedByUserId: user.id,
+          },
+          include: expenseInclude,
+        });
+      },
+      { ...SHORT_TX },
+    );
+    if (prev) await this.rollup.recalculate(prev);
+    await this.rollup.recalculate(workId);
     await this.audit.append({
       userId: user.id,
       userNameSnapshot: user.name,
@@ -259,18 +266,20 @@ export class ExpensesService {
 
   async cancel(id: string, user: User) {
     const existing = await this.findFull(id);
-    const row = await this.prisma.$transaction(async (tx) => {
-      const expense = await tx.expense.update({
-        where: { id },
-        data: {
-          status: ExpenseStatus.Cancelled,
-          updatedByUserId: user.id,
-        },
-        include: expenseInclude,
-      });
-      if (existing.workId) await this.rollup.recalculate(existing.workId, tx);
-      return expense;
-    });
+    const row = await this.prisma.$transaction(
+      async (tx) => {
+        return tx.expense.update({
+          where: { id },
+          data: {
+            status: ExpenseStatus.Cancelled,
+            updatedByUserId: user.id,
+          },
+          include: expenseInclude,
+        });
+      },
+      { ...SHORT_TX },
+    );
+    if (existing.workId) await this.rollup.recalculate(existing.workId);
     await this.audit.append({
       userId: user.id,
       userNameSnapshot: user.name,
@@ -290,15 +299,18 @@ export class ExpensesService {
         key: attachment.storedFile.storageKey,
       });
     }
-    await this.prisma.$transaction(async (tx) => {
-      const storedIds = existing.attachments.map((a) => a.storedFileId);
-      await tx.expenseAttachment.deleteMany({ where: { expenseId: id } });
-      if (storedIds.length) {
-        await tx.storedFile.deleteMany({ where: { id: { in: storedIds } } });
-      }
-      await tx.expense.delete({ where: { id } });
-      if (existing.workId) await this.rollup.recalculate(existing.workId, tx);
-    });
+    await this.prisma.$transaction(
+      async (tx) => {
+        const storedIds = existing.attachments.map((a) => a.storedFileId);
+        await tx.expenseAttachment.deleteMany({ where: { expenseId: id } });
+        if (storedIds.length) {
+          await tx.storedFile.deleteMany({ where: { id: { in: storedIds } } });
+        }
+        await tx.expense.delete({ where: { id } });
+      },
+      { ...SHORT_TX },
+    );
+    if (existing.workId) await this.rollup.recalculate(existing.workId);
     await this.audit.append({
       userId: user.id,
       userNameSnapshot: user.name,

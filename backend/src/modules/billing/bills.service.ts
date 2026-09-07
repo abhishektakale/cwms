@@ -13,6 +13,7 @@ import {
   User,
 } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
+import { SHORT_TX } from '../../shared/prisma/tx-options';
 import { AuditService } from '../audit/audit.service';
 import { IdSequenceService } from '../../shared/kernel/id-sequence.service';
 import { WorkRollupService } from '../../shared/kernel/work-rollup.service';
@@ -228,47 +229,50 @@ export class BillsService {
     await this.assertUniqueRa(body.workId, body.raBillNo);
     const systemBillNumber = await this.sequences.nextCode('BILL');
 
-    const row = await this.prisma.$transaction(async (tx) => {
-      const bill = await tx.bill.create({
-        data: {
-          systemBillNumber,
-          workId: body.workId,
-          billType: body.billType,
-          raBillNo: body.raBillNo?.trim() || null,
-          billDate: dateOnly(body.billDate),
-          periodFrom: body.periodFrom ? dateOnly(body.periodFrom) : null,
-          periodTo: body.periodTo ? dateOnly(body.periodTo) : null,
-          previousBillAmount: computed.previousBillAmount,
-          currentWorkPortionAmount: computed.currentWorkPortionAmount,
-          gstAmount: computed.gstAmount,
-          grossBillAmount: computed.grossBillAmount,
-          totalDeductions: computed.totalDeductions,
-          netBillAmount: computed.netBillAmount,
-          paymentStatus: body.paymentStatus,
-          paymentDate: body.paymentDate ? dateOnly(body.paymentDate) : null,
-          amountReceived: computed.amountReceived,
-          outstandingAmount: computed.outstandingAmount,
-          utrChequeNo: body.utrChequeNo?.trim() || null,
-          bankName: body.bankName?.trim() || null,
-          remarks: body.remarks?.trim() || null,
-          createdByUserId: user.id,
-          updatedByUserId: user.id,
-          deductions: {
-            create: computed.deductionRows,
+    const row = await this.prisma.$transaction(
+      async (tx) => {
+        return tx.bill.create({
+          data: {
+            systemBillNumber,
+            workId: body.workId,
+            billType: body.billType,
+            raBillNo: body.raBillNo?.trim() || null,
+            billDate: dateOnly(body.billDate),
+            periodFrom: body.periodFrom ? dateOnly(body.periodFrom) : null,
+            periodTo: body.periodTo ? dateOnly(body.periodTo) : null,
+            previousBillAmount: computed.previousBillAmount,
+            currentWorkPortionAmount: computed.currentWorkPortionAmount,
+            gstAmount: computed.gstAmount,
+            grossBillAmount: computed.grossBillAmount,
+            totalDeductions: computed.totalDeductions,
+            netBillAmount: computed.netBillAmount,
+            paymentStatus: body.paymentStatus,
+            paymentDate: body.paymentDate ? dateOnly(body.paymentDate) : null,
+            amountReceived: computed.amountReceived,
+            outstandingAmount: computed.outstandingAmount,
+            utrChequeNo: body.utrChequeNo?.trim() || null,
+            bankName: body.bankName?.trim() || null,
+            remarks: body.remarks?.trim() || null,
+            createdByUserId: user.id,
+            updatedByUserId: user.id,
+            deductions: {
+              create: computed.deductionRows,
+            },
+            additions: {
+              create: computed.additionRows,
+            },
           },
-          additions: {
-            create: computed.additionRows,
+          include: {
+            work: true,
+            deductions: true,
+            additions: true,
           },
-        },
-        include: {
-          work: true,
-          deductions: true,
-          additions: true,
-        },
-      });
-      await this.rollup.recalculate(body.workId, tx);
-      return bill;
-    });
+        });
+      },
+      { ...SHORT_TX },
+    );
+    // Rollup outside the interactive tx — Neon pooler closes long interactive txs (P2028).
+    await this.rollup.recalculate(body.workId);
 
     await this.audit.append({
       userId: user.id,
@@ -289,43 +293,45 @@ export class BillsService {
     const computed = await this.computeAmounts({ ...body, workId });
     await this.assertUniqueRa(workId, body.raBillNo, id);
 
-    const row = await this.prisma.$transaction(async (tx) => {
-      await tx.billDeduction.deleteMany({ where: { billId: id } });
-      await tx.billAddition.deleteMany({ where: { billId: id } });
-      const bill = await tx.bill.update({
-        where: { id },
-        data: {
-          workId,
-          billType: body.billType,
-          raBillNo: body.raBillNo?.trim() || null,
-          billDate: dateOnly(body.billDate),
-          periodFrom: body.periodFrom ? dateOnly(body.periodFrom) : null,
-          periodTo: body.periodTo ? dateOnly(body.periodTo) : null,
-          previousBillAmount: computed.previousBillAmount,
-          currentWorkPortionAmount: computed.currentWorkPortionAmount,
-          gstAmount: computed.gstAmount,
-          grossBillAmount: computed.grossBillAmount,
-          totalDeductions: computed.totalDeductions,
-          netBillAmount: computed.netBillAmount,
-          paymentStatus: body.paymentStatus,
-          paymentDate: body.paymentDate ? dateOnly(body.paymentDate) : null,
-          amountReceived: computed.amountReceived,
-          outstandingAmount: computed.outstandingAmount,
-          utrChequeNo: body.utrChequeNo?.trim() || null,
-          bankName: body.bankName?.trim() || null,
-          remarks: body.remarks?.trim() || null,
-          updatedByUserId: user.id,
-          deductions: { create: computed.deductionRows },
-          additions: { create: computed.additionRows },
-        },
-        include: { work: true, deductions: true, additions: true },
-      });
-      if (existing.workId !== workId) {
-        await this.rollup.recalculate(existing.workId, tx);
-      }
-      await this.rollup.recalculate(workId, tx);
-      return bill;
-    });
+    const row = await this.prisma.$transaction(
+      async (tx) => {
+        await tx.billDeduction.deleteMany({ where: { billId: id } });
+        await tx.billAddition.deleteMany({ where: { billId: id } });
+        return tx.bill.update({
+          where: { id },
+          data: {
+            workId,
+            billType: body.billType,
+            raBillNo: body.raBillNo?.trim() || null,
+            billDate: dateOnly(body.billDate),
+            periodFrom: body.periodFrom ? dateOnly(body.periodFrom) : null,
+            periodTo: body.periodTo ? dateOnly(body.periodTo) : null,
+            previousBillAmount: computed.previousBillAmount,
+            currentWorkPortionAmount: computed.currentWorkPortionAmount,
+            gstAmount: computed.gstAmount,
+            grossBillAmount: computed.grossBillAmount,
+            totalDeductions: computed.totalDeductions,
+            netBillAmount: computed.netBillAmount,
+            paymentStatus: body.paymentStatus,
+            paymentDate: body.paymentDate ? dateOnly(body.paymentDate) : null,
+            amountReceived: computed.amountReceived,
+            outstandingAmount: computed.outstandingAmount,
+            utrChequeNo: body.utrChequeNo?.trim() || null,
+            bankName: body.bankName?.trim() || null,
+            remarks: body.remarks?.trim() || null,
+            updatedByUserId: user.id,
+            deductions: { create: computed.deductionRows },
+            additions: { create: computed.additionRows },
+          },
+          include: { work: true, deductions: true, additions: true },
+        });
+      },
+      { ...SHORT_TX },
+    );
+    if (existing.workId !== workId) {
+      await this.rollup.recalculate(existing.workId);
+    }
+    await this.rollup.recalculate(workId);
 
     await this.audit.append({
       userId: user.id,
@@ -340,10 +346,13 @@ export class BillsService {
 
   async remove(id: string, user: User) {
     const existing = await this.findFull(id);
-    await this.prisma.$transaction(async (tx) => {
-      await tx.bill.delete({ where: { id } });
-      await this.rollup.recalculate(existing.workId, tx);
-    });
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.bill.delete({ where: { id } });
+      },
+      { ...SHORT_TX },
+    );
+    await this.rollup.recalculate(existing.workId);
     await this.audit.append({
       userId: user.id,
       userNameSnapshot: user.name,
@@ -452,7 +461,7 @@ export class BillsService {
         title: 'Bad Request',
         status: 400,
         code: 'PAYMENT_EXCEEDS_NET',
-        detail: 'Amount received cannot exceed net bill amount',
+        detail: 'Amount received cannot exceed net bill/cheque amount',
       });
     }
     const outstanding = Prisma.Decimal.max(
