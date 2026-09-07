@@ -18,6 +18,7 @@ import { randomUUID } from 'crypto';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { GstCalculatorService } from '../../shared/kernel/gst-calculator.service';
+import { RefundService } from '../../shared/kernel/refund.service';
 
 export type WorkWriteDto = {
   projectName?: string | null;
@@ -77,6 +78,7 @@ export class WorksService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly gst: GstCalculatorService,
+    private readonly refunds: RefundService,
   ) {}
 
   async list(query: {
@@ -198,6 +200,13 @@ export class WorksService {
     }
     const dto = this.toDto(row);
     if (opts?.includeBudget === false) return dto;
+    // Soft-sync refund items when none exist yet (e.g. after Phase 2 migrate).
+    const refundCount = await this.prisma.workRefundItem.count({
+      where: { workId: id },
+    });
+    if (refundCount === 0) {
+      await this.refunds.syncForWork(id).catch(() => undefined);
+    }
     const breakdown = await this.budgetBreakdown(id);
     return { ...dto, budgetBreakdown: breakdown };
   }
@@ -227,6 +236,7 @@ export class WorksService {
         miscellaneousItems: { orderBy: { sortOrder: 'asc' } },
       },
     });
+    await this.refunds.syncForWork(row.id);
     await this.audit.append({
       userId: user.id,
       userNameSnapshot: user.name,
@@ -287,6 +297,17 @@ export class WorksService {
     });
 
     await this.releaseLock(id, user.id, body.lockToken, true);
+    const refundRelevant =
+      !existing.emdAmount.equals(row.emdAmount) ||
+      !existing.securityDepositAmount.equals(row.securityDepositAmount) ||
+      existing.dlpMonths !== row.dlpMonths ||
+      (existing.actualCompletion?.getTime() ?? null) !==
+        (row.actualCompletion?.getTime() ?? null) ||
+      (existing.scheduledCompletion?.getTime() ?? null) !==
+        (row.scheduledCompletion?.getTime() ?? null);
+    if (refundRelevant) {
+      await this.refunds.syncForWork(id);
+    }
     await this.audit.append({
       userId: user.id,
       userNameSnapshot: user.name,
@@ -673,39 +694,52 @@ export class WorksService {
     const money = (d: Prisma.Decimal | null | undefined) =>
       (d ?? new Prisma.Decimal(0)).toFixed(2);
 
-    const [billAgg, expAgg, addAgg, deductionGroups] = await Promise.all([
-      this.prisma.bill.aggregate({
-        where: { workId },
-        _sum: {
-          currentWorkPortionAmount: true,
-          gstAmount: true,
-          grossBillAmount: true,
-        },
-      }),
-      this.prisma.expense.aggregate({
-        where: { workId, status: { in: QUALIFYING_EXPENSES } },
-        _sum: {
-          expenseValue: true,
-          gstAmount: true,
-          totalAmount: true,
-        },
-      }),
-      this.prisma.billAddition.aggregate({
-        where: { bill: { workId } },
-        _sum: { amount: true },
-      }),
-      this.prisma.billDeduction.groupBy({
-        by: ['code', 'name'],
-        where: { bill: { workId } },
-        _sum: { amount: true },
-      }),
-    ]);
+    const [work, billAgg, expAgg, addAgg, deductionGroups, refundRows] =
+      await Promise.all([
+        this.prisma.work.findUnique({
+          where: { id: workId },
+          select: {
+            emdAmount: true,
+            securityDepositAmount: true,
+          },
+        }),
+        this.prisma.bill.aggregate({
+          where: { workId },
+          _sum: {
+            currentWorkPortionAmount: true,
+            gstAmount: true,
+            grossBillAmount: true,
+          },
+        }),
+        this.prisma.expense.aggregate({
+          where: { workId, status: { in: QUALIFYING_EXPENSES } },
+          _sum: {
+            expenseValue: true,
+            gstAmount: true,
+            totalAmount: true,
+          },
+        }),
+        this.prisma.billAddition.aggregate({
+          where: { bill: { workId } },
+          _sum: { amount: true },
+        }),
+        this.prisma.billDeduction.groupBy({
+          by: ['code', 'name'],
+          where: { bill: { workId } },
+          _sum: { amount: true },
+        }),
+        this.prisma.workRefundItem.findMany({
+          where: { workId },
+          orderBy: [{ source: 'asc' }, { kind: 'asc' }],
+        }),
+      ]);
 
     const statutory = {
       incomeTax: new Prisma.Decimal(0),
       sgst: new Prisma.Decimal(0),
       cgst: new Prisma.Decimal(0),
       securityDeposit: new Prisma.Decimal(0),
+      partV: new Prisma.Decimal(0),
     };
     for (const row of deductionGroups) {
       const amount = row._sum.amount ?? new Prisma.Decimal(0);
@@ -718,6 +752,8 @@ export class WorksService {
         statutory.cgst = statutory.cgst.add(amount);
       } else if (row.code === 'D2' || /security deposit/.test(key)) {
         statutory.securityDeposit = statutory.securityDeposit.add(amount);
+      } else if (row.code === 'D8' || /part[\s-]?v/.test(key)) {
+        statutory.partV = statutory.partV.add(amount);
       }
     }
 
@@ -733,6 +769,10 @@ export class WorksService {
       sgst: money(statutory.sgst),
       cgst: money(statutory.cgst),
       securityDeposit: money(statutory.securityDeposit),
+      partV: money(statutory.partV),
+      workEmd: money(work?.emdAmount),
+      workSecurityDeposit: money(work?.securityDepositAmount),
+      refundItems: refundRows.map((r) => this.refunds.toDto(r)),
     };
   }
 

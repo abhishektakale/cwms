@@ -3,11 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, ReportType, User } from '@prisma/client';
+import { Prisma, ReportType, User, WorkRefundStatus } from '@prisma/client';
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
 import { money } from '../../shared/kernel/money.util';
+import {
+  deriveRefundStatus,
+  refundKindLabel,
+} from '../../shared/kernel/refund.util';
 
 const REPORT_META: Array<{
   reportType: string;
@@ -54,6 +58,11 @@ const REPORT_META: Array<{
     reportType: 'dashboard-summary',
     name: 'Dashboard Summary',
     prisma: ReportType.dashboard_summary,
+  },
+  {
+    reportType: 'refund-claims',
+    name: 'Refund Claims',
+    prisma: ReportType.refund_claims,
   },
 ];
 
@@ -508,6 +517,91 @@ export class ReportsService {
               ),
             ),
           },
+        };
+      }
+      case 'refund-claims': {
+        const statusFilter =
+          typeof filters.status === 'string' && filters.status.trim()
+            ? (filters.status.trim() as WorkRefundStatus)
+            : null;
+        const fyWhere: Prisma.WorkRefundItemWhereInput =
+          fy.from || fy.to
+            ? {
+                OR: [
+                  {
+                    claimDueDate: {
+                      ...(fy.from ? { gte: fy.from } : {}),
+                      ...(fy.to ? { lte: fy.to } : {}),
+                    },
+                  },
+                  {
+                    claimDueDate: null,
+                    work: {
+                      workOrderDate: {
+                        ...(fy.from ? { gte: fy.from } : {}),
+                        ...(fy.to ? { lte: fy.to } : {}),
+                      },
+                    },
+                  },
+                ],
+              }
+            : {};
+        const rows = await this.prisma.workRefundItem.findMany({
+          where: {
+            ...fyWhere,
+            ...(statusFilter === WorkRefundStatus.Claimed ||
+            statusFilter === WorkRefundStatus.Received
+              ? { status: statusFilter }
+              : {}),
+          },
+          select: {
+            kind: true,
+            amount: true,
+            claimDueDate: true,
+            status: true,
+            remark: true,
+            work: {
+              select: {
+                workCode: true,
+                workName: true,
+                client: true,
+                contractor: true,
+              },
+            },
+          },
+          orderBy: [{ claimDueDate: 'asc' }, { kind: 'asc' }],
+        });
+        const mapped = rows
+          .map((r) => {
+            const status = deriveRefundStatus(r.status, r.claimDueDate);
+            return {
+              workCode: r.work.workCode,
+              workName: r.work.workName,
+              client: r.work.client ?? '',
+              contractor: r.work.contractor ?? '',
+              kind: refundKindLabel(r.kind),
+              amount: money(r.amount),
+              claimDueDate: r.claimDueDate
+                ? r.claimDueDate.toISOString().slice(0, 10)
+                : '',
+              status,
+              remark: r.remark ?? '',
+            };
+          })
+          .filter((r) => !statusFilter || r.status === statusFilter);
+        return {
+          columns: [
+            'workCode',
+            'workName',
+            'client',
+            'contractor',
+            'kind',
+            'amount',
+            'claimDueDate',
+            'status',
+            'remark',
+          ],
+          rows: mapped,
         };
       }
       default:

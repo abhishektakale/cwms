@@ -24,6 +24,33 @@ export type WorkBudgetBreakdown = {
   sgst?: string
   cgst?: string
   securityDeposit?: string
+  partV?: string
+  workEmd?: string
+  workSecurityDeposit?: string
+  refundItems?: WorkRefundItem[]
+}
+
+export type WorkRefundStatus = 'Withheld' | 'Claimable' | 'Claimed' | 'Received'
+export type WorkRefundKind = 'EMD' | 'SecurityDeposit' | 'PartV'
+export type WorkRefundSource = 'WorkDeposit' | 'BillDeduction'
+
+export type WorkRefundItem = {
+  id: string
+  workId: string
+  source: WorkRefundSource
+  kind: WorkRefundKind
+  kindLabel: string
+  label: string
+  amount: string
+  sourceBillId: string | null
+  sourceDeductionId: string | null
+  claimDueDate: string | null
+  status: WorkRefundStatus
+  remark: string | null
+  claimedAt: string | null
+  receivedAt: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export type Work = {
@@ -171,4 +198,19 @@ export function releaseWorkLock(id: string, lockToken?: string) {
 export function listProjectNames(q?: string) {
   const params = q ? `?q=${encodeURIComponent(q)}` : ''
   return apiFetch<{ items: string[] }>(`/works/project-names${params}`)
+}
+
+export function listWorkRefunds(workId: string) {
+  return apiFetch<{ items: WorkRefundItem[] }>(`/works/${workId}/refunds`)
+}
+
+export function updateWorkRefundStatus(
+  workId: string,
+  refundId: string,
+  status: 'Claimed' | 'Received' | 'Withheld',
+) {
+  return apiFetch<WorkRefundItem>(`/works/${workId}/refunds/${refundId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  })
 }

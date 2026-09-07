@@ -52,6 +52,7 @@ export function ReportsPage() {
   )
   const [selected, setSelected] = useState('work-register')
   const [fy, setFy] = useState('2026-27')
+  const [statusFilter, setStatusFilter] = useState('')
   const [columns, setColumns] = useState<string[]>([])
   const [rows, setRows] = useState<Array<Record<string, unknown>>>([])
   const [saved, setSaved] = useState<SavedReportFilter[]>([])
@@ -62,7 +63,12 @@ export function ReportsPage() {
   const [ran, setRan] = useState(false)
 
   function currentFilters() {
-    return { financialYear: fy }
+    return {
+      financialYear: fy,
+      ...(selected === 'refund-claims' && statusFilter
+        ? { status: statusFilter }
+        : {}),
+    }
   }
 
   async function loadSaved(reportType: string) {
@@ -80,6 +86,9 @@ export function ReportsPage() {
   function applyFilterPayload(filters: Record<string, unknown>) {
     const nextFy = filters.financialYear
     if (typeof nextFy === 'string' && nextFy.trim()) setFy(nextFy)
+    const nextStatus = filters.status
+    if (typeof nextStatus === 'string') setStatusFilter(nextStatus)
+    else setStatusFilter('')
   }
 
   useEffect(() => {
@@ -232,6 +241,21 @@ export function ReportsPage() {
             Financial year (Apr–Mar)
             <input value={fy} onChange={(e) => setFy(e.target.value)} />
           </label>
+          {selected === 'refund-claims' ? (
+            <label>
+              Status
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="">All</option>
+                <option value="Withheld">Withheld</option>
+                <option value="Claimable">Claimable</option>
+                <option value="Claimed">Claimed</option>
+                <option value="Received">Received</option>
+              </select>
+            </label>
+          ) : null}
         </div>
         <div className="reports__actions">
           <button

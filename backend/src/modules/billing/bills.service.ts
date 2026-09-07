@@ -17,6 +17,7 @@ import { SHORT_TX } from '../../shared/prisma/tx-options';
 import { AuditService } from '../audit/audit.service';
 import { IdSequenceService } from '../../shared/kernel/id-sequence.service';
 import { WorkRollupService } from '../../shared/kernel/work-rollup.service';
+import { RefundService } from '../../shared/kernel/refund.service';
 import {
   dateOnly,
   dec,
@@ -128,6 +129,7 @@ export class BillsService {
     private readonly audit: AuditService,
     private readonly sequences: IdSequenceService,
     private readonly rollup: WorkRollupService,
+    private readonly refunds: RefundService,
   ) {}
 
   async list(query: {
@@ -273,6 +275,7 @@ export class BillsService {
     );
     // Rollup outside the interactive tx — Neon pooler closes long interactive txs (P2028).
     await this.rollup.recalculate(body.workId);
+    await this.refunds.syncForWork(body.workId);
 
     await this.audit.append({
       userId: user.id,
@@ -330,8 +333,10 @@ export class BillsService {
     );
     if (existing.workId !== workId) {
       await this.rollup.recalculate(existing.workId);
+      await this.refunds.syncForWork(existing.workId);
     }
     await this.rollup.recalculate(workId);
+    await this.refunds.syncForWork(workId);
 
     await this.audit.append({
       userId: user.id,
@@ -353,6 +358,7 @@ export class BillsService {
       { ...SHORT_TX },
     );
     await this.rollup.recalculate(existing.workId);
+    await this.refunds.syncForWork(existing.workId);
     await this.audit.append({
       userId: user.id,
       userNameSnapshot: user.name,

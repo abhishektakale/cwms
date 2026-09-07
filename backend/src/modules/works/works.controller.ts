@@ -27,6 +27,7 @@ import { Type } from 'class-transformer';
 import { CurrentUser } from '../../shared/auth/current-user.decorator';
 import { RequiresMutate } from '../../shared/auth/roles.decorator';
 import { WorksService, WorkWriteDto } from './works.service';
+import { RefundService } from '../../shared/kernel/refund.service';
 
 enum GstTypeDto {
   GstExtra = 'GstExtra',
@@ -203,9 +204,23 @@ class WorkBodyDto implements WorkWriteDto {
   lockToken?: string;
 }
 
+enum RefundStatusPatchDto {
+  Claimed = 'Claimed',
+  Received = 'Received',
+  Withheld = 'Withheld',
+}
+
+class RefundStatusBodyDto {
+  @IsEnum(RefundStatusPatchDto)
+  status!: 'Claimed' | 'Received' | 'Withheld';
+}
+
 @Controller('works')
 export class WorksController {
-  constructor(private readonly works: WorksService) {}
+  constructor(
+    private readonly works: WorksService,
+    private readonly refunds: RefundService,
+  ) {}
 
   @Get()
   list(
@@ -251,6 +266,21 @@ export class WorksController {
     const skipBudget =
       includeBudget === '0' || includeBudget?.toLowerCase() === 'false';
     return this.works.get(workId, { includeBudget: !skipBudget });
+  }
+
+  @Get(':workId/refunds')
+  listRefunds(@Param('workId', ParseUUIDPipe) workId: string) {
+    return this.refunds.listForWork(workId);
+  }
+
+  @Patch(':workId/refunds/:refundId')
+  @RequiresMutate()
+  updateRefund(
+    @Param('workId', ParseUUIDPipe) workId: string,
+    @Param('refundId', ParseUUIDPipe) refundId: string,
+    @Body() body: RefundStatusBodyDto,
+  ) {
+    return this.refunds.updateStatus(workId, refundId, body.status);
   }
 
   @Post()

@@ -136,8 +136,33 @@ enum ReportType {
   document_register    @map("document-register")
   general_expense      @map("general-expense")
   dashboard_summary    @map("dashboard-summary")
+  refund_claims        @map("refund-claims")
 
   @@map("report_type")
+}
+
+enum WorkRefundSource {
+  WorkDeposit
+  BillDeduction
+
+  @@map("work_refund_source")
+}
+
+enum WorkRefundKind {
+  EMD
+  SecurityDeposit
+  PartV
+
+  @@map("work_refund_kind")
+}
+
+enum WorkRefundStatus {
+  Withheld
+  Claimable
+  Claimed
+  Received
+
+  @@map("work_refund_status")
 }
 
 model User {
@@ -330,6 +355,7 @@ model Work {
   bills                  Bill[]
   expenses               Expense[]
   miscellaneousItems     WorkMiscellaneousItem[]
+  refundItems            WorkRefundItem[]
 
   @@unique([workOrderNo], map: "uq_works_work_order_no")
   @@index([status], map: "ix_works_status")
@@ -340,6 +366,33 @@ model Work {
   @@index([workCategoryId], map: "ix_works_category")
   @@index([trafficLight], map: "ix_works_traffic")
   @@map("works")
+}
+
+model WorkRefundItem {
+  id               String           @id @default(uuid()) @db.Uuid
+  workId           String           @map("work_id") @db.Uuid
+  source           WorkRefundSource
+  kind             WorkRefundKind
+  label            String           @db.VarChar(200)
+  amount           Decimal          @db.Decimal(18, 2)
+  sourceBillId     String?          @map("source_bill_id") @db.Uuid
+  sourceDeductionId String?         @map("source_deduction_id") @db.Uuid
+  claimDueDate     DateTime?        @map("claim_due_date") @db.Date
+  status           WorkRefundStatus @default(Withheld)
+  remark           String?          @db.Text
+  claimedAt        DateTime?        @map("claimed_at") @db.Timestamptz(3)
+  receivedAt       DateTime?        @map("received_at") @db.Timestamptz(3)
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  work       Work  @relation(fields: [workId], references: [id], onDelete: Cascade)
+  sourceBill Bill? @relation(fields: [sourceBillId], references: [id], onDelete: SetNull)
+
+  @@unique([workId, source, kind], map: "uq_work_refund_items_work_source_kind")
+  @@index([workId], map: "ix_work_refund_items_work")
+  @@index([claimDueDate], map: "ix_work_refund_items_claim_due")
+  @@index([status], map: "ix_work_refund_items_status")
+  @@map("work_refund_items")
 }
 
 model WorkMiscellaneousItem {
@@ -480,9 +533,10 @@ model Bill {
   updatedAt                DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   updatedByUserId          String?       @map("updated_by_user_id") @db.Uuid
 
-  work       Work            @relation(fields: [workId], references: [id], onDelete: Restrict)
-  deductions BillDeduction[]
-  additions  BillAddition[]
+  work        Work             @relation(fields: [workId], references: [id], onDelete: Restrict)
+  deductions  BillDeduction[]
+  additions   BillAddition[]
+  refundItems WorkRefundItem[]
 
   @@index([workId], map: "ix_bills_work")
   @@index([billDate], map: "ix_bills_date")

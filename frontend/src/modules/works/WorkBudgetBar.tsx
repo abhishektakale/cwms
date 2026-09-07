@@ -1,4 +1,8 @@
-import type { WorkBudgetBreakdown } from '../../shared/api/works'
+import type {
+  WorkBudgetBreakdown,
+  WorkRefundItem,
+  WorkRefundStatus,
+} from '../../shared/api/works'
 
 type Segment = {
   id: string
@@ -12,12 +16,13 @@ function parseAmount(value: string | undefined | null) {
   return Number.isFinite(n) && n > 0 ? n : 0
 }
 
-function formatMoney(value: number) {
+function formatMoney(value: number | string) {
+  const n = typeof value === 'string' ? Number(value) : value
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0,
-  }).format(value)
+  }).format(Number.isFinite(n) ? n : 0)
 }
 
 function pctOfBudget(amount: number, budget: number) {
@@ -30,14 +35,34 @@ function barWidth(amount: number, budget: number) {
   return Math.min(100, (amount / budget) * 100)
 }
 
+function statusClass(status: WorkRefundStatus) {
+  switch (status) {
+    case 'Claimable':
+      return 'work-budget__badge--claimable'
+    case 'Claimed':
+      return 'work-budget__badge--claimed'
+    case 'Received':
+      return 'work-budget__badge--received'
+    default:
+      return 'work-budget__badge--withheld'
+  }
+}
+
 export function WorkBudgetBar({
   totalWorkValue,
   balanceWorkValue,
   breakdown,
+  canMutate = false,
+  onRefundStatusChange,
 }: {
   totalWorkValue: string
   balanceWorkValue?: string
   breakdown?: WorkBudgetBreakdown | null
+  canMutate?: boolean
+  onRefundStatusChange?: (
+    refundId: string,
+    status: 'Claimed' | 'Received' | 'Withheld',
+  ) => void | Promise<void>
 }) {
   const budget = parseAmount(totalWorkValue)
   const billWork = parseAmount(breakdown?.billWorkPortion)
@@ -100,10 +125,27 @@ export function WorkBudgetBar({
     { id: 'cgst', label: 'CGST withheld', amount: parseAmount(breakdown?.cgst) },
     {
       id: 'sd',
-      label: 'Security deposit withheld',
+      label: 'Security deposit withheld (bills)',
       amount: parseAmount(breakdown?.securityDeposit),
     },
+    {
+      id: 'partv',
+      label: 'Part-V withheld (bills)',
+      amount: parseAmount(breakdown?.partV),
+    },
+    {
+      id: 'work-emd',
+      label: 'Work EMD',
+      amount: parseAmount(breakdown?.workEmd),
+    },
+    {
+      id: 'work-sd',
+      label: 'Work Security Deposit',
+      amount: parseAmount(breakdown?.workSecurityDeposit),
+    },
   ].filter((s) => s.amount > 0)
+
+  const refundItems: WorkRefundItem[] = breakdown?.refundItems ?? []
 
   return (
     <section className="work-budget" aria-labelledby="work-budget-title">
@@ -153,7 +195,7 @@ export function WorkBudgetBar({
           {statutory.length > 0 && (
             <>
               <li className="work-budget__list-head">
-                <span className="work-budget__label">Withheld on bills (all RA / final)</span>
+                <span className="work-budget__label">Withheld / deposits</span>
               </li>
               {statutory.map((row) => (
                 <li key={row.id} className="work-budget__statutory">
@@ -166,6 +208,85 @@ export function WorkBudgetBar({
             </>
           )}
         </ul>
+      )}
+
+      {refundItems.length > 0 && (
+        <div className="work-budget__refunds">
+          <h4 className="work-budget__refunds-title">Refundables</h4>
+          <div className="work-budget__refunds-table-wrap">
+            <table className="work-budget__refunds-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th className="numeric">Amount</th>
+                  <th>Claim due</th>
+                  <th>Status</th>
+                  {canMutate ? <th>Actions</th> : null}
+                </tr>
+              </thead>
+              <tbody>
+                {refundItems.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <div className="work-budget__refund-label">{item.label}</div>
+                      {item.remark ? (
+                        <div className="work-budget__refund-remark">{item.remark}</div>
+                      ) : null}
+                    </td>
+                    <td className="numeric">{formatMoney(item.amount)}</td>
+                    <td>{item.claimDueDate ?? '—'}</td>
+                    <td>
+                      <span
+                        className={`work-budget__badge ${statusClass(item.status)}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                    {canMutate ? (
+                      <td>
+                        <div className="work-budget__refund-actions">
+                          {item.status !== 'Claimed' && item.status !== 'Received' ? (
+                            <button
+                              type="button"
+                              className="works__btn works__btn--ghost"
+                              onClick={() =>
+                                void onRefundStatusChange?.(item.id, 'Claimed')
+                              }
+                            >
+                              Mark claimed
+                            </button>
+                          ) : null}
+                          {item.status !== 'Received' ? (
+                            <button
+                              type="button"
+                              className="works__btn works__btn--ghost"
+                              onClick={() =>
+                                void onRefundStatusChange?.(item.id, 'Received')
+                              }
+                            >
+                              Mark received
+                            </button>
+                          ) : null}
+                          {item.status === 'Claimed' || item.status === 'Received' ? (
+                            <button
+                              type="button"
+                              className="works__btn works__btn--ghost"
+                              onClick={() =>
+                                void onRefundStatusChange?.(item.id, 'Withheld')
+                              }
+                            >
+                              Reset
+                            </button>
+                          ) : null}
+                        </div>
+                      </td>
+                    ) : null}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </section>
   )

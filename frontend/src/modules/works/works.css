@@ -515,6 +515,92 @@
   font-variant-numeric: tabular-nums;
 }
 
+.work-budget__refunds {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--cwms-border-hairline);
+}
+
+.work-budget__refunds-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.work-budget__refunds-table-wrap {
+  overflow-x: auto;
+}
+
+.work-budget__refunds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.work-budget__refunds-table th,
+.work-budget__refunds-table td {
+  padding: 8px 6px;
+  text-align: left;
+  border-bottom: 1px solid var(--cwms-border-hairline);
+  vertical-align: top;
+}
+
+.work-budget__refunds-table th.numeric,
+.work-budget__refunds-table td.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.work-budget__refund-label {
+  font-weight: 600;
+}
+
+.work-budget__refund-remark {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--cwms-on-surface-variant);
+}
+
+.work-budget__badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.work-budget__badge--withheld {
+  background: color-mix(in srgb, #64748b 18%, transparent);
+  color: #334155;
+}
+
+.work-budget__badge--claimable {
+  background: color-mix(in srgb, #ca8a04 22%, transparent);
+  color: #854d0e;
+}
+
+.work-budget__badge--claimed {
+  background: color-mix(in srgb, #2563eb 18%, transparent);
+  color: #1e40af;
+}
+
+.work-budget__badge--received {
+  background: color-mix(in srgb, #16a34a 18%, transparent);
+  color: #166534;
+}
+
+.work-budget__refund-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.work-budget__refund-actions .works__btn {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
 @media (max-width: 800px) {
   .work-form__grid {
     grid-template-columns: 1fr;

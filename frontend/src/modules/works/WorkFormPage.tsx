@@ -7,6 +7,7 @@ import {
   getWork,
   releaseWorkLock,
   updateWork,
+  updateWorkRefundStatus,
   type GstType,
   type WorkBudgetBreakdown,
   type WorkInput,
@@ -916,6 +917,33 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                 }
                 balanceWorkValue={budgetSnapshot?.balanceWorkValue}
                 breakdown={budgetSnapshot?.breakdown}
+                canMutate={mutate && mode !== 'new'}
+                onRefundStatusChange={async (refundId, status) => {
+                  if (!workId) return
+                  try {
+                    setError(null)
+                    const updated = await updateWorkRefundStatus(
+                      workId,
+                      refundId,
+                      status,
+                    )
+                    setBudgetSnapshot((prev) => {
+                      if (!prev?.breakdown) return prev
+                      const items = prev.breakdown.refundItems ?? []
+                      return {
+                        ...prev,
+                        breakdown: {
+                          ...prev.breakdown,
+                          refundItems: items.map((r) =>
+                            r.id === updated.id ? updated : r,
+                          ),
+                        },
+                      }
+                    })
+                  } catch (err) {
+                    setError((err as Error).message)
+                  }
+                }}
               />
               <dl className="work-form__summary">
               <div>
