@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { type FormEvent, useMemo, useState } from 'react'
 import { useAuth } from './useAuth'
 import type { ProblemDetails } from '../../shared/api/auth'
+import { useTranslation } from 'react-i18next'
 import './change-password.css'
 
 function checklist(password: string, name: string, loginId: string) {
@@ -23,6 +24,7 @@ function checklist(password: string, name: string, loginId: string) {
 }
 
 export function ChangePasswordPage() {
+  const { t } = useTranslation()
   const { user, changePassword } = useAuth()
   const navigate = useNavigate()
   const [currentPassword, setCurrentPassword] = useState('')
@@ -53,7 +55,7 @@ export function ChangePasswordPage() {
       setError(
         problem?.errors?.map((x) => x.message).join(' ') ||
           problem?.detail ||
-          'Could not change password',
+          t('password.failed'),
       )
     } finally {
       setSubmitting(false)
@@ -62,7 +64,7 @@ export function ChangePasswordPage() {
 
   return (
     <div className="chg-pwd">
-      <h1>Change password</h1>
+      <h1>{t('password.title')}</h1>
       <p className="chg-pwd__lead">
         Passwords must be at least 8 characters with upper, lower, number, and
         symbol, and must not contain personal details (BR-SEC-02).
@@ -74,7 +76,7 @@ export function ChangePasswordPage() {
       )}
       {success && (
         <div className="chg-pwd__banner chg-pwd__banner--ok" role="status">
-          Password updated. Your current session remains active.
+          {t('password.updated')}
         </div>
       )}
       <form className="chg-pwd__form" onSubmit={onSubmit}>
@@ -126,10 +128,10 @@ export function ChangePasswordPage() {
         </ul>
         <div className="chg-pwd__actions">
           <button type="button" onClick={() => navigate(-1)}>
-            Cancel
+            {t('common.cancel')}
           </button>
           <button type="submit" disabled={submitting}>
-            Update Password
+            {t('password.update')}
           </button>
         </div>
       </form>

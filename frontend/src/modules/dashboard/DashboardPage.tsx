@@ -4,10 +4,10 @@ import {
   getDashboard,
   type DashboardAlertItem,
 } from '../../shared/api/domain'
-import { STATUS_LABEL, type Work } from '../../shared/api/works'
+import { type Work } from '../../shared/api/works'
 import { useAuth } from '../auth/useAuth'
-import { ROLE_LABEL } from '../../shared/api/auth'
 import { formatDateTime } from '../../shared/format/datetime'
+import { useTranslation } from 'react-i18next'
 import { CwmsLogo } from '../../shared/brand/CwmsLogo'
 import './dashboard.css'
 
@@ -31,6 +31,7 @@ function barWidth(value: unknown) {
 }
 
 export function DashboardPage() {
+  const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const [summary, setSummary] = useState<Record<string, unknown> | null>(null)
   const [alerts, setAlerts] = useState<DashboardAlertItem[]>([])
@@ -56,12 +57,12 @@ export function DashboardPage() {
 
   const today = useMemo(
     () =>
-      new Intl.DateTimeFormat(undefined, {
+      new Intl.DateTimeFormat(i18n.language.startsWith('mr') ? 'mr-IN' : 'en-IN', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
       }).format(new Date()),
-    [],
+    [i18n.language],
   )
 
   const traffic = (summary?.trafficLightCounts as Traffic | undefined) ?? {
@@ -78,13 +79,15 @@ export function DashboardPage() {
       <section className="dash__hero">
         <div className="dash__hero-copy">
           <p className="dash__eyebrow">{today}</p>
-          <h1>Good to see you, {user?.name?.split(' ')[0] ?? 'there'}</h1>
-          <p className="dash__hero-sub">
-            A live picture of works, money, and what needs a decision.
-          </p>
+          <h1>
+            {t('dashboard.greeting', {
+              name: user?.name?.split(' ')[0] ?? t('dashboard.fallbackName'),
+            })}
+          </h1>
+          <p className="dash__hero-sub">{t('dashboard.sub')}</p>
         </div>
         <div className="dash__hero-aside">
-          <span className="dash__role">{user ? ROLE_LABEL[user.role] : ''}</span>
+          <span className="dash__role">{user ? t(`roles.${user.role}`) : ''}</span>
           <CwmsLogo
             className="dash__mark"
             variant="reverse"
@@ -113,54 +116,64 @@ export function DashboardPage() {
         <>
           <div className="dash__kpis">
             <article className="dash__kpi dash__kpi--navy">
-              <span className="dash__kpi-label">Works</span>
+              <span className="dash__kpi-label">{t('dashboard.works')}</span>
               <strong className="dash__kpi-value numeric">
                 {String(summary.totalWorks ?? 0)}
               </strong>
               <span className="dash__kpi-meta">
-                {String(summary.inProgressWorks ?? 0)} in progress
+                {t('dashboard.inProgress', {
+                  count: Number(summary.inProgressWorks ?? 0),
+                })}
                 {Number(summary.holdWorks) > 0
-                  ? ` · ${String(summary.holdWorks)} on hold`
+                  ? ` · ${t('dashboard.onHold', { count: Number(summary.holdWorks) })}`
                   : ''}
               </span>
             </article>
             <article className={`dash__kpi${outstanding > 0 ? ' dash__kpi--alert' : ''}`}>
-              <span className="dash__kpi-label">Outstanding</span>
+              <span className="dash__kpi-label">{t('dashboard.outstanding')}</span>
               <strong className="dash__kpi-value numeric">
                 {money(summary.outstanding)}
               </strong>
               <span className="dash__kpi-meta">
-                Gross billed {money(summary.grossBillsRaised)}
+                {t('dashboard.grossBilled', { amount: money(summary.grossBillsRaised) })}
               </span>
             </article>
             <article className="dash__kpi">
-              <span className="dash__kpi-label">Expenditure</span>
+              <span className="dash__kpi-label">{t('dashboard.expenditure')}</span>
               <strong className="dash__kpi-value numeric">
                 {money(summary.totalExpenditure)}
               </strong>
-              <span className="dash__kpi-meta">Qualifying spend to date</span>
+              <span className="dash__kpi-meta">{t('dashboard.spendMeta')}</span>
             </article>
             <article
               className={`dash__kpi${pl < 0 ? ' dash__kpi--alert' : pl > 0 ? ' dash__kpi--ok' : ''}`}
             >
-              <span className="dash__kpi-label">Est. P/L</span>
+              <span className="dash__kpi-label">{t('dashboard.pl')}</span>
               <strong className="dash__kpi-value numeric">
                 {money(summary.estimatedProfitLoss)}
               </strong>
               <span className="dash__kpi-meta">
-                {pl < 0 ? 'Loss vs billed' : pl > 0 ? 'Ahead of spend' : 'Break even'}
+                {pl < 0
+                  ? t('dashboard.lossVsBilled')
+                  : pl > 0
+                    ? t('dashboard.aheadOfSpend')
+                    : t('dashboard.breakEven')}
               </span>
             </article>
           </div>
 
           <div className="dash__traffic">
             <div className="dash__traffic-head">
-              <h2>Traffic light</h2>
+              <h2>{t('dashboard.trafficLight')}</h2>
               <span className="dash__muted">
-                {traffic.green} green · {traffic.yellow} yellow · {traffic.red} red
+                {t('dashboard.trafficCounts', {
+                  green: traffic.green,
+                  yellow: traffic.yellow,
+                  red: traffic.red,
+                })}
               </span>
             </div>
-            <div className="dash__traffic-bar" role="img" aria-label="Traffic light mix">
+            <div className="dash__traffic-bar" role="img" aria-label={t('dashboard.trafficAria')}>
               <span
                 className="dash__traffic-seg dash__traffic-seg--g"
                 style={{ flexGrow: traffic.green }}
@@ -175,7 +188,9 @@ export function DashboardPage() {
               />
             </div>
             <p className="dash__sr-only">
-              Mix of {Math.round((traffic.green / trafficTotal) * 100)}% green
+              {t('dashboard.trafficSr', {
+                pct: Math.round((traffic.green / trafficTotal) * 100),
+              })}
             </p>
           </div>
         </>
@@ -184,13 +199,13 @@ export function DashboardPage() {
       <div className="dash__grid">
         <section className="dash__card dash__card--works">
           <div className="dash__card-head">
-            <h2>Work summary</h2>
+            <h2>{t('dashboard.workSummary')}</h2>
             <Link to="/works" className="dash__link">
-              Register
+              {t('dashboard.register')}
             </Link>
           </div>
           {works.length === 0 ? (
-            <p className="dash__empty">No works yet. Create the first one from the register.</p>
+            <p className="dash__empty">{t('dashboard.noWorks')}</p>
           ) : (
             <ul className="dash__works">
               {works.map((w) => {
@@ -214,7 +229,7 @@ export function DashboardPage() {
                         <span className="dash__work-code numeric">{w.workCode}</span>
                         <span className="dash__work-name">{w.workName}</span>
                       </span>
-                      <span className="dash__chip">{STATUS_LABEL[w.status]}</span>
+                      <span className="dash__chip">{t(`status.${w.status}`)}</span>
                     </button>
                     {open && (
                       <div className="dash__work-body">
@@ -257,7 +272,7 @@ export function DashboardPage() {
                           </div>
                         </div>
                         <Link className="dash__open" to={`/works/${w.id}`}>
-                          Open work
+                          {t('dashboard.openWork')}
                         </Link>
                       </div>
                     )}
@@ -271,10 +286,10 @@ export function DashboardPage() {
         <div className="dash__stack">
           <section className="dash__card">
             <div className="dash__card-head">
-              <h2>Alerts</h2>
+              <h2>{t('dashboard.alerts')}</h2>
             </div>
             {alerts.length === 0 ? (
-              <p className="dash__empty">Nothing flagged right now.</p>
+              <p className="dash__empty">{t('dashboard.noAlerts')}</p>
             ) : (
               <ul className="dash__alerts">
                 {alerts.map((a) => (
@@ -291,10 +306,10 @@ export function DashboardPage() {
 
           <section className="dash__card">
             <div className="dash__card-head">
-              <h2>Needs attention</h2>
+              <h2>{t('dashboard.attention')}</h2>
             </div>
             {attention.length === 0 ? (
-              <p className="dash__empty">All clear.</p>
+              <p className="dash__empty">{t('dashboard.allClear')}</p>
             ) : (
               <ul className="dash__attention">
                 {attention.map((w) => (
@@ -318,10 +333,10 @@ export function DashboardPage() {
 
           <section className="dash__card dash__card--activity">
             <div className="dash__card-head">
-              <h2>Recent activity</h2>
+              <h2>{t('dashboard.activity')}</h2>
             </div>
             {recent.length === 0 ? (
-              <p className="dash__empty">No activity logged yet.</p>
+              <p className="dash__empty">{t('dashboard.noActivity')}</p>
             ) : (
               <ol className="dash__activity">
                 {recent.map((r, i) => (

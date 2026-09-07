@@ -64,7 +64,7 @@
   --cwms-status-alert: #ef4444;
 
   /* Typography */
-  --cwms-font-sans: "Geist", "Segoe UI", system-ui, sans-serif;
+  --cwms-font-sans: "Geist", "Noto Sans Devanagari", "Segoe UI", system-ui, sans-serif;
   --cwms-font-mono: "JetBrains Mono", ui-monospace, monospace;
   --cwms-font-display-lg-size: 32px;
   --cwms-font-display-lg-weight: 600;

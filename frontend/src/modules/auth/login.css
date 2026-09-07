@@ -49,6 +49,13 @@
   align-items: center;
 }
 
+.login-page__lang {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  right: max(0.75rem, env(safe-area-inset-right, 0px));
+  z-index: 2;
+}
+
 .login-page__brand {
   text-align: center;
   margin-bottom: var(--cwms-space-xl);

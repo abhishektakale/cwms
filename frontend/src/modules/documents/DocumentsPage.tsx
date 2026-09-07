@@ -13,8 +13,10 @@ import { canMutate } from '../../shared/api/auth'
 import { formatBytes, formatDateTime } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/useAuth'
+import { useTranslation } from 'react-i18next'
 
 export function DocumentsPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const mutate = user ? canMutate(user.role) : false
   const [items, setItems] = useState<DocumentRow[]>([])
@@ -69,7 +71,7 @@ export function DocumentsPage() {
     <div>
       <div className="works__header">
         <div>
-          <h1>{screen === 'new' ? 'Upload document' : 'Documents'}</h1>
+          <h1>{screen === 'new' ? t('documents.uploadTitle') : t('documents.title')}</h1>
         </div>
         <div className="works__toolbar">
           {screen === 'list' && mutate && uploadEnabled && (
@@ -78,12 +80,12 @@ export function DocumentsPage() {
               className="works__btn works__btn--primary"
               onClick={() => setScreen('new')}
             >
-              Upload
+              {t('common.upload')}
             </button>
           )}
           {screen === 'new' && (
             <button type="button" className="works__btn" onClick={() => setScreen('list')}>
-              Back to list
+              {t('common.backToList')}
             </button>
           )}
         </div>
@@ -95,8 +97,7 @@ export function DocumentsPage() {
       )}
       {!uploadEnabled && (
         <p role="status" style={{ marginBottom: 16, color: 'var(--color-text-muted, #5c6570)' }}>
-          File upload is disabled for this deployment (object storage not
-          configured). Listing and other modules still work.
+          {t('documents.uploadDisabled')}
         </p>
       )}
 
@@ -138,10 +139,10 @@ export function DocumentsPage() {
           </label>
           <div className="form-actions">
             <button type="submit" className="works__btn works__btn--primary">
-              Upload
+              {t('common.upload')}
             </button>
             <button type="button" className="works__btn" onClick={() => setScreen('list')}>
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -162,10 +163,10 @@ export function DocumentsPage() {
             {items.length === 0 ? (
               <EmptyState
                 colSpan={6}
-                title="No documents yet"
+                title={t('documents.emptyTitle')}
                 detail={
                   mutate && uploadEnabled
-                    ? 'Use Upload to attach a PDF or image to a work.'
+                    ? t('documents.emptyDetail')
                     : undefined
                 }
               />
@@ -179,7 +180,7 @@ export function DocumentsPage() {
                   <td>{formatDateTime(d.uploadedAt)}</td>
                   <td style={{ display: 'flex', gap: 6 }}>
                     <a className="works__btn" href={documentContentUrl(d.id)}>
-                      Download
+                      {t('common.download')}
                     </a>
                     {mutate && (
                       <button
@@ -187,7 +188,7 @@ export function DocumentsPage() {
                         className="works__btn"
                         onClick={() => void deleteDocument(d.id).then(reload)}
                       >
-                        Delete
+                        {t('common.delete')}
                       </button>
                     )}
                   </td>

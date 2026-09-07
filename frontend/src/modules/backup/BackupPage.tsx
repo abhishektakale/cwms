@@ -6,8 +6,10 @@ import {
 } from '../../shared/api/domain'
 import { formatDateTime } from '../../shared/format/datetime'
 import { EmptyState } from '../../shared/ui/EmptyState'
+import { useTranslation } from 'react-i18next'
 
 export function BackupPage() {
+  const { t } = useTranslation()
   const [items, setItems] = useState<Array<Record<string, unknown>>>([])
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
@@ -23,10 +25,9 @@ export function BackupPage() {
 
   return (
     <div>
-      <h1 style={{ marginTop: 0 }}>Backup & Restore</h1>
+      <h1 style={{ marginTop: 0 }}>{t('backup.title')}</h1>
       <p style={{ color: 'var(--cwms-on-surface-variant)' }}>
-        Weekly backup job stub with 30-day retention. Restore toggles maintenance
-        mode briefly (admin only).
+        {t('backup.lead')}
       </p>
       {error && (
         <div className="works__error" role="alert">
@@ -41,11 +42,11 @@ export function BackupPage() {
           onClick={() =>
             void createBackupStub()
               .then(reload)
-              .then(() => setMessage('Weekly backup stub recorded'))
+              .then(() => setMessage(t('backup.stubRecorded')))
               .catch((e: Error) => setError(e.message))
           }
         >
-          Run weekly backup stub
+          {t('backup.runStub')}
         </button>
       </div>
       <div className="table-scroll">
@@ -64,8 +65,8 @@ export function BackupPage() {
           {items.length === 0 ? (
             <EmptyState
               colSpan={6}
-              title="No backups recorded"
-              detail="Run the weekly backup stub to create the first entry."
+              title={t('backup.emptyTitle')}
+              detail={t('backup.emptyDetail')}
             />
           ) : (
             items.map((b) => (
@@ -84,13 +85,15 @@ export function BackupPage() {
                         void restoreBackup(String(b.id))
                           .then(() =>
                             setMessage(
-                              `Restore stub completed for ${String(b.identifier)}`,
+                              t('backup.restoreDone', {
+                                id: String(b.identifier),
+                              }),
                             ),
                           )
                           .catch((e: Error) => setError(e.message))
                       }
                     >
-                      Restore
+                      {t('backup.restore')}
                     </button>
                   )}
                 </td>

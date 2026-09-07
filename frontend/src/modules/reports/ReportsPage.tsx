@@ -12,6 +12,7 @@ import {
 import { canMutate } from '../../shared/api/auth'
 import { EmptyState } from '../../shared/ui/EmptyState'
 import { useAuth } from '../auth/useAuth'
+import { useTranslation } from 'react-i18next'
 import './reports.css'
 
 function columnLabel(key: string) {
@@ -45,6 +46,7 @@ function isMoneyColumn(column: string) {
 }
 
 export function ReportsPage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const mutate = user ? canMutate(user.role) : false
   const [types, setTypes] = useState<Array<{ reportType: string; name: string }>>(
@@ -132,7 +134,7 @@ export function ReportsPage() {
   async function onSaveFilter() {
     const name = saveName.trim()
     if (!name) {
-      setError('Filter name is required')
+      setError(t('reports.nameRequired'))
       return
     }
     try {
@@ -153,7 +155,7 @@ export function ReportsPage() {
 
   async function onRenameFilter() {
     if (!selectedFilterId) return
-    const name = window.prompt('Rename saved filter')
+    const name = window.prompt(t('reports.renamePrompt'))
     if (!name?.trim()) return
     try {
       await updateSavedFilter(selected, selectedFilterId, {
@@ -182,7 +184,7 @@ export function ReportsPage() {
 
   async function onDeleteFilter() {
     if (!selectedFilterId) return
-    if (!window.confirm('Delete this saved filter?')) return
+    if (!window.confirm(t('reports.deleteConfirm'))) return
     try {
       await deleteSavedFilter(selected, selectedFilterId)
       await loadSaved(selected)
@@ -197,10 +199,8 @@ export function ReportsPage() {
     <div className="reports">
       <div className="works__header">
         <div>
-          <h1>Reports</h1>
-          <p className="works__lead">
-            Run a register, then export or save the current year filter.
-          </p>
+          <h1>{t('reports.title')}</h1>
+          <p className="works__lead">{t('reports.lead')}</p>
         </div>
       </div>
 
@@ -212,7 +212,7 @@ export function ReportsPage() {
 
       <section className="reports__card">
         <div className="reports__card-head">
-          <h2>Run</h2>
+          <h2>{t('reports.run')}</h2>
         </div>
         <div className="reports__fields">
           <label>
@@ -239,21 +239,21 @@ export function ReportsPage() {
             className="works__btn works__btn--primary"
             onClick={() => void run()}
           >
-            Run
+            {t('reports.run')}
           </button>
           <button
             type="button"
             className="works__btn"
             onClick={() => void onExport('excel')}
           >
-            Export Excel
+            {t('reports.exportExcel')}
           </button>
           <button
             type="button"
             className="works__btn"
             onClick={() => void onExport('pdf')}
           >
-            Export PDF
+            {t('reports.exportPdf')}
           </button>
         </div>
       </section>
@@ -261,7 +261,7 @@ export function ReportsPage() {
       {mutate && (
         <section className="reports__card">
           <div className="reports__card-head">
-            <h2>Saved filters</h2>
+            <h2>{t('reports.savedFilters')}</h2>
           </div>
           <div className="reports__fields">
             <label>
@@ -274,7 +274,7 @@ export function ReportsPage() {
                 {saved.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.name}
-                    {f.isDefault ? ' (default)' : ''}
+                    {f.isDefault ? t('reports.defaultSuffix') : ''}
                   </option>
                 ))}
               </select>
@@ -286,21 +286,21 @@ export function ReportsPage() {
                   className="works__btn"
                   onClick={() => void onRenameFilter()}
                 >
-                  Rename
+                  {t('reports.rename')}
                 </button>
                 <button
                   type="button"
                   className="works__btn"
                   onClick={() => void onSetDefault()}
                 >
-                  Set default
+                  {t('reports.setDefault')}
                 </button>
                 <button
                   type="button"
                   className="works__btn"
                   onClick={() => void onDeleteFilter()}
                 >
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             ) : (
@@ -331,7 +331,7 @@ export function ReportsPage() {
               className="works__btn works__btn--primary"
               onClick={() => void onSaveFilter()}
             >
-              Save filter
+              {t('reports.saveFilter')}
             </button>
           </div>
         </section>
@@ -342,19 +342,19 @@ export function ReportsPage() {
           <h2>{reportName}</h2>
           {ran && (
             <span className="reports__count">
-              {rows.length} row{rows.length === 1 ? '' : 's'}
+              {t('reports.rowCount', { count: rows.length })}
             </span>
           )}
         </div>
         {!ran ? (
           <EmptyState
-            title="No report run yet"
-            detail="Choose a report and financial year, then click Run."
+            title={t('reports.emptyRunTitle')}
+            detail={t('reports.emptyRunDetail')}
           />
         ) : columns.length === 0 || rows.length === 0 ? (
           <EmptyState
-            title="No rows for this report"
-            detail="Try another financial year or filter."
+            title={t('reports.emptyRowsTitle')}
+            detail={t('reports.emptyRowsDetail')}
           />
         ) : (
           <div className="table-scroll">

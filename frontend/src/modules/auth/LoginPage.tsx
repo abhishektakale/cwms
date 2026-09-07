@@ -1,11 +1,14 @@
 import { type FormEvent, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './useAuth'
 import type { ProblemDetails } from '../../shared/api/auth'
 import { CwmsLogo } from '../../shared/brand/CwmsLogo'
+import { LanguageSwitcher } from '../../i18n/LanguageSwitcher'
 import './login.css'
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const { user, loading, login } = useAuth()
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
@@ -30,8 +33,8 @@ export function LoginPage() {
       const problem = (err as { problem?: ProblemDetails }).problem
       setError(
         problem ?? {
-          title: 'Authentication Failed',
-          detail: 'The username or password provided is incorrect.',
+          title: t('login.authFailed'),
+          detail: t('login.badCredentials'),
           code: 'INVALID_CREDENTIALS',
         },
       )
@@ -40,15 +43,31 @@ export function LoginPage() {
     }
   }
 
+  const errorTitle =
+    error?.code === 'ACCOUNT_INACTIVE'
+      ? t('login.accountInactive')
+      : t('login.authFailed')
+  const errorDetail =
+    error?.code === 'ACCOUNT_INACTIVE' ||
+    error?.code === 'INVALID_CREDENTIALS' ||
+    !error?.detail
+      ? error?.code === 'ACCOUNT_INACTIVE'
+        ? (error.detail ?? t('login.accountInactive'))
+        : t('login.badCredentials')
+      : error.detail
+
   return (
     <div className="login-page">
+      <div className="login-page__lang">
+        <LanguageSwitcher />
+      </div>
       <div className="login-page__bg" aria-hidden="true">
         <div className="login-page__blob login-page__blob--a" />
         <div className="login-page__blob login-page__blob--b" />
       </div>
       <main className="login-page__main">
         <header className="login-page__brand">
-          <Link to="/" className="login-page__home" aria-label="Back to CWMS home">
+          <Link to="/" className="login-page__home" aria-label={t('login.backHome')}>
             <CwmsLogo
               className="login-page__logo"
               variant="color"
@@ -63,36 +82,29 @@ export function LoginPage() {
           <div className="login-page__error" role="alert">
             <span className="material-symbols-outlined">error</span>
             <div>
-              <p className="login-page__error-title">
-                {error.code === 'ACCOUNT_INACTIVE'
-                  ? 'Account inactive'
-                  : 'Authentication Failed'}
-              </p>
-              <p>
-                {error.detail ??
-                  'The username or password provided is incorrect.'}
-              </p>
+              <p className="login-page__error-title">{errorTitle}</p>
+              <p>{errorDetail}</p>
             </div>
           </div>
         )}
 
         <div className="login-page__card">
-          <h2>Log in to your account</h2>
+          <h2>{t('login.title')}</h2>
           <form className="login-page__form" onSubmit={onSubmit}>
             <div className="login-page__field">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="username">{t('login.username')}</label>
               <input
                 id="username"
                 name="username"
                 autoComplete="username"
-                placeholder="Enter your CWMS ID"
+                placeholder={t('login.usernamePlaceholder')}
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
             <div className="login-page__field">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">{t('login.password')}</label>
               <div className="login-page__password-wrap">
                 <input
                   id="password"
@@ -107,7 +119,7 @@ export function LoginPage() {
                 <button
                   type="button"
                   className="login-page__toggle"
-                  aria-label="Toggle password visibility"
+                  aria-label={t('login.togglePassword')}
                   onClick={() => setShowPassword((v) => !v)}
                 >
                   <span className="material-symbols-outlined">
@@ -123,18 +135,14 @@ export function LoginPage() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <span>Remember me</span>
+                <span>{t('login.rememberMe')}</span>
               </label>
               <button
                 type="button"
                 className="login-page__forgot"
-                onClick={() =>
-                  window.alert(
-                    'Password reset is administrator-managed in Version 1.0. Contact your Administrator.',
-                  )
-                }
+                onClick={() => window.alert(t('login.resetAlert'))}
               >
-                Forgot password?
+                {t('login.forgot')}
               </button>
             </div>
             <button
@@ -142,25 +150,25 @@ export function LoginPage() {
               className="login-page__submit"
               disabled={submitting || loading}
             >
-              {submitting ? 'Signing in…' : 'Log In'}
+              {submitting ? t('login.signingIn') : t('login.submit')}
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </form>
         </div>
         <p className="login-page__hint">
-          Demo: <code>Administrator</code> / <code>Password@123</code>
+          {t('login.demo')} <code>Administrator</code> / <code>Password@123</code>
         </p>
         <div className="login-page__footer">
           <Link to="/" className="login-page__back">
             <span className="material-symbols-outlined" aria-hidden>
               arrow_back
             </span>
-            Back to home
+            {t('login.backHome')}
           </Link>
           <span className="login-page__dot" />
-          <span>Help Center</span>
+          <span>{t('login.help')}</span>
           <span className="login-page__dot" />
-          <span>Privacy Policy</span>
+          <span>{t('login.privacy')}</span>
         </div>
       </main>
     </div>
