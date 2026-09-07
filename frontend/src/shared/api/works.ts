@@ -67,6 +67,11 @@ export type Work = {
   scheduledCompletion: string | null
   actualCompletion: string | null
   physicalProgressPercent: string
+  eTenderId: string | null
+  emdAmount: string
+  securityDepositAmount: string
+  completionDurationMonths: string | null
+  dlpMonths: number | null
   status: WorkStatus
   trafficLight: TrafficLight
   remarks: string | null
@@ -103,6 +108,11 @@ export type WorkInput = {
   scheduledCompletion?: string | null
   actualCompletion?: string | null
   physicalProgressPercent?: string | null
+  eTenderId?: string | null
+  emdAmount?: string | null
+  securityDepositAmount?: string | null
+  completionDurationMonths?: string | null
+  dlpMonths?: number | null
   status: WorkStatus
   remarks?: string | null
   lockToken?: string

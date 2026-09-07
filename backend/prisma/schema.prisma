@@ -306,6 +306,11 @@ model Work {
   scheduledCompletion       DateTime?    @map("scheduled_completion") @db.Date
   actualCompletion          DateTime?    @map("actual_completion") @db.Date
   physicalProgressPercent   Decimal      @default(0) @map("physical_progress_percent") @db.Decimal(9, 4)
+  eTenderId                 String?      @map("e_tender_id") @db.VarChar(100)
+  emdAmount                 Decimal      @default(0) @map("emd_amount") @db.Decimal(18, 2)
+  securityDepositAmount     Decimal      @default(0) @map("security_deposit_amount") @db.Decimal(18, 2)
+  completionDurationMonths  Decimal?     @map("completion_duration_months") @db.Decimal(9, 2)
+  dlpMonths                 Int?         @map("dlp_months")
   status                    WorkStatus
   trafficLight              TrafficLight @default(Green) @map("traffic_light")
   remarks                   String?      @db.Text

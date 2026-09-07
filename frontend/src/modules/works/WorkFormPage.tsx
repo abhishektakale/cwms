@@ -13,8 +13,17 @@ import {
   type WorkStatus,
 } from '../../shared/api/works'
 import { listMasters, type MasterOption } from '../../shared/api/masters'
+import {
+  deleteDocument,
+  documentContentUrl,
+  getHealth,
+  listDocuments,
+  uploadDocument,
+  type DocumentRow,
+} from '../../shared/api/domain'
 import { useAuth } from '../auth/useAuth'
 import { canMutate } from '../../shared/api/auth'
+import { formatBytes, formatDateTime } from '../../shared/format/datetime'
 import { WorkChildrenPanels } from './WorkChildrenPanels'
 import { WorkBudgetBar } from './WorkBudgetBar'
 import './works.css'
@@ -26,6 +35,7 @@ type TabId =
   | 'financial'
   | 'location'
   | 'schedule'
+  | 'documents'
   | 'estimates'
   | 'activities'
 
@@ -60,6 +70,11 @@ function emptyForm(): WorkInput {
     financialProgressPercent: '0',
     status: 'Planned',
     physicalProgressPercent: '0',
+    eTenderId: null,
+    emdAmount: '0',
+    securityDepositAmount: '0',
+    completionDurationMonths: null,
+    dlpMonths: null,
   }
 }
 
@@ -111,6 +126,12 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
   const [workCode, setWorkCode] = useState<string | null>(null)
   const [categories, setCategories] = useState<MasterOption[]>([])
   const [formats, setFormats] = useState<MasterOption[]>([])
+  const [documentTypes, setDocumentTypes] = useState<MasterOption[]>([])
+  const [documents, setDocuments] = useState<DocumentRow[]>([])
+  const [docsLoading, setDocsLoading] = useState(false)
+  const [uploadEnabled, setUploadEnabled] = useState(true)
+  const [woUploading, setWoUploading] = useState(false)
+  const [docUploading, setDocUploading] = useState(false)
   const [lockToken, setLockToken] = useState<string | null>(null)
   const lockTokenRef = useMemo(() => ({ current: null as string | null }), [])
   const [error, setError] = useState<string | null>(null)
@@ -136,7 +157,40 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
   useEffect(() => {
     void listMasters('work-categories').then((r) => setCategories(r.items))
     void listMasters('client-department-formats').then((r) => setFormats(r.items))
+    void listMasters('document-types').then((r) => setDocumentTypes(r.items))
+    void getHealth()
+      .then((h) => setUploadEnabled(h.features.documentUpload))
+      .catch(() => undefined)
   }, [])
+
+  async function reloadDocuments(id: string) {
+    setDocsLoading(true)
+    try {
+      const res = await listDocuments({ workId: id, pageSize: '100' })
+      setDocuments(res.items)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setDocsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (workId && mode !== 'new') {
+      void reloadDocuments(workId)
+    } else {
+      setDocuments([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workId, mode])
+
+  const workOrderTypeId = useMemo(
+    () =>
+      documentTypes.find(
+        (t) => t.name.trim().toLowerCase() === 'work order',
+      )?.id ?? null,
+    [documentTypes],
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -198,6 +252,11 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
           physicalProgressPercent: work.physicalProgressPercent,
           status: work.status,
           remarks: work.remarks,
+          eTenderId: work.eTenderId,
+          emdAmount: work.emdAmount ?? '0',
+          securityDepositAmount: work.securityDepositAmount ?? '0',
+          completionDurationMonths: work.completionDurationMonths,
+          dlpMonths: work.dlpMonths,
         })
         setLoaded(true)
       } catch (err) {
@@ -276,6 +335,63 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
     navigate('/works')
   }
 
+  async function onWorkOrderFileChange(file: File | null) {
+    if (!file || !workId || mode === 'new' || readOnly || !uploadEnabled) return
+    if (!workOrderTypeId) {
+      setError('Document type "Work Order" is not configured in masters')
+      return
+    }
+    setWoUploading(true)
+    setError(null)
+    try {
+      const formData = new FormData()
+      formData.set('documentTypeId', workOrderTypeId)
+      formData.set('title', 'Work Order')
+      formData.set('file', file)
+      await uploadDocument(workId, formData)
+      await reloadDocuments(workId)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setWoUploading(false)
+    }
+  }
+
+  async function onDocumentUpload(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    if (!workId || readOnly || !uploadEnabled) return
+    const formEl = e.currentTarget
+    const fd = new FormData(formEl)
+    const formData = new FormData()
+    formData.set('documentTypeId', String(fd.get('documentTypeId')))
+    formData.set('title', String(fd.get('title') || ''))
+    formData.set('documentNumber', String(fd.get('documentNumber') || ''))
+    const file = fd.get('file')
+    if (file instanceof File) formData.set('file', file)
+    setDocUploading(true)
+    setError(null)
+    try {
+      await uploadDocument(workId, formData)
+      formEl.reset()
+      await reloadDocuments(workId)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setDocUploading(false)
+    }
+  }
+
+  async function onDeleteDocument(id: string) {
+    if (!workId || readOnly) return
+    setError(null)
+    try {
+      await deleteDocument(id)
+      await reloadDocuments(workId)
+    } catch (err) {
+      setError((err as Error).message)
+    }
+  }
+
   if (!loaded) return <p>Loading…</p>
 
   const title =
@@ -289,7 +405,11 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
     ['schedule', 'Key dates'],
   ]
   if (workId && mode !== 'new') {
-    tabs.push(['estimates', 'Estimates'], ['activities', 'Schedule activities'])
+    tabs.push(
+      ['documents', 'Documents'],
+      ['estimates', 'Estimates'],
+      ['activities', 'Schedule activities'],
+    )
   }
 
   const fieldTab =
@@ -402,6 +522,36 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                   onChange={(e) => set('workOrderDate', e.target.value)}
                 />
               </label>
+              <div className="work-form__full">
+                <span>Work Order file</span>
+                {workId && mode !== 'new' ? (
+                  <>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                      disabled={readOnly || !uploadEnabled || woUploading || !workOrderTypeId}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null
+                        void onWorkOrderFileChange(file)
+                        e.target.value = ''
+                      }}
+                    />
+                    <small className="work-form__hint">
+                      {woUploading
+                        ? 'Uploading…'
+                        : !uploadEnabled
+                          ? 'File upload is disabled for this deployment.'
+                          : !workOrderTypeId
+                            ? 'Add a "Work Order" document type in Masters to enable upload.'
+                            : 'PDF, JPG, or PNG. Uses document type "Work Order".'}
+                    </small>
+                  </>
+                ) : (
+                  <small className="work-form__hint">
+                    Save work first to upload Work Order
+                  </small>
+                )}
+              </div>
               <label>
                 Status *
                 <select
@@ -415,6 +565,71 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
                     </option>
                   ))}
                 </select>
+              </label>
+              <label>
+                Scheduled Completion
+                <input
+                  type="date"
+                  disabled={readOnly}
+                  value={form.scheduledCompletion ?? ''}
+                  onChange={(e) =>
+                    set('scheduledCompletion', e.target.value || null)
+                  }
+                />
+              </label>
+              <label>
+                Completion time (months)
+                <input
+                  disabled={readOnly}
+                  className="numeric"
+                  value={form.completionDurationMonths ?? ''}
+                  onChange={(e) =>
+                    set('completionDurationMonths', e.target.value || null)
+                  }
+                />
+              </label>
+              <label>
+                E-tender
+                <input
+                  disabled={readOnly}
+                  value={form.eTenderId ?? ''}
+                  onChange={(e) => set('eTenderId', e.target.value || null)}
+                />
+              </label>
+              <label>
+                DLP months
+                <input
+                  disabled={readOnly}
+                  className="numeric"
+                  value={form.dlpMonths ?? ''}
+                  onChange={(e) => {
+                    const v = e.target.value.trim()
+                    if (!v) {
+                      set('dlpMonths', null)
+                      return
+                    }
+                    const n = Number(v)
+                    set('dlpMonths', Number.isFinite(n) ? Math.trunc(n) : null)
+                  }}
+                />
+              </label>
+              <label>
+                Security Deposit
+                <input
+                  disabled={readOnly}
+                  className="numeric"
+                  value={form.securityDepositAmount ?? '0'}
+                  onChange={(e) => set('securityDepositAmount', e.target.value)}
+                />
+              </label>
+              <label>
+                EMD
+                <input
+                  disabled={readOnly}
+                  className="numeric"
+                  value={form.emdAmount ?? '0'}
+                  onChange={(e) => set('emdAmount', e.target.value)}
+                />
               </label>
             </div>
           )}
@@ -789,6 +1004,106 @@ export function WorkFormPage({ mode }: { mode: Mode }) {
             )}
           </div>
         </form>
+      )}
+
+      {tab === 'documents' && workId && (
+        <div className="work-form__body">
+          {!uploadEnabled && (
+            <p className="work-form__hint" role="status">
+              File upload is disabled for this deployment (object storage not
+              configured). Existing documents can still be listed and downloaded.
+            </p>
+          )}
+          {!readOnly && uploadEnabled && (
+            <form onSubmit={(e) => void onDocumentUpload(e)} className="work-form__grid">
+              <label>
+                Type *
+                <select name="documentTypeId" required disabled={docUploading}>
+                  <option value="">—</option>
+                  {documentTypes.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Title
+                <input name="title" disabled={docUploading} />
+              </label>
+              <label>
+                Doc number
+                <input name="documentNumber" disabled={docUploading} />
+              </label>
+              <label>
+                File (PDF/image ≤20MB) *
+                <input
+                  name="file"
+                  type="file"
+                  accept=".pdf,image/*"
+                  required
+                  disabled={docUploading}
+                />
+              </label>
+              <div className="form-actions work-form__full">
+                <button
+                  type="submit"
+                  className="works__btn works__btn--primary"
+                  disabled={docUploading}
+                >
+                  {docUploading ? 'Uploading…' : 'Upload'}
+                </button>
+              </div>
+            </form>
+          )}
+          <div className="table-scroll" style={{ marginTop: 16 }}>
+            <table className="works__table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>File</th>
+                  <th>Size</th>
+                  <th>Uploaded</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {docsLoading ? (
+                  <tr>
+                    <td colSpan={5}>Loading…</td>
+                  </tr>
+                ) : documents.length === 0 ? (
+                  <tr>
+                    <td colSpan={5}>No documents for this work yet.</td>
+                  </tr>
+                ) : (
+                  documents.map((d) => (
+                    <tr key={d.id}>
+                      <td>{d.documentTypeName}</td>
+                      <td>{d.fileName}</td>
+                      <td className="numeric">{formatBytes(d.sizeBytes)}</td>
+                      <td>{formatDateTime(d.uploadedAt)}</td>
+                      <td style={{ display: 'flex', gap: 6 }}>
+                        <a className="works__btn" href={documentContentUrl(d.id)}>
+                          Download
+                        </a>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            className="works__btn"
+                            onClick={() => void onDeleteDocument(d.id)}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
 
       {tab === 'estimates' && workId && (

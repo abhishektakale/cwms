@@ -15,6 +15,7 @@ import {
   IsArray,
   IsDateString,
   IsEnum,
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
@@ -167,6 +168,28 @@ class WorkBodyDto implements WorkWriteDto {
   @IsOptional()
   @IsString()
   physicalProgressPercent?: string | null;
+
+  @IsOptional()
+  @IsString()
+  eTenderId?: string | null;
+
+  @IsOptional()
+  @IsString()
+  emdAmount?: string | null;
+
+  @IsOptional()
+  @IsString()
+  securityDepositAmount?: string | null;
+
+  @IsOptional()
+  @IsString()
+  completionDurationMonths?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, v) => v !== null && v !== undefined && v !== '')
+  @Type(() => Number)
+  @IsInt()
+  dlpMonths?: number | null;
 
   @IsEnum(WorkStatusDto)
   status!: 'Planned' | 'InProgress' | 'Hold' | 'Completed';

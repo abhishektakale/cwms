@@ -48,6 +48,11 @@ export type WorkWriteDto = {
   scheduledCompletion?: string | null;
   actualCompletion?: string | null;
   physicalProgressPercent?: string | null;
+  eTenderId?: string | null;
+  emdAmount?: string | null;
+  securityDepositAmount?: string | null;
+  completionDurationMonths?: string | null;
+  dlpMonths?: number | null;
   status: 'Planned' | 'InProgress' | 'Hold' | 'Completed';
   remarks?: string | null;
   lockToken?: string;
@@ -605,6 +610,27 @@ export class WorksService {
       physicalProgressPercent: new Prisma.Decimal(
         body.physicalProgressPercent ?? 0,
       ),
+      eTenderId: body.eTenderId?.trim() || null,
+      emdAmount: new Prisma.Decimal(
+        body.emdAmount === '' || body.emdAmount == null ? 0 : body.emdAmount,
+      ).toDecimalPlaces(2),
+      securityDepositAmount: new Prisma.Decimal(
+        body.securityDepositAmount === '' ||
+        body.securityDepositAmount == null
+          ? 0
+          : body.securityDepositAmount,
+      ).toDecimalPlaces(2),
+      completionDurationMonths:
+        body.completionDurationMonths === '' ||
+        body.completionDurationMonths == null
+          ? null
+          : new Prisma.Decimal(body.completionDurationMonths).toDecimalPlaces(2),
+      dlpMonths:
+        body.dlpMonths === null || body.dlpMonths === undefined
+          ? null
+          : Number.isFinite(Number(body.dlpMonths))
+            ? Math.trunc(Number(body.dlpMonths))
+            : null,
       status: body.status,
       remarks: body.remarks?.trim() || null,
       updatedByUserId: userId,
@@ -772,6 +798,13 @@ export class WorksService {
       actualCompletion:
         row.actualCompletion?.toISOString().slice(0, 10) ?? null,
       physicalProgressPercent: pct(row.physicalProgressPercent),
+      eTenderId: row.eTenderId,
+      emdAmount: money(row.emdAmount),
+      securityDepositAmount: money(row.securityDepositAmount),
+      completionDurationMonths: row.completionDurationMonths
+        ? row.completionDurationMonths.toFixed(2).replace(/\.?0+$/, '') || '0'
+        : null,
+      dlpMonths: row.dlpMonths,
       status: row.status,
       trafficLight: row.trafficLight,
       remarks: row.remarks,
