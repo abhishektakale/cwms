@@ -7,11 +7,24 @@ import { Prisma, ReportType, User, WorkRefundStatus } from '@prisma/client';
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service';
-import { money } from '../../shared/kernel/money.util';
+import { money, pct } from '../../shared/kernel/money.util';
 import {
   deriveRefundStatus,
   refundKindLabel,
 } from '../../shared/kernel/refund.util';
+
+function dateCell(d: Date | null | undefined): string {
+  return d ? d.toISOString().slice(0, 10) : '';
+}
+
+function deductionByCode(
+  deductions: Array<{ code: string | null; amount: Prisma.Decimal }>,
+  code: string,
+): Prisma.Decimal {
+  return deductions
+    .filter((d) => d.code === code)
+    .reduce((s, d) => s.add(d.amount), new Prisma.Decimal(0));
+}
 
 const REPORT_META: Array<{
   reportType: string;
@@ -306,10 +319,21 @@ export class ReportsService {
           select: {
             workCode: true,
             workName: true,
+            workOrderNo: true,
+            workOrderDate: true,
+            contractor: true,
+            client: true,
             status: true,
+            eTenderId: true,
+            emdAmount: true,
+            securityDepositAmount: true,
+            scheduledCompletion: true,
+            actualCompletion: true,
             totalWorkValue: true,
             grossBillsRaised: true,
             balanceWorkValue: true,
+            physicalProgressPercent: true,
+            financialProgressPercent: true,
           },
           orderBy: { workCode: 'asc' },
         });
@@ -317,18 +341,40 @@ export class ReportsService {
           columns: [
             'workCode',
             'workName',
+            'workOrderNo',
+            'workOrderDate',
+            'contractor',
+            'client',
             'status',
+            'eTenderId',
+            'emdAmount',
+            'securityDepositAmount',
+            'scheduledCompletion',
+            'actualCompletion',
             'totalWorkValue',
             'grossBillsRaised',
             'balanceWorkValue',
+            'physicalProgressPercent',
+            'financialProgressPercent',
           ],
           rows: rows.map((w) => ({
             workCode: w.workCode,
             workName: w.workName,
+            workOrderNo: w.workOrderNo,
+            workOrderDate: dateCell(w.workOrderDate),
+            contractor: w.contractor ?? '',
+            client: w.client ?? '',
             status: w.status,
+            eTenderId: w.eTenderId ?? '',
+            emdAmount: money(w.emdAmount),
+            securityDepositAmount: money(w.securityDepositAmount),
+            scheduledCompletion: dateCell(w.scheduledCompletion),
+            actualCompletion: dateCell(w.actualCompletion),
             totalWorkValue: money(w.totalWorkValue),
             grossBillsRaised: money(w.grossBillsRaised),
             balanceWorkValue: money(w.balanceWorkValue),
+            physicalProgressPercent: pct(w.physicalProgressPercent),
+            financialProgressPercent: pct(w.financialProgressPercent),
           })),
         };
       }
@@ -346,31 +392,71 @@ export class ReportsService {
           },
           select: {
             systemBillNumber: true,
+            raBillNo: true,
+            billType: true,
             billDate: true,
+            currentWorkPortionAmount: true,
+            gstAmount: true,
             grossBillAmount: true,
+            totalDeductions: true,
             netBillAmount: true,
+            amountReceived: true,
             paymentStatus: true,
             work: { select: { workCode: true } },
+            additions: { select: { amount: true } },
+            deductions: {
+              select: { code: true, name: true, amount: true },
+            },
           },
           orderBy: { billDate: 'desc' },
         });
         return {
           columns: [
             'systemBillNumber',
+            'raBillNo',
+            'billType',
             'workCode',
             'billDate',
+            'currentWorkPortionAmount',
+            'gstAmount',
+            'totalAdditions',
             'grossBillAmount',
+            'incomeTax',
+            'securityDeposit',
+            'sgst',
+            'cgst',
+            'partV',
+            'totalDeductions',
             'netBillAmount',
+            'amountReceived',
             'paymentStatus',
           ],
-          rows: rows.map((b) => ({
-            systemBillNumber: b.systemBillNumber,
-            workCode: b.work.workCode,
-            billDate: b.billDate.toISOString().slice(0, 10),
-            grossBillAmount: money(b.grossBillAmount),
-            netBillAmount: money(b.netBillAmount),
-            paymentStatus: b.paymentStatus,
-          })),
+          rows: rows.map((b) => {
+            const totalAdditions = b.additions.reduce(
+              (s, a) => s.add(a.amount),
+              new Prisma.Decimal(0),
+            );
+            return {
+              systemBillNumber: b.systemBillNumber,
+              raBillNo: b.raBillNo ?? '',
+              billType: b.billType,
+              workCode: b.work.workCode,
+              billDate: dateCell(b.billDate),
+              currentWorkPortionAmount: money(b.currentWorkPortionAmount),
+              gstAmount: money(b.gstAmount),
+              totalAdditions: money(totalAdditions),
+              grossBillAmount: money(b.grossBillAmount),
+              incomeTax: money(deductionByCode(b.deductions, 'D1')),
+              securityDeposit: money(deductionByCode(b.deductions, 'D2')),
+              sgst: money(deductionByCode(b.deductions, 'D3')),
+              cgst: money(deductionByCode(b.deductions, 'D4')),
+              partV: money(deductionByCode(b.deductions, 'D8')),
+              totalDeductions: money(b.totalDeductions),
+              netBillAmount: money(b.netBillAmount),
+              amountReceived: money(b.amountReceived),
+              paymentStatus: b.paymentStatus,
+            };
+          }),
         };
       }
       case 'expenditure':
@@ -391,9 +477,17 @@ export class ReportsService {
             expenseCode: true,
             expenseType: true,
             expenseDate: true,
+            vendor: true,
+            expenseValue: true,
+            gstAmount: true,
             totalAmount: true,
+            paymentMode: true,
+            paymentReference: true,
+            invoiceNo: true,
             status: true,
+            description: true,
             work: { select: { workCode: true } },
+            expenseHead: { select: { name: true } },
           },
           orderBy: { expenseDate: 'desc' },
         });
@@ -403,16 +497,32 @@ export class ReportsService {
             'expenseType',
             'workCode',
             'expenseDate',
+            'expenseHead',
+            'vendor',
+            'expenseValue',
+            'gstAmount',
             'totalAmount',
+            'paymentMode',
+            'paymentRef',
+            'invoiceNo',
             'status',
+            'description',
           ],
           rows: rows.map((e) => ({
-            expenseCode: e.expenseCode,
+            expenseCode: e.expenseCode ?? '',
             expenseType: e.expenseType,
             workCode: e.work?.workCode ?? '',
-            expenseDate: e.expenseDate.toISOString().slice(0, 10),
+            expenseDate: dateCell(e.expenseDate),
+            expenseHead: e.expenseHead.name,
+            vendor: e.vendor ?? '',
+            expenseValue: money(e.expenseValue),
+            gstAmount: money(e.gstAmount),
             totalAmount: money(e.totalAmount),
+            paymentMode: e.paymentMode ?? '',
+            paymentRef: e.paymentReference ?? '',
+            invoiceNo: e.invoiceNo ?? '',
             status: e.status,
+            description: e.description ?? '',
           })),
         };
       }
